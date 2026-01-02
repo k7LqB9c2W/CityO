@@ -283,21 +283,32 @@ void Renderer::render(const RenderFrame& frame) {
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.roadVertexCount);
 
     // Preview overlay
-    if (frame.previewVertexCount > 0) {
+    if (frame.overlayVertexCount + frame.previewVertexCount > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        if (frame.drawRoadPreview) {
-            glUniform3f(locC_B, 0.20f, 0.65f, 0.95f);
-            glUniform1f(locA_B, 0.50f);
-        } else {
-            if (frame.zonePreviewValid) glUniform3f(locC_B, 0.20f, 0.85f, 0.35f);
-            else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
-            glUniform1f(locA_B, 0.35f);
+        // Existing zones overlay
+        if (frame.overlayVertexCount > 0) {
+            glUniform3f(locC_B, 0.15f, 0.65f, 0.35f);
+            glUniform1f(locA_B, 0.30f);
+            glBindVertexArray(vaoPreview);
+            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.overlayVertexCount);
         }
 
-        glBindVertexArray(vaoPreview);
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.previewVertexCount);
+        // Active preview
+        if (frame.previewVertexCount > 0) {
+            if (frame.drawRoadPreview) {
+                glUniform3f(locC_B, 0.20f, 0.65f, 0.95f);
+                glUniform1f(locA_B, 0.50f);
+            } else {
+                if (frame.zonePreviewValid) glUniform3f(locC_B, 0.20f, 0.85f, 0.35f);
+                else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
+                glUniform1f(locA_B, 0.35f);
+            }
+            glBindVertexArray(vaoPreview);
+            glDrawArrays(GL_TRIANGLES, (GLint)frame.overlayVertexCount, (GLsizei)frame.previewVertexCount);
+        }
+
         glDisable(GL_BLEND);
     }
 

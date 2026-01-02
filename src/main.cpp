@@ -271,6 +271,20 @@ struct AppState {
     std::vector<HouseAnim> houseAnim;
 };
 
+static bool ZonesOverlap(float a0, float a1, float b0, float b1) {
+    float lo = std::max(std::min(a0, a1), std::min(b0, b1));
+    float hi = std::min(std::max(a0, a1), std::max(b0, b1));
+    return hi >= lo;
+}
+
+static bool ZoneOverlapsExisting(const AppState& s, int roadId, float d0, float d1) {
+    for (const auto& z : s.zones) {
+        if (z.roadId != roadId) continue;
+        if (ZonesOverlap(d0, d1, z.d0, z.d1)) return true;
+    }
+    return false;
+}
+
 // --- Undo/Redo command system ---
 struct ICommand {
     virtual ~ICommand() = default;
@@ -440,6 +454,30 @@ struct CmdAddZone : ICommand {
     }
 };
 
+struct CmdClearZonesForRoad : ICommand {
+    int roadId = -1;
+    std::vector<ZoneStrip> removed;
+    bool applied = false;
+
+    CmdClearZonesForRoad(int rid, const std::vector<ZoneStrip>& zs) : roadId(rid), removed(zs) {}
+    const char* name() const override { return "ClearZones"; }
+
+    void doIt(AppState& s) override {
+        if (!applied) {
+            s.zones.erase(std::remove_if(s.zones.begin(), s.zones.end(),
+                                         [&](const ZoneStrip& z){ return z.roadId == roadId; }),
+                          s.zones.end());
+            applied = true;
+        }
+        s.housesDirty = true;
+    }
+
+    void undoIt(AppState& s) override {
+        for (const auto& z : removed) s.zones.push_back(z);
+        s.housesDirty = true;
+    }
+};
+
 struct CommandStack {
     std::vector<std::unique_ptr<ICommand>> undo;
     std::vector<std::unique_ptr<ICommand>> redo;
@@ -508,16 +546,14 @@ static void RebuildAllRoadMesh(AppState& s) {
     }
 }
 
-static void BuildZonePreviewMesh(
-    AppState& s,
+static void AppendZoneMesh(
+    std::vector<glm::vec3>& out,
     const Road& r,
     float d0,
     float d1,
     int sideMask,
     float depth)
 {
-    s.zonePreviewVerts.clear();
-
     float a = std::min(d0, d1);
     float b = std::max(d0, d1);
     if (b - a < 1.0f) return;
@@ -543,19 +579,30 @@ static void BuildZonePreviewMesh(
 
             in0.y = y; out0.y = y; in1.y = y; out1.y = y;
 
-            // quad as 2 triangles: in0-out0-out1 and in0-out1-in1
-            s.zonePreviewVerts.push_back(in0);
-            s.zonePreviewVerts.push_back(out0);
-            s.zonePreviewVerts.push_back(out1);
+            out.push_back(in0);
+            out.push_back(out0);
+            out.push_back(out1);
 
-            s.zonePreviewVerts.push_back(in0);
-            s.zonePreviewVerts.push_back(out1);
-            s.zonePreviewVerts.push_back(in1);
+            out.push_back(in0);
+            out.push_back(out1);
+            out.push_back(in1);
         }
     };
 
-    if (sideMask & 1) emitStrip(-1); // left
-    if (sideMask & 2) emitStrip(+1); // right
+    if (sideMask & 1) emitStrip(-1);
+    if (sideMask & 2) emitStrip(+1);
+}
+
+static void BuildZonePreviewMesh(
+    AppState& s,
+    const Road& r,
+    float d0,
+    float d1,
+    int sideMask,
+    float depth)
+{
+    s.zonePreviewVerts.clear();
+    AppendZoneMesh(s.zonePreviewVerts, r, d0, d1, sideMask, depth);
 }
 
 static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec3& b) {
@@ -764,7 +811,7 @@ static bool LoadFromJsonFile(AppState& s, const std::string& path) {
 }
 
 // Tool states
-enum class Mode { Road, Zone };
+enum class Mode { Road, Zone, Unzone };
 
 struct RoadTool {
     bool drawing = false;
@@ -793,6 +840,9 @@ struct ZoneTool {
     int sideMask = 3;   // 1 left, 2 right, 3 both
     float depth = 30.0f;
     float pickRadius = 12.0f;
+
+    // For overlay visualization of zoned road spans
+    std::vector<glm::vec3> overlayVerts;
 };
 
 static float ClosestDistanceAlongRoadSq(const Road& r, const glm::vec3& p, float& outAlong, glm::vec3& outTan) {
@@ -1067,8 +1117,8 @@ int main(int, char**) {
         glm::vec3 mouseHit;
         bool hasHit = ScreenToGroundHit(mx, my, winW, winH, view, proj, mouseHit);
 
-        // Update hover for zoning
-        if (mode == Mode::Zone && hasHit) {
+        // Update hover for zoning/unzoning
+        if ((mode == Mode::Zone || mode == Mode::Unzone) && hasHit) {
             updateZoneHover(mouseHit);
         }
 
@@ -1122,6 +1172,7 @@ int main(int, char**) {
 
                 if (k == SDLK_1) { mode = Mode::Road; statusText = "Road mode."; }
                 if (k == SDLK_2) { mode = Mode::Zone; statusText = "Zone mode."; }
+                if (k == SDLK_3) { mode = Mode::Unzone; statusText = "Unzone mode."; }
 
                 if (k == SDLK_g) { gridSnap = !gridSnap; statusText = gridSnap ? "Grid snap ON" : "Grid snap OFF"; }
                 if (k == SDLK_h) { angleSnap = !angleSnap; statusText = angleSnap ? "Angle snap ON" : "Angle snap OFF"; }
@@ -1195,7 +1246,7 @@ int main(int, char**) {
                         roadTool.selectedPointIndex = -1;
                         startRoadDraw(mouseHit);
                     }
-                } else {
+                } else if (mode == Mode::Zone) {
                     // Zone mode: must start near a road
                     if (!zoneTool.hoverValid) {
                         statusText = "Invalid: must start zoning near a road.";
@@ -1205,6 +1256,20 @@ int main(int, char**) {
                     zoneTool.roadId = zoneTool.hoverRoadId;
                     zoneTool.startD = zoneTool.hoverD;
                     zoneTool.endD = zoneTool.hoverD;
+                } else if (mode == Mode::Unzone) {
+                    if (!zoneTool.hoverValid) {
+                        statusText = "Invalid: click near a road to unzone.";
+                        break;
+                    }
+                    int rid = zoneTool.hoverRoadId;
+                    std::vector<ZoneStrip> removed;
+                    for (const auto& z : state.zones) if (z.roadId == rid) removed.push_back(z);
+                    if (removed.empty()) {
+                        statusText = "No zones to clear.";
+                        break;
+                    }
+                    cmds.exec(state, std::make_unique<CmdClearZonesForRoad>(rid, removed));
+                    statusText = "Zones cleared.";
                 }
             }
 
@@ -1232,8 +1297,12 @@ int main(int, char**) {
                         z.sideMask = zoneTool.sideMask;
                         z.depth = zoneTool.depth;
 
-                        cmds.exec(state, std::make_unique<CmdAddZone>(z));
-                        statusText = "Zone committed.";
+                        if (ZoneOverlapsExisting(state, z.roadId, z.d0, z.d1)) {
+                            statusText = "Already zoned here.";
+                        } else {
+                            cmds.exec(state, std::make_unique<CmdAddZone>(z));
+                            statusText = "Zone committed.";
+                        }
                         zoneTool.dragging = false;
                         zoneTool.roadId = -1;
                     }
@@ -1341,7 +1410,15 @@ int main(int, char**) {
 
         renderer.updateHouseInstances(state.houseStatic, animModelsTmp);
 
-        // Overlay mesh generation (road preview while drawing, zone preview while zoning)
+        // Overlay mesh generation (existing zones + preview)
+        zoneTool.overlayVerts.clear();
+        for (const auto& z : state.zones) {
+            int ridx = FindRoadIndexById(state.roads, z.roadId);
+            if (ridx >= 0 && state.roads[ridx].pts.size() >= 2) {
+                AppendZoneMesh(zoneTool.overlayVerts, state.roads[ridx], z.d0, z.d1, z.sideMask, z.depth);
+            }
+        }
+
         state.zonePreviewVerts.clear();
         if (mode == Mode::Road && roadTool.drawing && roadTool.tempPts.size() >= 2) {
             BuildRoadPreviewMesh(state, roadTool.tempPts[0], roadTool.tempPts[1]);
@@ -1356,7 +1433,9 @@ int main(int, char**) {
                 }
             }
         }
-        renderer.updatePreviewMesh(state.zonePreviewVerts);
+        std::vector<glm::vec3> overlayAndPreview = zoneTool.overlayVerts;
+        overlayAndPreview.insert(overlayAndPreview.end(), state.zonePreviewVerts.begin(), state.zonePreviewVerts.end());
+        renderer.updatePreviewMesh(overlayAndPreview);
 
         // ImGui
         ImGui_ImplOpenGL3_NewFrame();
@@ -1364,7 +1443,8 @@ int main(int, char**) {
         ImGui::NewFrame();
 
         ImGui::Begin("City Painter (Phase 1)");
-        ImGui::Text("Mode: %s", (mode == Mode::Road) ? "Road (1)" : "Zone (2)");
+        const char* modeLabel = (mode == Mode::Road) ? "Road (1)" : (mode == Mode::Zone) ? "Zone (2)" : "Unzone (3)";
+        ImGui::Text("Mode: %s", modeLabel);
         ImGui::Text("Roads: %d", (int)state.roads.size());
         ImGui::Text("Zones: %d", (int)state.zones.size());
         ImGui::Text("Houses: %d", (int)(state.houseStatic.size() + state.houseAnim.size()));
@@ -1410,6 +1490,8 @@ int main(int, char**) {
         ImGui::BulletText("Delete/Backspace deletes selected point (roads keep >= 2 points)");
         ImGui::BulletText("Road drawing: click empty space and hold LMB");
         ImGui::BulletText("To extend: start near an existing road end and draw outward");
+        ImGui::BulletText("Unzone (3): click near a road to remove its zones");
+        ImGui::BulletText("Zoning won't stack on already-zoned road spans");
         ImGui::Separator();
 
         ImGui::Text("Status: %s", statusText.c_str());
@@ -1437,6 +1519,7 @@ int main(int, char**) {
         RenderFrame frame;
         frame.viewProj = viewProj;
         frame.roadVertexCount = state.roadMeshVerts.size();
+        frame.overlayVertexCount = zoneTool.overlayVerts.size();
         frame.previewVertexCount = state.zonePreviewVerts.size();
         frame.houseStaticCount = state.houseStatic.size();
         frame.houseAnimCount = animModelsTmp.size();
