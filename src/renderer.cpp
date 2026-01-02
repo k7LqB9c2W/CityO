@@ -10,12 +10,13 @@
 namespace {
 
 GLuint MakeProgram(const char* vsSrc, const char* fsSrc);
-void GLCheckShader(GLuint shader, const char* label);
-void GLCheckProgram(GLuint prog);
+bool GLCheckShader(GLuint shader, const char* label);
+bool GLCheckProgram(GLuint prog);
 void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo);
-void UploadDynamicVerts(GLuint vbo, const std::vector<glm::vec3>& verts);
+void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts);
+void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::mat4>& mats);
 
-void GLCheckShader(GLuint shader, const char* label) {
+bool GLCheckShader(GLuint shader, const char* label) {
     GLint ok = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
     if (!ok) {
@@ -24,10 +25,12 @@ void GLCheckShader(GLuint shader, const char* label) {
         std::string log((size_t)len, '\0');
         glGetShaderInfoLog(shader, len, &len, log.data());
         SDL_Log("Shader compile failed (%s): %s", label, log.c_str());
+        return false;
     }
+    return true;
 }
 
-void GLCheckProgram(GLuint prog) {
+bool GLCheckProgram(GLuint prog) {
     GLint ok = 0;
     glGetProgramiv(prog, GL_LINK_STATUS, &ok);
     if (!ok) {
@@ -36,25 +39,39 @@ void GLCheckProgram(GLuint prog) {
         std::string log((size_t)len, '\0');
         glGetProgramInfoLog(prog, len, &len, log.data());
         SDL_Log("Program link failed: %s", log.c_str());
+        return false;
     }
+    return true;
 }
 
 GLuint MakeProgram(const char* vsSrc, const char* fsSrc) {
     GLuint vs = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vs, 1, &vsSrc, nullptr);
     glCompileShader(vs);
-    GLCheckShader(vs, "VS");
+    if (!GLCheckShader(vs, "VS")) {
+        glDeleteShader(vs);
+        return 0;
+    }
 
     GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fs, 1, &fsSrc, nullptr);
     glCompileShader(fs);
-    GLCheckShader(fs, "FS");
+    if (!GLCheckShader(fs, "FS")) {
+        glDeleteShader(vs);
+        glDeleteShader(fs);
+        return 0;
+    }
 
     GLuint prog = glCreateProgram();
     glAttachShader(prog, vs);
     glAttachShader(prog, fs);
     glLinkProgram(prog);
-    GLCheckProgram(prog);
+    if (!GLCheckProgram(prog)) {
+        glDeleteShader(vs);
+        glDeleteShader(fs);
+        glDeleteProgram(prog);
+        return 0;
+    }
 
     glDeleteShader(vs);
     glDeleteShader(fs);
@@ -83,12 +100,38 @@ void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo) {
     glBindVertexArray(0);
 }
 
-void UploadDynamicVerts(GLuint vbo, const std::vector<glm::vec3>& verts) {
+void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts) {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    if (!verts.empty()) {
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size() * sizeof(glm::vec3)), verts.data(), GL_DYNAMIC_DRAW);
-    } else {
+    std::size_t bytes = verts.size() * sizeof(glm::vec3);
+    if (bytes == 0) {
         glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+        capacityBytes = 0;
+    } else {
+        if (bytes > capacityBytes) {
+            capacityBytes = (std::size_t)(bytes * 1.5f) + 256;
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capacityBytes, nullptr, GL_DYNAMIC_DRAW);
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capacityBytes, nullptr, GL_DYNAMIC_DRAW); // orphan
+        }
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)bytes, verts.data());
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::mat4>& mats) {
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    std::size_t bytes = mats.size() * sizeof(glm::mat4);
+    if (bytes == 0) {
+        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+        capacityBytes = 0;
+    } else {
+        if (bytes > capacityBytes) {
+            capacityBytes = (std::size_t)(bytes * 1.5f) + 256;
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capacityBytes, nullptr, GL_DYNAMIC_DRAW);
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capacityBytes, nullptr, GL_DYNAMIC_DRAW); // orphan
+        }
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)bytes, mats.data());
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -97,6 +140,8 @@ void UploadDynamicVerts(GLuint vbo, const std::vector<glm::vec3>& verts) {
 
 bool Renderer::init() {
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     const char* vsBasic = R"(
         #version 330 core
@@ -114,7 +159,9 @@ bool Renderer::init() {
         layout(location=2) in mat4 iModel;
         uniform mat4 uViewProj;
         void main() {
-            gl_Position = uViewProj * iModel * vec4(aPos, 1.0);
+            vec4 world = iModel * vec4(aPos, 1.0);
+            world.y += 0.05; // lift houses off the ground to avoid z-fighting
+            gl_Position = uViewProj * world;
         }
     )";
 
@@ -130,6 +177,7 @@ bool Renderer::init() {
 
     progBasic = MakeProgram(vsBasic, fsColor);
     progInst = MakeProgram(vsInstanced, fsColor);
+    if (!progBasic || !progInst) return false;
 
     locVP_B = glGetUniformLocation(progBasic, "uViewProj");
     locM_B = glGetUniformLocation(progBasic, "uModel");
@@ -139,6 +187,11 @@ bool Renderer::init() {
     locVP_I = glGetUniformLocation(progInst, "uViewProj");
     locC_I = glGetUniformLocation(progInst, "uColor");
     locA_I = glGetUniformLocation(progInst, "uAlpha");
+    if (locVP_B < 0 || locM_B < 0 || locC_B < 0 || locA_B < 0 ||
+        locVP_I < 0 || locC_I < 0 || locA_I < 0) {
+        SDL_Log("Renderer init failed: missing uniforms.");
+        return false;
+    }
 
     // Ground quad
     const float MAP_SIDE_M = 105500.0f;
@@ -237,35 +290,25 @@ void Renderer::resize(int w, int h) {
 }
 
 void Renderer::updateRoadMesh(const std::vector<glm::vec3>& verts) {
-    UploadDynamicVerts(vboRoad, verts);
+    UploadDynamicVerts(vboRoad, capRoad, verts);
 }
 
 void Renderer::updatePreviewMesh(const std::vector<glm::vec3>& verts) {
-    UploadDynamicVerts(vboPreview, verts);
+    UploadDynamicVerts(vboPreview, capPreview, verts);
 }
 
 void Renderer::updateHouseInstances(const std::vector<glm::mat4>& staticHouses,
                                     const std::vector<glm::mat4>& animHouses) {
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstStatic);
-    if (!staticHouses.empty()) {
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(staticHouses.size() * sizeof(glm::mat4)), staticHouses.data(), GL_DYNAMIC_DRAW);
-    } else {
-        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstAnim);
-    if (!animHouses.empty()) {
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(animHouses.size() * sizeof(glm::mat4)), animHouses.data(), GL_DYNAMIC_DRAW);
-    } else {
-        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    }
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    UploadDynamicMats(vboInstStatic, capInstStatic, staticHouses);
+    UploadDynamicMats(vboInstAnim, capInstAnim, animHouses);
 }
 
 void Renderer::render(const RenderFrame& frame) {
     glClearColor(0.55f, 0.75f, 0.95f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Ground/roads/overlays are single-sided quads; render without culling
+    glDisable(GL_CULL_FACE);
 
     glUseProgram(progBasic);
     glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &frame.viewProj[0][0]);
@@ -286,6 +329,7 @@ void Renderer::render(const RenderFrame& frame) {
     if (frame.overlayVertexCount + frame.previewVertexCount > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(GL_FALSE);
 
         // Existing zones overlay
         if (frame.overlayVertexCount > 0) {
@@ -309,6 +353,7 @@ void Renderer::render(const RenderFrame& frame) {
             glDrawArrays(GL_TRIANGLES, (GLint)frame.overlayVertexCount, (GLsizei)frame.previewVertexCount);
         }
 
+        glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);
     }
 
@@ -329,6 +374,9 @@ void Renderer::render(const RenderFrame& frame) {
     glUniformMatrix4fv(locVP_I, 1, GL_FALSE, &frame.viewProj[0][0]);
     glUniform3f(locC_I, 0.75f, 0.72f, 0.62f);
     glUniform1f(locA_I, 1.0f);
+
+    // Houses are closed meshes; enable culling here for perf
+    glEnable(GL_CULL_FACE);
 
     if (frame.houseStaticCount > 0) {
         glBindVertexArray(vaoCubeInstStatic);

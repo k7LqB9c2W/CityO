@@ -65,4 +65,10 @@ private:
     unsigned int vaoCubeInstAnim = 0;
     unsigned int vboInstStatic = 0;
     unsigned int vboInstAnim = 0;
+
+    // Buffer capacities to avoid reallocation thrash
+    std::size_t capRoad = 0;
+    std::size_t capPreview = 0;
+    std::size_t capInstStatic = 0;
+    std::size_t capInstAnim = 0;
 };

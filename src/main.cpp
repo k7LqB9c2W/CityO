@@ -1231,7 +1231,9 @@ int main(int, char**) {
         SDL_GetMouseState(&mx, &my);
 
         float aspect = (winH > 0) ? (float)winW / (float)winH : 1.0f;
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 500000.0f);
+        float nearClip = Clamp(cam.distance * 0.02f, 5.0f, 200.0f);
+        float farClip  = Clamp(cam.distance * 120.0f, 50000.0f, 300000.0f);
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), aspect, nearClip, farClip);
         glm::mat4 view = cam.view();
         glm::mat4 viewProj = proj * view;
 
