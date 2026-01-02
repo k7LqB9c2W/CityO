@@ -680,6 +680,16 @@ static void RebuildLotCells(AppState& s) {
         }
         return best;
     };
+    auto minClearToOtherRoadSq = [&](const glm::vec3& pos, int currentRoadId) -> float {
+        float best = std::numeric_limits<float>::max();
+        for (const auto& other : s.roads) {
+            if (other.id == currentRoadId || other.pts.size() < 2) continue;
+            float dAlong; glm::vec3 tan;
+            float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
+            best = std::min(best, distSq);
+        }
+        return best;
+    };
 
     std::unordered_set<uint64_t> occupied;
     auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
@@ -687,6 +697,7 @@ static void RebuildLotCells(AppState& s) {
     };
 
     const float dedupCell = 4.0f;
+    const float intersectionPad = roadHalf + desiredClear + 5.0f; // extra gap near junctions
 
     for (const auto& r : s.roads) {
         if (r.pts.size() < 2) continue;
@@ -697,6 +708,10 @@ static void RebuildLotCells(AppState& s) {
             glm::vec3 base = r.pointAt(mid, tan);
             if (glm::dot(tan, tan) < 1e-6f) continue;
             glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+
+            // Avoid generating lots whose centerline position hugs another road (intersection corners)
+            float clearToOther = std::sqrt(minClearToOtherRoadSq(base, r.id));
+            if (clearToOther - roadHalf < intersectionPad) continue;
 
             for (int side : {-1, 1}) {
                 glm::vec3 center = base + right * float(side) * setback;
@@ -759,92 +774,78 @@ static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
     const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
     const float roadHalf = 5.0f;
     const float desiredClear = 10.0f;          // minimum gap from road edge to house front
-    const float setback = roadHalf + desiredClear + houseSize.z * 0.5f; // centerline to house center
-    const float spacing = 15.0f;               // along the road
-    const float rowSpacing = 14.0f;            // away from road
 
-    for (const auto& z : s.zones) {
-        int ridx = FindRoadIndexById(s.roads, z.roadId);
-        if (ridx < 0) continue;
-        const Road& r = s.roads[ridx];
-        if (r.pts.size() < 2) continue;
+    std::unordered_set<uint64_t> occupied;
+    auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
+        return (uint64_t(uint32_t(gx)) << 32) | uint32_t(gz);
+    };
+    auto isOccupied = [&](const glm::vec3& pos) {
+        const float cell = 6.0f; // coarse grid to prevent overlapping houses
+        int32_t gx = (int32_t)std::floor(pos.x / cell);
+        int32_t gz = (int32_t)std::floor(pos.z / cell);
+        return occupied.find(cellKey(gx, gz)) != occupied.end();
+    };
+    auto markOccupied = [&](const glm::vec3& pos) {
+        const float cell = 6.0f;
+        int32_t gx = (int32_t)std::floor(pos.x / cell);
+        int32_t gz = (int32_t)std::floor(pos.z / cell);
+        occupied.insert(cellKey(gx, gz));
+    };
+    std::vector<glm::vec3> placedCenters;
+    const float houseRadius = std::sqrt(houseSize.x * houseSize.x + houseSize.z * houseSize.z) * 0.5f;
+    const float minSpacing = houseRadius * 2.0f + 2.0f; // ensure footprints don't touch, esp. near intersections
+    const float minSpacingSq = minSpacing * minSpacing;
 
-        float a = std::min(z.d0, z.d1);
-        float b = std::max(z.d0, z.d1);
-
-        int rows = std::max(1, (int)std::floor(z.depth / rowSpacing));
-
-        std::unordered_set<uint64_t> occupied;
-        auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
-            return (uint64_t(uint32_t(gx)) << 32) | uint32_t(gz);
-        };
-        auto isOccupied = [&](const glm::vec3& pos) {
-            const float cell = 6.0f; // coarse grid to prevent overlapping houses
-            int32_t gx = (int32_t)std::floor(pos.x / cell);
-            int32_t gz = (int32_t)std::floor(pos.z / cell);
-            return occupied.find(cellKey(gx, gz)) != occupied.end();
-        };
-        auto markOccupied = [&](const glm::vec3& pos) {
-            const float cell = 6.0f;
-            int32_t gx = (int32_t)std::floor(pos.x / cell);
-            int32_t gz = (int32_t)std::floor(pos.z / cell);
-            occupied.insert(cellKey(gx, gz));
-        };
-
-        auto minCenterlineClearSq = [&](const glm::vec3& pos) -> float {
-            float best = std::numeric_limits<float>::max();
-            for (const auto& other : s.roads) {
-                if (other.pts.size() < 2) continue;
-                float dAlong; glm::vec3 tan;
-                float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
-                best = std::min(best, distSq);
-            }
-            return best;
-        };
-
-        for (float d = a; d <= b; d += spacing) {
-            glm::vec3 tan;
-            glm::vec3 p = r.pointAt(d, tan);
-            glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
-
-            auto doSide = [&](int side) {
-                for (int row = 0; row < rows; row++) {
-                    glm::vec3 pos = p + right * float(side) * (setback + row * rowSpacing);
-                    pos.y = houseSize.y * 0.5f;
-
-                    float distSq = minCenterlineClearSq(pos);
-                    float clearFromEdge = std::sqrt(distSq) - roadHalf; // distance from nearest road edge
-                    if (clearFromEdge < desiredClear) continue; // too close to any road (intersections)
-                    if (isOccupied(pos)) continue; // avoid double builds/overlap
-
-                    glm::vec3 up(0,1,0);
-                    glm::vec3 facing = glm::normalize(-float(side) * right); // face toward road
-                    glm::vec3 basisRight = glm::normalize(glm::cross(up, facing));
-                    glm::mat4 R(1.0f);
-                    R[0] = glm::vec4(basisRight, 0.0f);
-                    R[1] = glm::vec4(up, 0.0f);
-                    R[2] = glm::vec4(facing, 0.0f);
-
-                    if (animate) {
-                        uint32_t hx = (uint32_t)std::llround(pos.x * 10.0);
-                        uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
-                        uint32_t h = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)z.id);
-                        float jitter = (h % 120) / 1000.0f; // 0..0.119 sec
-                        s.houseAnim.push_back({pos, nowSec + jitter, facing});
-                    } else {
-                        glm::mat4 M(1.0f);
-                        M = glm::translate(M, pos);
-                        M = M * R;
-                        M = glm::scale(M, houseSize);
-                        s.houseStatic.push_back(M);
-                    }
-                    markOccupied(pos);
-                }
-            };
-
-            if (z.sideMask & 1) doSide(-1);
-            if (z.sideMask & 2) doSide(+1);
+    auto minCenterlineClearSq = [&](const glm::vec3& pos) -> float {
+        float best = std::numeric_limits<float>::max();
+        for (const auto& other : s.roads) {
+            if (other.pts.size() < 2) continue;
+            float dAlong; glm::vec3 tan;
+            float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
+            best = std::min(best, distSq);
         }
+        return best;
+    };
+
+    for (const auto& c : s.lots) {
+        if (!c.zoned) continue;
+
+        glm::vec3 pos = c.center;
+        pos.y = houseSize.y * 0.5f;
+
+        float distSq = minCenterlineClearSq(pos);
+        float clearFromEdge = std::sqrt(distSq) - roadHalf; // distance from nearest road edge
+        if (clearFromEdge < desiredClear) continue; // too close to any road (intersections)
+        if (isOccupied(pos)) continue; // avoid double builds/overlap
+        bool tooClose = false;
+        for (const auto& pc : placedCenters) {
+            if (glm::dot(pos - pc, pos - pc) < minSpacingSq) { tooClose = true; break; }
+        }
+        if (tooClose) continue;
+
+        glm::vec3 up(0,1,0);
+        glm::vec3 facing = glm::normalize(-float(c.side) * c.right); // face toward road
+        glm::vec3 basisRight = glm::normalize(glm::cross(up, facing));
+        glm::mat4 R(1.0f);
+        R[0] = glm::vec4(basisRight, 0.0f);
+        R[1] = glm::vec4(up, 0.0f);
+        R[2] = glm::vec4(facing, 0.0f);
+
+        if (animate) {
+            uint32_t hx = (uint32_t)std::llround(pos.x * 10.0);
+            uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
+            uint32_t h = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)(c.roadId * 131071U) ^ (c.side < 0 ? 0x9e3779b9U : 0U));
+            float jitter = (h % 120) / 1000.0f; // 0..0.119 sec
+            s.houseAnim.push_back({pos, nowSec + jitter, facing});
+        } else {
+            glm::mat4 M(1.0f);
+            M = glm::translate(M, pos);
+            M = M * R;
+            M = glm::scale(M, houseSize);
+            s.houseStatic.push_back(M);
+        }
+        markOccupied(pos);
+        placedCenters.push_back(pos);
     }
 }
 
