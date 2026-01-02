@@ -1,0 +1,10 @@
+{
+  "name": "city-painter-proto",
+  "version-string": "0.2.0",
+  "dependencies": [
+    "sdl2",
+    { "name": "glad", "features": ["gl-api-33"] },
+    "glm",
+    "nlohmann-json"
+  ]
+}

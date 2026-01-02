@@ -1,0 +1,150 @@
+Package: vcpkg-cmake-config
+Version: 2024-05-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: efd9d162cc549ed11ab28675ae7ddd16ea8e941b8d19ca53ed956fc1fb9f7f4d
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2024-04-23
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 8930f97e69185233bb86f8885f0bca36490278d85811870501a97b1694d0d582
+Status: install ok installed
+
+Package: egl-registry
+Version: 2025-05-27
+Architecture: x64-windows
+Multi-Arch: same
+Abi: ebcce382626c5c972e65f8e79f2e0b8fb340ad031835c9b3d392d73e2a12bb97
+Description: EGL API and Extension Registry
+Status: install ok installed
+
+Package: opengl-registry
+Version: 2025-10-23
+Depends: egl-registry
+Architecture: x64-windows
+Multi-Arch: same
+Abi: ead5fef26bf82fef9811f3fcb7f8963f32616bc9b6e3a7aefc92569f5f5eba8a
+Description: OpenGL, OpenGL ES, and OpenGL ES-SC API and Extension Registry
+Status: install ok installed
+
+Package: glad
+Version: 0.1.36
+Depends: egl-registry, opengl-registry, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 3f16fc69b40c4fe0b0f3a7958cc6af5aa97aa2e5b5e87f54805c840a942415b3
+Description: Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on the official specs.
+Default-Features: loader
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-10
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 1.0.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-11
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 1.1.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-12
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 1.2.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-13
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 1.3.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-14
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 1.4.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-15
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 1.5.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-20
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 2.0.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-21
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 2.1.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-30
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 3.0.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-31
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 3.1.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-32
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 3.2.
+Status: install ok installed
+
+Package: glad
+Feature: gl-api-33
+Architecture: x64-windows
+Multi-Arch: same
+Description: Imports extensions from OpenGL API specification version 3.3.
+Status: install ok installed
+
+Package: glad
+Feature: loader
+Architecture: x64-windows
+Multi-Arch: same
+Description: Generate loader logic.
+Status: install ok installed
+
+Package: glm
+Version: 1.0.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d6aeb878345d5aeaa9df6b59085fb4ea37abcce154ee79efbc1896db08d91d65
+Description: OpenGL Mathematics (GLM)
+Status: install ok installed
+
+Package: sdl2
+Version: 2.32.10
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 8cd41d7d035745078e0b7581575f36709620eecbf00fa011229bcf29903de367
+Description: Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL and Direct3D.
+Status: install ok installed
+

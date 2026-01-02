@@ -1,0 +1,3 @@
+C:/CityG/build/CMakeFiles/CityPainterProto.dir
+C:/CityG/build/CMakeFiles/edit_cache.dir
+C:/CityG/build/CMakeFiles/rebuild_cache.dir
