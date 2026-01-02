@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <unordered_map>
 
 struct RenderMarker {
     glm::vec3 pos{};
@@ -15,11 +16,16 @@ struct RenderFrame {
     std::size_t gridVertexCount = 0;
     std::size_t overlayVertexCount = 0;
     std::size_t previewVertexCount = 0;
-    std::size_t houseStaticCount = 0;
-    std::size_t houseAnimCount = 0;
     bool drawRoadPreview = false;
     bool zonePreviewValid = true;
     std::vector<RenderMarker> markers;
+    std::vector<uint64_t> visibleHouseChunks;
+    std::size_t houseAnimCount = 0;
+};
+
+struct HouseInstanceGPU {
+    glm::vec4 posYaw;    // xyz position, w = yaw (radians)
+    glm::vec4 scaleVar;  // xyz scale, w = variant/unused
 };
 
 class Renderer {
@@ -28,8 +34,8 @@ public:
     void resize(int w, int h);
     void updateRoadMesh(const std::vector<glm::vec3>& verts);
     void updatePreviewMesh(const std::vector<glm::vec3>& verts);
-    void updateHouseInstances(const std::vector<glm::mat4>& staticHouses,
-                              const std::vector<glm::mat4>& animHouses);
+    void updateHouseChunk(uint64_t key, const std::vector<HouseInstanceGPU>& instances);
+    void updateAnimHouses(const std::vector<HouseInstanceGPU>& animHouses);
     void render(const RenderFrame& frame);
     void shutdown();
 
@@ -62,14 +68,19 @@ private:
     unsigned int vboCube = 0;
     unsigned int vaoCubeSingle = 0;
 
-    unsigned int vaoCubeInstStatic = 0;
     unsigned int vaoCubeInstAnim = 0;
-    unsigned int vboInstStatic = 0;
     unsigned int vboInstAnim = 0;
+
+    struct ChunkBuf {
+        unsigned int vao = 0;
+        unsigned int vbo = 0;
+        std::size_t count = 0;
+        std::size_t capacity = 0;
+    };
+    std::unordered_map<uint64_t, ChunkBuf> houseChunks;
 
     // Buffer capacities to avoid reallocation thrash
     std::size_t capRoad = 0;
     std::size_t capPreview = 0;
-    std::size_t capInstStatic = 0;
     std::size_t capInstAnim = 0;
 };

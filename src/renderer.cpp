@@ -6,6 +6,7 @@
 
 #include <array>
 #include <string>
+#include <unordered_map>
 
 namespace {
 
@@ -82,20 +83,13 @@ void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo) {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
 
-    std::size_t vec4Size = sizeof(glm::vec4);
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * vec4Size));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(HouseInstanceGPU), (void*)0);
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * vec4Size));
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * vec4Size));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * vec4Size));
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(HouseInstanceGPU), (void*)(sizeof(glm::vec4)));
 
     glVertexAttribDivisor(2, 1);
     glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
 
     glBindVertexArray(0);
 }
@@ -156,10 +150,18 @@ bool Renderer::init() {
     const char* vsInstanced = R"(
         #version 330 core
         layout(location=0) in vec3 aPos;
-        layout(location=2) in mat4 iModel;
+        layout(location=2) in vec4 iPosYaw;   // xyz, yaw
+        layout(location=3) in vec4 iScaleVar; // xyz scale
         uniform mat4 uViewProj;
         void main() {
-            vec4 world = iModel * vec4(aPos, 1.0);
+            float yaw = iPosYaw.w;
+            mat3 R = mat3(
+                cos(yaw), 0.0, -sin(yaw),
+                0.0,      1.0,  0.0,
+                sin(yaw), 0.0,  cos(yaw)
+            );
+            vec3 scaled = R * (aPos * iScaleVar.xyz);
+            vec4 world = vec4(iPosYaw.xyz + scaled, 1.0);
             world.y += 0.05; // lift houses off the ground to avoid z-fighting
             gl_Position = uViewProj * world;
         }
@@ -260,18 +262,8 @@ bool Renderer::init() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
     glBindVertexArray(0);
 
-    glGenVertexArrays(1, &vaoCubeInstStatic);
     glGenVertexArrays(1, &vaoCubeInstAnim);
-    glGenBuffers(1, &vboInstStatic);
     glGenBuffers(1, &vboInstAnim);
-
-    glBindVertexArray(vaoCubeInstStatic);
-    glBindBuffer(GL_ARRAY_BUFFER, vboCube);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstStatic);
-    glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    SetupInstanceAttribs(vaoCubeInstStatic, vboInstStatic);
 
     glBindVertexArray(vaoCubeInstAnim);
     glBindBuffer(GL_ARRAY_BUFFER, vboCube);
@@ -297,10 +289,55 @@ void Renderer::updatePreviewMesh(const std::vector<glm::vec3>& verts) {
     UploadDynamicVerts(vboPreview, capPreview, verts);
 }
 
-void Renderer::updateHouseInstances(const std::vector<glm::mat4>& staticHouses,
-                                    const std::vector<glm::mat4>& animHouses) {
-    UploadDynamicMats(vboInstStatic, capInstStatic, staticHouses);
-    UploadDynamicMats(vboInstAnim, capInstAnim, animHouses);
+void Renderer::updateHouseChunk(uint64_t key, const std::vector<HouseInstanceGPU>& instances) {
+    auto& buf = houseChunks[key];
+    if (buf.vao == 0) {
+        glGenVertexArrays(1, &buf.vao);
+        glGenBuffers(1, &buf.vbo);
+        glBindVertexArray(buf.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vboCube);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, buf.vbo);
+        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+        SetupInstanceAttribs(buf.vao, buf.vbo);
+        glBindVertexArray(0);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, buf.vbo);
+    std::size_t bytes = instances.size() * sizeof(HouseInstanceGPU);
+    if (bytes == 0) {
+        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+        buf.capacity = 0;
+        buf.count = 0;
+    } else {
+        if (bytes > buf.capacity) {
+            buf.capacity = (std::size_t)(bytes * 1.5f) + 256;
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)buf.capacity, nullptr, GL_DYNAMIC_DRAW);
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)buf.capacity, nullptr, GL_DYNAMIC_DRAW); // orphan
+        }
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)bytes, instances.data());
+        buf.count = instances.size();
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::updateAnimHouses(const std::vector<HouseInstanceGPU>& animHouses) {
+    glBindBuffer(GL_ARRAY_BUFFER, vboInstAnim);
+    std::size_t bytes = animHouses.size() * sizeof(HouseInstanceGPU);
+    if (bytes == 0) {
+        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+        capInstAnim = 0;
+    } else {
+        if (bytes > capInstAnim) {
+            capInstAnim = (std::size_t)(bytes * 1.5f) + 256;
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capInstAnim, nullptr, GL_DYNAMIC_DRAW);
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capInstAnim, nullptr, GL_DYNAMIC_DRAW); // orphan
+        }
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)bytes, animHouses.data());
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Renderer::render(const RenderFrame& frame) {
@@ -385,10 +422,15 @@ void Renderer::render(const RenderFrame& frame) {
     // Houses are closed meshes; enable culling here for perf
     glEnable(GL_CULL_FACE);
 
-    if (frame.houseStaticCount > 0) {
-        glBindVertexArray(vaoCubeInstStatic);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)frame.houseStaticCount);
+    for (uint64_t key : frame.visibleHouseChunks) {
+        auto it = houseChunks.find(key);
+        if (it == houseChunks.end()) continue;
+        const ChunkBuf& buf = it->second;
+        if (buf.count == 0) continue;
+        glBindVertexArray(buf.vao);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)buf.count);
     }
+
     if (frame.houseAnimCount > 0) {
         glBindVertexArray(vaoCubeInstAnim);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)frame.houseAnimCount);
@@ -401,14 +443,20 @@ void Renderer::destroyGL() {
     if (progBasic) { glDeleteProgram(progBasic); progBasic = 0; }
     if (progInst) { glDeleteProgram(progInst); progInst = 0; }
 
-    GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoCubeSingle, vaoCubeInstStatic, vaoCubeInstAnim };
-    GLuint vbos[] = { vboGround, vboRoad, vboPreview, vboCube, vboInstStatic, vboInstAnim };
+    GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoCubeSingle, vaoCubeInstAnim };
+    GLuint vbos[] = { vboGround, vboRoad, vboPreview, vboCube, vboInstAnim };
 
     glDeleteVertexArrays((GLsizei)std::size(vaos), vaos);
     glDeleteBuffers((GLsizei)std::size(vbos), vbos);
 
-    vaoGround = vaoRoad = vaoPreview = vaoCubeSingle = vaoCubeInstStatic = vaoCubeInstAnim = 0;
-    vboGround = vboRoad = vboPreview = vboCube = vboInstStatic = vboInstAnim = 0;
+    for (auto& kv : houseChunks) {
+        if (kv.second.vao) glDeleteVertexArrays(1, &kv.second.vao);
+        if (kv.second.vbo) glDeleteBuffers(1, &kv.second.vbo);
+    }
+    houseChunks.clear();
+
+    vaoGround = vaoRoad = vaoPreview = vaoCubeSingle = vaoCubeInstAnim = 0;
+    vboGround = vboRoad = vboPreview = vboCube = vboInstAnim = 0;
 }
 
 void Renderer::shutdown() {
