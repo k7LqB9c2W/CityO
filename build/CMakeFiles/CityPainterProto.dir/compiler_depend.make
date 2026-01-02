@@ -1263,6 +1263,422 @@ CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: "C:\Program Files\Microsoft Vi
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_filebuf.hpp"
 
 
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: C:\CityG\src\renderer.cpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: C:\CityG\src\renderer.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\glm.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cmath"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\yvals.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\yvals_core.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\sal.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\concurrencysal.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vadefs.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xkeycheck.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\crtdbg.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new_debug.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\crtdefs.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\use_ansi.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdlib"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\math.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_math.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\stdlib.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_malloc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_search.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\stddef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wstdlib.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xtr1common"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin0.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin0.inl.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\assert.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstddef"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\simd\platform.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdint"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdint.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\type_traits"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\climits"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cfloat"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\float.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cwchar"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdio"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\stdio.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wstdio.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_stdio_config.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\wchar.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_memcpy_s.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\errno.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_string.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wconio.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wctype.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wdirect.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wio.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_share.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wprocess.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wstring.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wtime.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\sys\stat.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\sys\types.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\setjmp.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\immintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\wmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\nmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\smmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\tmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\pmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\emmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\mmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\malloc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\zmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\ammintrin.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\assert.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\fwd.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\qualifier.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\vec2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec2.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\.\compute_vector_relational.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_int_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_uint_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\vec3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec3.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\compute_vector_decl.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\functional"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\exception"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_exception.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\eh.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_terminate.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\tuple"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_iter_core.hpp"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\utility"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\initializer_list"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\typeinfo"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_typeinfo.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmemory"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\new"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xatomic.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstring"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\string.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_memory.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\unordered_map"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xhash"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\list"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xpolymorphic_allocator.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_bit_utils.hpp"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_sanitizer_annotate_container.hpp"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xbit_ops.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xnode_handle.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\_vectorize.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint3_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\vec4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec4.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint4_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat2x2.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\matrix.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat2x3.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat2x4.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat3x2.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat3x3.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\common.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_common.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\vector_relational.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_vector_relational.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\compute_common.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec1.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec1.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat3x4.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat4x2.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat4x3.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat4x4.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\geometric.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_geometric.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\exponential.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_exponential.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\assert.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_matrix.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\trigonometric.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_trigonometric.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\packing.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_packing.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_half.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_half.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\integer.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_integer.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_main.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_stdinc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_config.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_platform.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\winapifamily.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\winpackagefamily.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdarg.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\ctype.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\math.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_math_defines.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_assert.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_atomic.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_audio.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_error.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_endian.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_mutex.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_thread.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\process.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_startup.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\math.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_startup.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_rwops.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_clipboard.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_cpuinfo.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_events.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_video.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_pixels.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_rect.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_surface.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_blendmode.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_keyboard.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_keycode.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_scancode.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_mouse.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_joystick.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_guid.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_gamecontroller.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_sensor.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_quit.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_gesture.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_touch.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_filesystem.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_haptic.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_hidapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_hints.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_loadso.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_log.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_messagebox.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_metal.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_power.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_render.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_shape.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_system.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_timer.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_version.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_locale.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_misc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\begin_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\close_code.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glad\glad.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\KHR\khrplatform.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_projection.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\gtc\constants.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\scalar_constants.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\scalar_constants.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\constants.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_projection.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_clip_space.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_clip_space.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_transform.hpp
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_transform.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\array"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xstring"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_string_view.hpp"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\iosfwd"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cctype"
+
+
 
 D:\\include\10.0.26100.0\\um\utilapiset.h:
 
@@ -1272,51 +1688,51 @@ D:\include\10.0.26100.0\ucrt\float.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\type_traits":
-
 C:\CityG\external\imgui\imgui.h:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\type_traits":
 
 C:\CityG\external\imgui\backends\imgui_impl_opengl3.cpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cmath":
-
 D:\include\10.0.26100.0\ucrt\corecrt_wctype.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime.h":
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cmath":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_string.h":
 
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime.h":
+
 D:\\include\10.0.26100.0\\um\fileapifromapp.h:
 
-vcpkg_installed\x64-windows\include\nlohmann\json_fwd.hpp:
-
 C:\CityG\external\imgui\imconfig.h:
+
+vcpkg_installed\x64-windows\include\nlohmann\json_fwd.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\sal.h":
 
 D:\\include\10.0.26100.0\\um\fibersapi.h:
 
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\concurrencysal.h":
+
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x3.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_float3_precision.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\concurrencysal.h":
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vadefs.h":
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x2_precision.hpp:
 
 D:\\include\10.0.26100.0\\um\profileapi.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vadefs.h":
-
 C:\CityG\external\imgui\backends\imgui_impl_opengl3.h:
-
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdarg.h":
 
-vcpkg_installed\x64-windows\include\glm\mat2x4.hpp:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert":
 
 D:\include\10.0.26100.0\ucrt\stddef.h:
+
+vcpkg_installed\x64-windows\include\glm\mat2x4.hpp:
 
 D:\include\10.0.26100.0\ucrt\string.h:
 
@@ -1338,11 +1754,11 @@ D:\include\10.0.26100.0\ucrt\errno.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_config.h:
 
-D:\\include\10.0.26100.0\\um\memoryapi.h:
+D:\\include\10.0.26100.0\\shared\driverspecs.h:
 
 D:\\include\10.0.26100.0\\shared\winpackagefamily.h:
 
-D:\\include\10.0.26100.0\\shared\driverspecs.h:
+D:\\include\10.0.26100.0\\um\memoryapi.h:
 
 D:\\include\10.0.26100.0\\shared\winapifamily.h:
 
@@ -1350,35 +1766,35 @@ D:\\include\10.0.26100.0\\shared\winapifamily.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt_wstring.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\crtdefs.h":
-
 D:\include\10.0.26100.0\ucrt\stdio.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x2_precision.hpp:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\crtdefs.h":
 
 D:\\include\10.0.26100.0\\um\winbase.h:
 
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x2_precision.hpp:
+
 D:\\include\10.0.26100.0\\shared\apiset.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4.hpp:
-
 D:\include\10.0.26100.0\ucrt\corecrt_wstdio.h:
+
+vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4.hpp:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\output\serializer.hpp:
 
 D:\\include\10.0.26100.0\\shared\pshpack4.h:
 
-D:\\include\10.0.26100.0\\um\winver.h:
-
 D:\include\10.0.26100.0\ucrt\corecrt_stdio_config.h:
+
+D:\\include\10.0.26100.0\\um\winver.h:
 
 vcpkg_installed\x64-windows\include\glm\mat2x2.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdint.h":
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x3_precision.hpp:
-
 D:\\include\10.0.26100.0\\um\minwinbase.h:
+
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x3_precision.hpp:
 
 C:\CityG\external\imgui\backends\imgui_impl_opengl3_loader.h:
 
@@ -1388,9 +1804,9 @@ vcpkg_installed\x64-windows\include\nlohmann\detail\input\json_sax.hpp:
 
 D:\\include\10.0.26100.0\\shared\sdkddkver.h:
 
-D:\\include\10.0.26100.0\\um\wingdi.h:
-
 D:\\include\10.0.26100.0\\shared\windef.h:
+
+D:\\include\10.0.26100.0\\um\wingdi.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\list":
 
@@ -1398,57 +1814,57 @@ D:\\include\10.0.26100.0\\um\errhandlingapi.h:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\meta\identity_tag.hpp:
 
-vcpkg_installed\x64-windows\include\glm\detail\type_mat4x3.inl:
+D:\\include\10.0.26100.0\\shared\specstrings.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\pmmintrin.h":
 
-D:\\include\10.0.26100.0\\shared\specstrings.h:
+vcpkg_installed\x64-windows\include\glm\detail\type_mat4x3.inl:
+
+D:\\include\10.0.26100.0\\shared\specstrings_strict.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xfilesystem_abi.h":
 
-vcpkg_installed\x64-windows\include\glm\detail\..\geometric.hpp:
-
 C:\CityG\external\imgui\imstb_textedit.h:
 
-D:\\include\10.0.26100.0\\shared\specstrings_strict.h:
+vcpkg_installed\x64-windows\include\glm\detail\..\geometric.hpp:
 
 D:\\include\10.0.26100.0\\shared\specstrings_undef.h:
 
 D:\include\10.0.26100.0\shared\sdv_driverspecs.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\tuple":
+D:\\include\10.0.26100.0\\shared\ktmtypes.h:
 
 D:\\include\10.0.26100.0\\um\threadpoolapiset.h:
 
-D:\\include\10.0.26100.0\\shared\ktmtypes.h:
-
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmmintrin.h":
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\tuple":
 
 D:\\include\10.0.26100.0\\um\winnt.h:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmmintrin.h":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\unordered_map":
 
 D:\include\10.0.26100.0\ucrt\ctype.h:
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\meta\void_t.hpp:
-
 D:\\include\10.0.26100.0\\shared\kernelspecs.h:
+
+vcpkg_installed\x64-windows\include\nlohmann\detail\meta\void_t.hpp:
 
 D:\\include\10.0.26100.0\\shared\basetsd.h:
 
 D:\\include\10.0.26100.0\\shared\guiddef.h:
 
-vcpkg_installed\x64-windows\include\nlohmann\byte_container_with_subtype.hpp:
-
 vcpkg_installed\x64-windows\include\SDL2\close_code.h:
 
+vcpkg_installed\x64-windows\include\nlohmann\byte_container_with_subtype.hpp:
+
 D:\include\10.0.26100.0\shared\poppack.h:
+
+D:\include\10.0.26100.0\shared\pshpack4.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt_wdirect.h:
 
 D:\\include\10.0.26100.0\\shared\tvout.h:
-
-D:\include\10.0.26100.0\shared\pshpack4.h:
 
 D:\include\10.0.26100.0\shared\pshpack8.h:
 
@@ -1458,33 +1874,33 @@ vcpkg_installed\x64-windows\include\nlohmann\detail\conversions\to_json.hpp:
 
 D:\include\10.0.26100.0\shared\pshpack2.h:
 
+D:\\include\10.0.26100.0\\shared\pshpack2.h:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_chrono.hpp":
 
-D:\\include\10.0.26100.0\\shared\pshpack2.h:
+D:\\include\10.0.26100.0\\um\apiquery2.h:
 
 vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x2.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdio":
 
-D:\\include\10.0.26100.0\\um\apiquery2.h:
-
 D:\include\10.0.26100.0\shared\pshpack1.h:
 
 D:\\include\10.0.26100.0\\shared\apisetcconv.h:
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_syswm.h:
-
 D:\\include\10.0.26100.0\\um\handleapi.h:
+
+vcpkg_installed\x64-windows\include\SDL2\SDL_syswm.h:
 
 D:\\include\10.0.26100.0\\um\fileapi.h:
 
-D:\\include\10.0.26100.0\\um\libloaderapi.h:
-
 D:\\include\10.0.26100.0\\um\processenv.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2.hpp:
+D:\\include\10.0.26100.0\\um\libloaderapi.h:
 
 D:\\include\10.0.26100.0\\um\debugapi.h:
+
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2.hpp:
 
 vcpkg_installed\x64-windows\include\glm\ext\matrix_projection.inl:
 
@@ -1492,9 +1908,9 @@ D:\\include\10.0.26100.0\\um\namedpipeapi.h:
 
 vcpkg_installed\x64-windows\include\glm\vec2.hpp:
 
-D:\include\10.0.26100.0\ucrt\malloc.h:
-
 D:\\include\10.0.26100.0\\um\heapapi.h:
+
+D:\include\10.0.26100.0\ucrt\malloc.h:
 
 C:\CityG\external\imgui\backends\imgui_impl_sdl2.h:
 
@@ -1510,9 +1926,9 @@ D:\\include\10.0.26100.0\\um\processthreadsapi.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocmes":
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_joystick.h:
-
 D:\\include\10.0.26100.0\\um\sysinfoapi.h:
+
+vcpkg_installed\x64-windows\include\SDL2\SDL_joystick.h:
 
 D:\\include\10.0.26100.0\\um\enclaveapi.h:
 
@@ -1526,29 +1942,29 @@ D:\\include\10.0.26100.0\\um\jobapi2.h:
 
 D:\\include\10.0.26100.0\\um\wow64apiset.h:
 
-D:\include\10.0.26100.0\ucrt\corecrt_malloc.h:
-
 D:\\include\10.0.26100.0\\um\securitybaseapi.h:
 
+D:\include\10.0.26100.0\ucrt\corecrt_malloc.h:
+
 D:\\include\10.0.26100.0\\um\namespaceapi.h:
+
+D:\\include\10.0.26100.0\\um\systemtopologyapi.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_touch.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt_startup.h:
 
-D:\\include\10.0.26100.0\\um\systemtopologyapi.h:
-
 D:\\include\10.0.26100.0\\um\processtopologyapi.h:
-
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdexcept":
 
 D:\\include\10.0.26100.0\\um\securityappcontainer.h:
 
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdexcept":
+
 D:\\include\10.0.26100.0\\um\realtimeapiset.h:
 
-vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp:
-
 D:\\include\10.0.26100.0\\shared\winerror.h:
+
+vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp:
 
 D:\\include\10.0.26100.0\\shared\wnnc.h:
 
@@ -1568,15 +1984,15 @@ D:\\include\10.0.26100.0\\um\datetimeapi.h:
 
 D:\\include\10.0.26100.0\\um\stringapiset.h:
 
+D:\\include\10.0.26100.0\\um\wincon.h:
+
 vcpkg_installed\x64-windows\include\nlohmann\detail\meta\std_fs.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint3_sized.hpp:
 
-D:\\include\10.0.26100.0\\um\wincon.h:
+vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2_sized.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocbuf":
-
-vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2_sized.hpp:
 
 D:\\include\10.0.26100.0\\um\wincontypes.h:
 
@@ -1586,11 +2002,11 @@ D:\\include\10.0.26100.0\\um\consoleapi2.h:
 
 D:\\include\10.0.26100.0\\um\consoleapi3.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_xlocinfo_types.hpp":
+vcpkg_installed\x64-windows\include\SDL2\SDL_keyboard.h:
 
 vcpkg_installed\x64-windows\include\glm\detail\..\common.hpp:
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_keyboard.h:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_xlocinfo_types.hpp":
 
 D:\\include\10.0.26100.0\\um\winreg.h:
 
@@ -1598,27 +2014,27 @@ D:\\include\10.0.26100.0\\um\winreg.h:
 
 D:\\include\10.0.26100.0\\um\reason.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\streambuf":
-
 vcpkg_installed\x64-windows\include\KHR\khrplatform.h:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\streambuf":
 
 D:\\include\10.0.26100.0\\um\winnetwk.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3_precision.hpp:
-
 D:\\include\10.0.26100.0\\shared\stralign.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\forward_list":
-
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cctype":
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3_precision.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\iosfwd":
 
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\forward_list":
+
 D:\\include\10.0.26100.0\\um\winsvc.h:
 
-vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x4.hpp:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cctype":
 
 D:\\include\10.0.26100.0\\um\mcx.h:
+
+vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x4.hpp:
 
 vcpkg_installed\x64-windows\include\glm\detail\compute_vector_decl.hpp:
 
@@ -1642,15 +2058,15 @@ vcpkg_installed\x64-windows\include\SDL2\SDL.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_main.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\any":
-
 vcpkg_installed\x64-windows\include\SDL2\SDL_platform.h:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\any":
 
 vcpkg_installed\x64-windows\include\SDL2\begin_code.h:
 
-vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x2.hpp:
-
 C:\CityG\external\imgui\imgui_widgets.cpp:
+
+vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x2.hpp:
 
 D:\include\10.0.26100.0\ucrt\wchar.h:
 
@@ -1662,9 +2078,9 @@ D:\include\10.0.26100.0\ucrt\corecrt_wconio.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt_wio.h:
 
-C:\CityG\external\imgui\imstb_rectpack.h:
-
 D:\include\10.0.26100.0\ucrt\corecrt_share.h:
+
+C:\CityG\external\imgui\imstb_rectpack.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt_wprocess.h:
 
@@ -1674,11 +2090,11 @@ D:\include\10.0.26100.0\ucrt\corecrt_wtime.h:
 
 D:\include\10.0.26100.0\ucrt\sys\stat.h:
 
-vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x3.hpp:
+D:\include\10.0.26100.0\ucrt\sys\types.h:
 
 vcpkg_installed\x64-windows\include\glm\detail\type_mat3x4.inl:
 
-D:\include\10.0.26100.0\ucrt\sys\types.h:
+vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x3.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin.h":
 
@@ -1690,23 +2106,23 @@ vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec2.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\chrono":
 
-vcpkg_installed\x64-windows\include\glm\vec3.hpp:
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\immintrin.h":
 
-vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3_sized.hpp:
+vcpkg_installed\x64-windows\include\glm\vec3.hpp:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\wmmintrin.h":
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_thread.h:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\wmmintrin.h":
+vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3_sized.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\nmmintrin.h":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\smmintrin.h":
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\exception":
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\emmintrin.h":
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\exception":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\mmintrin.h":
 
@@ -1718,37 +2134,37 @@ vcpkg_installed\x64-windows\include\nlohmann\detail\abi_macros.hpp:
 
 D:\include\10.0.26100.0\ucrt\math.h:
 
+D:\include\10.0.26100.0\ucrt\corecrt_math.h:
+
 vcpkg_installed\x64-windows\include\nlohmann\detail\input\binary_reader.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xnode_handle.h":
-
-D:\include\10.0.26100.0\ucrt\corecrt_math.h:
 
 D:\include\10.0.26100.0\ucrt\corecrt_math_defines.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_assert.h:
 
-vcpkg_installed\x64-windows\include\glm\detail\type_half.inl:
-
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xbit_ops.h":
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin0.h":
+
+vcpkg_installed\x64-windows\include\glm\detail\type_half.inl:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_atomic.h:
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_error.h:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xbit_ops.h":
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_audio.h:
+
+vcpkg_installed\x64-windows\include\SDL2\SDL_error.h:
+
+vcpkg_installed\x64-windows\include\SDL2\SDL_endian.h:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\meta\cpp_future.hpp:
 
 vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec3.hpp:
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_endian.h:
+vcpkg_installed\x64-windows\include\SDL2\SDL_mutex.h:
 
 vcpkg_installed\x64-windows\include\glm\detail\func_packing.inl:
-
-vcpkg_installed\x64-windows\include\SDL2\SDL_mutex.h:
 
 D:\include\10.0.26100.0\ucrt\process.h:
 
@@ -1764,29 +2180,29 @@ vcpkg_installed\x64-windows\include\SDL2\SDL_clipboard.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_cpuinfo.h:
 
-vcpkg_installed\x64-windows\include\glm\detail\func_vector_relational.inl:
-
 vcpkg_installed\x64-windows\include\SDL2\SDL_events.h:
+
+vcpkg_installed\x64-windows\include\glm\detail\func_vector_relational.inl:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_video.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_pixels.h:
 
-vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec4.hpp:
-
 vcpkg_installed\x64-windows\include\SDL2\SDL_rect.h:
+
+vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec4.hpp:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_surface.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_blendmode.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4_precision.hpp:
-
 vcpkg_installed\x64-windows\include\SDL2\SDL_scancode.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2_precision.hpp:
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4_precision.hpp:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_mouse.h:
+
+vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2_precision.hpp:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_guid.h:
 
@@ -1796,31 +2212,31 @@ vcpkg_installed\x64-windows\include\SDL2\SDL_sensor.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_quit.h:
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\string_concat.hpp:
-
 vcpkg_installed\x64-windows\include\SDL2\SDL_gesture.h:
 
-D:\include\10.0.26100.0\ucrt\crtdbg.h:
+vcpkg_installed\x64-windows\include\nlohmann\detail\string_concat.hpp:
 
 C:\CityG\external\imgui\imgui_internal.h:
 
+D:\include\10.0.26100.0\ucrt\crtdbg.h:
+
 vcpkg_installed\x64-windows\include\SDL2\SDL_filesystem.h:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3.hpp:
+vcpkg_installed\x64-windows\include\SDL2\SDL_haptic.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_metal.h:
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_haptic.h:
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3.hpp:
+
+vcpkg_installed\x64-windows\include\SDL2\SDL_hidapi.h:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\input\position_t.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xtr1common":
 
-vcpkg_installed\x64-windows\include\SDL2\SDL_hidapi.h:
+vcpkg_installed\x64-windows\include\SDL2\SDL_hints.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xloctime":
-
-vcpkg_installed\x64-windows\include\SDL2\SDL_hints.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_loadso.h:
 
@@ -1838,9 +2254,9 @@ vcpkg_installed\x64-windows\include\SDL2\SDL_shape.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_system.h:
 
-D:\include\10.0.26100.0\ucrt\corecrt_terminate.h:
-
 vcpkg_installed\x64-windows\include\SDL2\SDL_timer.h:
+
+D:\include\10.0.26100.0\ucrt\corecrt_terminate.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_version.h:
 
@@ -1864,9 +2280,9 @@ C:\CityG\external\imgui\imstb_truetype.h:
 
 C:\CityG\external\imgui\imgui_tables.cpp:
 
-vcpkg_installed\x64-windows\include\glm\mat3x2.hpp:
-
 C:\CityG\src\main.cpp:
+
+vcpkg_installed\x64-windows\include\glm\mat3x2.hpp:
 
 vcpkg_installed\x64-windows\include\glad\glad.h:
 
@@ -1882,9 +2298,9 @@ vcpkg_installed\x64-windows\include\glm\glm.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xkeycheck.h":
 
-D:\include\10.0.26100.0\ucrt\locale.h:
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_typeinfo.h":
+
+D:\include\10.0.26100.0\ucrt\locale.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new_debug.h":
 
@@ -1894,31 +2310,31 @@ vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\use_ansi.h":
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\ios":
-
-vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_uint_sized.hpp:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdlib":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\climits":
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdlib":
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\ios":
+
+vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_uint_sized.hpp:
 
 vcpkg_installed\x64-windows\include\glm\detail\setup.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstddef":
 
-vcpkg_installed\x64-windows\include\glm\detail\type_half.hpp:
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cfloat":
+
+vcpkg_installed\x64-windows\include\glm\detail\type_half.hpp:
 
 vcpkg_installed\x64-windows\include\glm\detail\..\simd\platform.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdint":
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\conversions\to_chars.hpp:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits":
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits":
+vcpkg_installed\x64-windows\include\nlohmann\detail\conversions\to_chars.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xhash":
 
@@ -1950,53 +2366,53 @@ vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2_sized.hpp:
 
 vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_int_sized.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\atomic":
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\initializer_list":
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\atomic":
 
 vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp:
 
 vcpkg_installed\x64-windows\include\glm\gtc\..\ext\scalar_constants.hpp:
 
-vcpkg_installed\x64-windows\include\glm\detail\type_mat4x2.inl:
-
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2.hpp:
+
+vcpkg_installed\x64-windows\include\glm\detail\type_mat4x2.inl:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool3.hpp:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3_precision.hpp:
-
 vcpkg_installed\x64-windows\include\glm\detail\type_vec3.inl:
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\iterators\json_reverse_iterator.hpp:
-
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\istream":
+vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3_precision.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\functional":
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\algorithm":
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\istream":
+
+vcpkg_installed\x64-windows\include\nlohmann\detail\iterators\json_reverse_iterator.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_exception.h":
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\algorithm":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_iter_core.hpp":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\utility":
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\json_pointer.hpp:
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\typeinfo":
+
+vcpkg_installed\x64-windows\include\nlohmann\detail\json_pointer.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\new":
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\valarray":
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility":
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\valarray":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstring":
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2_precision.hpp:
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xpolymorphic_allocator.h":
+
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2_precision.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_bit_utils.hpp":
 
@@ -2010,9 +2426,9 @@ vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3.hpp:
 
-vcpkg_installed\x64-windows\include\glm\trigonometric.hpp:
-
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint3.hpp:
+
+vcpkg_installed\x64-windows\include\glm\trigonometric.hpp:
 
 vcpkg_installed\x64-windows\include\glm\vec4.hpp:
 
@@ -2022,15 +2438,15 @@ vcpkg_installed\x64-windows\include\glm\detail\type_vec4.inl:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool4_precision.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_minmax.hpp":
-
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4_precision.hpp:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_minmax.hpp":
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4.hpp:
 
-vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4.hpp:
-
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4_precision.hpp:
+
+vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4.hpp:
 
@@ -2074,11 +2490,11 @@ vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x4_precision.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\version":
+vcpkg_installed\x64-windows\include\glm\detail\type_mat3x2.inl:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2.hpp:
 
-vcpkg_installed\x64-windows\include\glm\detail\type_mat3x2.inl:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\version":
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2_precision.hpp:
 
@@ -2096,11 +2512,11 @@ vcpkg_installed\x64-windows\include\glm\detail\func_common.inl:
 
 vcpkg_installed\x64-windows\include\glm\detail\..\vector_relational.hpp:
 
+vcpkg_installed\x64-windows\include\glm\detail\compute_common.hpp:
+
 vcpkg_installed\x64-windows\include\nlohmann\detail\input\lexer.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4.hpp:
-
-vcpkg_installed\x64-windows\include\glm\detail\compute_common.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string":
 
@@ -2120,9 +2536,9 @@ vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4.hpp:
 
 vcpkg_installed\x64-windows\include\glm\mat4x2.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\numeric":
-
 vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x2.hpp:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\numeric":
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2_precision.hpp:
 
@@ -2138,9 +2554,9 @@ vcpkg_installed\x64-windows\include\glm\detail\type_mat4x4.inl:
 
 vcpkg_installed\x64-windows\include\glm\detail\func_geometric.inl:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocnum":
-
 vcpkg_installed\x64-windows\include\glm\detail\..\exponential.hpp:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocnum":
 
 C:\CityG\src\renderer.h:
 
@@ -2150,13 +2566,13 @@ vcpkg_installed\x64-windows\include\nlohmann\thirdparty\hedley\hedley_undef.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4_precision.hpp:
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\meta\call_std\begin.hpp:
-
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4_precision.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\system_error":
+vcpkg_installed\x64-windows\include\nlohmann\detail\meta\call_std\begin.hpp:
 
 vcpkg_installed\x64-windows\include\glm\detail\func_matrix.inl:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\system_error":
 
 vcpkg_installed\x64-windows\include\glm\detail\func_trigonometric.inl:
 
@@ -2164,11 +2580,11 @@ vcpkg_installed\x64-windows\include\glm\packing.hpp:
 
 vcpkg_installed\x64-windows\include\glm\integer.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xfacet":
+vcpkg_installed\x64-windows\include\glm\detail\func_integer.inl:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\iomanip":
 
-vcpkg_installed\x64-windows\include\glm\detail\func_integer.inl:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xfacet":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocale":
 
@@ -2180,11 +2596,11 @@ vcpkg_installed\x64-windows\include\glm\ext\..\gtc\constants.hpp:
 
 vcpkg_installed\x64-windows\include\glm\ext\scalar_constants.inl:
 
+vcpkg_installed\x64-windows\include\glm\gtc\constants.inl:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xtimec.h":
 
 vcpkg_installed\x64-windows\include\glm\ext\matrix_transform.inl:
-
-vcpkg_installed\x64-windows\include\glm\gtc\constants.inl:
 
 vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_clip_space.hpp:
 
@@ -2196,6 +2612,8 @@ vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_transform.hpp:
 
 vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.inl:
 
+C:\CityG\src\renderer.cpp:
+
 vcpkg_installed\x64-windows\include\nlohmann\json.hpp:
 
 vcpkg_installed\x64-windows\include\nlohmann\adl_serializer.hpp:
@@ -2204,9 +2622,9 @@ vcpkg_installed\x64-windows\include\nlohmann\adl_serializer.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_filebuf.hpp":
 
-vcpkg_installed\x64-windows\include\nlohmann\detail\macro_scope.hpp:
-
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\memory":
+
+vcpkg_installed\x64-windows\include\nlohmann\detail\macro_scope.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_string_view.hpp":
 
@@ -2226,9 +2644,9 @@ vcpkg_installed\x64-windows\include\nlohmann\detail\exceptions.hpp:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\value_t.hpp:
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\clocale":
-
 vcpkg_installed\x64-windows\include\nlohmann\detail\meta\detected.hpp:
+
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\clocale":
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\meta\type_traits.hpp:
 
@@ -2256,11 +2674,11 @@ D:\include\10.0.26100.0\ucrt\time.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xiosbase":
 
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string_view":
+D:\include\10.0.26100.0\ucrt\share.h:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\json_custom_base_class.hpp:
 
-D:\include\10.0.26100.0\ucrt\share.h:
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string_view":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocmon":
 

@@ -246,6 +246,7 @@ struct ZoneStrip {
 struct HouseAnim {
     glm::vec3 pos;
     float spawnTime;
+    glm::vec3 forward;
 };
 
 struct AppState {
@@ -584,9 +585,10 @@ static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
     s.houseAnim.clear();
 
     const float roadHalf = 5.0f;
-    const float setback = roadHalf + 6.0f;
-    const float spacing = 10.0f;
-    const float rowSpacing = 10.0f;
+    const float setback = roadHalf + 5.0f;     // centerline to front row
+    const float spacing = 15.0f;               // along the road
+    const float rowSpacing = 14.0f;            // away from road
+    const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
 
     for (const auto& z : s.zones) {
         int ridx = FindRoadIndexById(s.roads, z.roadId);
@@ -607,18 +609,27 @@ static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
             auto doSide = [&](int side) {
                 for (int row = 0; row < rows; row++) {
                     glm::vec3 pos = p + right * float(side) * (setback + row * rowSpacing);
-                    pos.y = 0.5f;
+                    pos.y = houseSize.y * 0.5f;
+
+                    glm::vec3 up(0,1,0);
+                    glm::vec3 facing = glm::normalize(-float(side) * right); // face toward road
+                    glm::vec3 basisRight = glm::normalize(glm::cross(up, facing));
+                    glm::mat4 R(1.0f);
+                    R[0] = glm::vec4(basisRight, 0.0f);
+                    R[1] = glm::vec4(up, 0.0f);
+                    R[2] = glm::vec4(facing, 0.0f);
 
                     if (animate) {
                         uint32_t hx = (uint32_t)std::llround(pos.x * 10.0);
                         uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
                         uint32_t h = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)z.id);
                         float jitter = (h % 120) / 1000.0f; // 0..0.119 sec
-                        s.houseAnim.push_back({pos, nowSec + jitter});
+                        s.houseAnim.push_back({pos, nowSec + jitter, facing});
                     } else {
                         glm::mat4 M(1.0f);
                         M = glm::translate(M, pos);
-                        M = glm::scale(M, glm::vec3(1.0f, 1.6f, 1.0f));
+                        M = M * R;
+                        M = glm::scale(M, houseSize);
                         s.houseStatic.push_back(M);
                     }
                 }
@@ -895,24 +906,20 @@ int main(int, char**) {
     auto startRoadDraw = [&](glm::vec3 hit) {
         roadTool.tempPts.clear();
 
-        // If near an endpoint, extend that road, else create a new road
-        glm::vec3 ep;
-        int rid = -1;
-        bool isStart = false;
-
-        if (endpointSnap && SnapToAnyEndpoint(state.roads, hit, endpointSnapRadius, ep, rid, isStart)) {
-            roadTool.extending = true;
-            roadTool.extendAtStart = isStart;
-            roadTool.extendRoadId = rid;
-            roadTool.tempPts.push_back(ep);
-        } else {
-            roadTool.extending = false;
-            roadTool.extendAtStart = false;
-            roadTool.extendRoadId = -1;
-
-            glm::vec3 p0 = applySnaps(hit, nullptr);
-            roadTool.tempPts.push_back(p0);
+        // Anchor at an existing endpoint if near one, but always create a new road (do not modify existing)
+        glm::vec3 p0 = hit;
+        if (endpointSnap) {
+            glm::vec3 ep; int rid; bool isStart;
+            if (SnapToAnyEndpoint(state.roads, hit, endpointSnapRadius, ep, rid, isStart)) {
+                p0 = ep;
+            }
         }
+        p0 = applySnaps(p0, nullptr);
+        roadTool.tempPts.push_back(p0);
+
+        roadTool.extending = false;
+        roadTool.extendAtStart = false;
+        roadTool.extendRoadId = -1;
 
         roadTool.drawing = true;
     };
@@ -1241,13 +1248,24 @@ int main(int, char**) {
 
             glm::mat4 M(1.0f);
             M = glm::translate(M, h.pos);
-            M = glm::scale(M, glm::vec3(1.0f, 1.6f, 1.0f) * s);
+            // same houseSize as static, scaled by anim factor
+            const glm::vec3 houseSizeAnim(8.0f, 6.0f, 12.0f);
+            glm::vec3 up(0,1,0);
+            glm::vec3 facing = glm::normalize(h.forward);
+            glm::vec3 basisRight = glm::normalize(glm::cross(up, facing));
+            glm::mat4 R(1.0f);
+            R[0] = glm::vec4(basisRight, 0.0f);
+            R[1] = glm::vec4(up, 0.0f);
+            R[2] = glm::vec4(facing, 0.0f);
+            M = M * R;
+            M = glm::scale(M, houseSizeAnim * s);
             animModelsTmp.push_back(M);
 
             if (t >= 1.0f) {
                 glm::mat4 S(1.0f);
                 S = glm::translate(S, h.pos);
-                S = glm::scale(S, glm::vec3(1.0f, 1.6f, 1.0f));
+                S = S * R;
+                S = glm::scale(S, houseSizeAnim);
                 state.houseStatic.push_back(S);
             } else {
                 still.push_back(h);
