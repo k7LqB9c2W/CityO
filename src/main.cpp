@@ -631,6 +631,33 @@ static void BuildZonePreviewMesh(
     if (sideMask & 2) emitStrip(+1); // right
 }
 
+static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec3& b) {
+    const float roadWidth = 10.0f;
+    const float y = 0.05f;
+
+    glm::vec3 dir = b - a;
+    dir.y = 0.0f;
+    float len = std::sqrt(dir.x*dir.x + dir.z*dir.z);
+    if (len < 1e-3f) return;
+    dir /= len;
+
+    glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), dir));
+    glm::vec3 off = right * (roadWidth * 0.5f);
+
+    glm::vec3 aL = a - off; aL.y = y;
+    glm::vec3 aR = a + off; aR.y = y;
+    glm::vec3 bL = b - off; bL.y = y;
+    glm::vec3 bR = b + off; bR.y = y;
+
+    s.zonePreviewVerts.push_back(aL);
+    s.zonePreviewVerts.push_back(aR);
+    s.zonePreviewVerts.push_back(bR);
+
+    s.zonePreviewVerts.push_back(aL);
+    s.zonePreviewVerts.push_back(bR);
+    s.zonePreviewVerts.push_back(bL);
+}
+
 static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
     s.houseStatic.clear();
     s.houseAnim.clear();
@@ -1103,9 +1130,12 @@ int main(int, char**) {
     auto finishRoadDraw = [&]() {
         if (!roadTool.drawing) return;
 
+        float segLen = (roadTool.tempPts.size() >= 2) ? LenXZ(roadTool.tempPts.front(), roadTool.tempPts.back()) : 0.0f;
+        bool hasLine = (roadTool.tempPts.size() >= 2) && (segLen >= 1.0f);
+
         // Must have at least 2 points for a new road
         if (!roadTool.extending) {
-            if (roadTool.tempPts.size() >= 2) {
+            if (hasLine) {
                 Road r;
                 r.id = state.nextRoadId++;
                 r.pts = roadTool.tempPts;
@@ -1117,7 +1147,7 @@ int main(int, char**) {
             }
         } else {
             // Extend existing road by adding points (excluding the first anchor point)
-            if (roadTool.tempPts.size() >= 2) {
+            if (hasLine) {
                 std::vector<glm::vec3> added(roadTool.tempPts.begin() + 1, roadTool.tempPts.end());
                 cmds.exec(state, std::make_unique<CmdExtendRoad>(roadTool.extendRoadId, added, roadTool.extendAtStart));
                 statusText = "Road extended.";
@@ -1350,19 +1380,13 @@ int main(int, char**) {
 
         // Continuous actions
         if (!io.WantCaptureMouse) {
-            // Road drawing: sample points while holding LMB
+            // Road drawing: update preview end while holding LMB
             if (mode == Mode::Road && roadTool.drawing && hasHit) {
-                glm::vec3 raw = mouseHit;
-
                 if (!roadTool.tempPts.empty()) {
-                    glm::vec3 prev = roadTool.tempPts.back();
-                    glm::vec3 p = applySnaps(raw, &prev);
-
-                    const float sampleSpacing = 6.0f;
-                    float d = LenXZ(prev, p);
-                    if (d >= sampleSpacing) {
-                        roadTool.tempPts.push_back(p);
-                    }
+                    glm::vec3 anchor = roadTool.tempPts.front();
+                    glm::vec3 p = applySnaps(mouseHit, &anchor);
+                    if (roadTool.tempPts.size() == 1) roadTool.tempPts.push_back(p);
+                    else roadTool.tempPts[1] = p;
                 }
             }
 
@@ -1450,9 +1474,14 @@ int main(int, char**) {
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        // Zone preview mesh generation (only while hovering valid or dragging)
+        // Overlay mesh generation (road preview while drawing, zone preview while zoning)
         state.zonePreviewVerts.clear();
-        if (mode == Mode::Zone) {
+        if (mode == Mode::Road && roadTool.drawing && roadTool.tempPts.size() >= 2) {
+            BuildRoadPreviewMesh(state, roadTool.tempPts[0], roadTool.tempPts[1]);
+            if (!state.zonePreviewVerts.empty()) {
+                UploadDynamicVerts(vboZonePrev, state.zonePreviewVerts);
+            }
+        } else if (mode == Mode::Zone) {
             int rid = zoneTool.dragging ? zoneTool.roadId : zoneTool.hoverRoadId;
             if (rid != -1) {
                 int ridx = FindRoadIndexById(state.roads, rid);
@@ -1460,7 +1489,9 @@ int main(int, char**) {
                     float a = zoneTool.dragging ? zoneTool.startD : zoneTool.hoverD;
                     float b = zoneTool.dragging ? zoneTool.endD : (zoneTool.hoverD + 40.0f);
                     BuildZonePreviewMesh(state, state.roads[ridx], a, b, zoneTool.sideMask, zoneTool.depth);
-                    UploadDynamicVerts(vboZonePrev, state.zonePreviewVerts);
+                    if (!state.zonePreviewVerts.empty()) {
+                        UploadDynamicVerts(vboZonePrev, state.zonePreviewVerts);
+                    }
                 }
             }
         }
@@ -1544,16 +1575,21 @@ int main(int, char**) {
         glBindVertexArray(vaoRoad);
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)state.roadMeshVerts.size());
 
-        // Zone preview (translucent)
+        // Zone/road preview (translucent overlay)
         if (!state.zonePreviewVerts.empty()) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            bool valid = zoneTool.dragging ? true : zoneTool.hoverValid;
-            if (valid) glUniform3f(locC_B, 0.20f, 0.85f, 0.35f);
-            else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
+            if (mode == Mode::Road && roadTool.drawing) {
+                glUniform3f(locC_B, 0.20f, 0.65f, 0.95f);
+                glUniform1f(locA_B, 0.50f);
+            } else {
+                bool valid = zoneTool.dragging ? true : zoneTool.hoverValid;
+                if (valid) glUniform3f(locC_B, 0.20f, 0.85f, 0.35f);
+                else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
 
-            glUniform1f(locA_B, 0.35f);
+                glUniform1f(locA_B, 0.35f);
+            }
             glBindVertexArray(vaoZonePrev);
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)state.zonePreviewVerts.size());
 

@@ -1154,12 +1154,151 @@ CMakeFiles/CityPainterProto.dir/src/main.cpp.obj
  C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/matrix_transform.hpp
  C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/matrix_transform.inl
  C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/matrix_transform.inl
- C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/string
- C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xstring
- C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_string_view.hpp
- C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iosfwd
- C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cctype
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/type_ptr.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../gtc/quaternion.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_relational.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/vector_relational.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/../detail/type_float.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/detail/setup.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_common.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/../ext/quaternion_geometric.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/quaternion_geometric.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/quaternion_common.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_float.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/../detail/type_quat.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/detail/../ext/quaternion_relational.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/quaternion_relational.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/detail/type_quat.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_float_precision.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_double.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_double_precision.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_trigonometric.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/quaternion_trigonometric.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/quaternion_transform.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/quaternion_transform.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/quaternion.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/epsilon.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../detail/setup.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/epsilon.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../gtc/vec1.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_bool1.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_bool1_precision.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_float1.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_float1_precision.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_double1.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_double1_precision.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_int1.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_int1_sized.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_uint1.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/vector_uint1_sized.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/type_ptr.inl
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/json.hpp
  C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/algorithm
  C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_heap_algorithms.hpp
  C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_minmax.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iosfwd
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iterator
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/memory
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/string
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xstring
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_string_view.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cctype
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/adl_serializer.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/abi_macros.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/conversions/from_json.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/array
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/forward_list
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/map
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xtree
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/valarray
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/exceptions.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/stdexcept
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/value_t.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/macro_scope.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/detected.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/void_t.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/thirdparty/hedley/hedley.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/version
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cassert
+ D:/include/10.0.26100.0/ucrt/assert.h
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/string_escape.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/input/position_t.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/cpp_future.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/type_traits.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/iterators/iterator_traits.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/call_std/begin.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/call_std/end.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/json_fwd.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/string_concat.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/identity_tag.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/std_fs.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/filesystem
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/chrono
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_chrono.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/ctime
+ D:/include/10.0.26100.0/ucrt/time.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/ratio
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xtimec.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/system_error
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_system_error_abi.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cerrno
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xcall_once.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xerrc.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/atomic
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xthreads.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_threads_core.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xfilesystem_abi.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iomanip
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/istream
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/ostream
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/ios
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xlocnum
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/streambuf
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xiosbase
+ D:/include/10.0.26100.0/ucrt/share.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xlocale
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xfacet
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xlocinfo
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_xlocinfo_types.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/clocale
+ D:/include/10.0.26100.0/ucrt/locale.h
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xlocmon
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xloctime
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/locale
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xlocbuf
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xlocmes
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/optional
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xsmf_control.h
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/conversions/to_json.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/iterators/iteration_proxy.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/string_utils.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/byte_container_with_subtype.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/hash.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/input/binary_reader.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/input/input_adapters.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/numeric
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/input/json_sax.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/input/lexer.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/meta/is_sax.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/input/parser.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/iterators/internal_iterator.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/iterators/primitive_iterator.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/iterators/iter_impl.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/iterators/json_reverse_iterator.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/json_custom_base_class.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/json_pointer.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/json_ref.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/output/binary_writer.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/output/output_adapters.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/output/serializer.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/conversions/to_chars.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/ordered_map.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/any
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/string_view
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/macro_unscope.hpp
+ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/fstream
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_filebuf.hpp
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/sstream
+ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iostream
 
