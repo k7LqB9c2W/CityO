@@ -12,6 +12,7 @@ struct RenderMarker {
 struct RenderFrame {
     glm::mat4 viewProj{1.0f};
     std::size_t roadVertexCount = 0;
+    std::size_t gridVertexCount = 0;
     std::size_t overlayVertexCount = 0;
     std::size_t previewVertexCount = 0;
     std::size_t houseStaticCount = 0;

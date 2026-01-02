@@ -326,17 +326,25 @@ void Renderer::render(const RenderFrame& frame) {
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.roadVertexCount);
 
     // Preview overlay
-    if (frame.overlayVertexCount + frame.previewVertexCount > 0) {
+    if (frame.gridVertexCount + frame.overlayVertexCount + frame.previewVertexCount > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);
+
+        glBindVertexArray(vaoPreview);
+
+        // Lot grid
+        if (frame.gridVertexCount > 0) {
+            glUniform3f(locC_B, 0.10f, 0.60f, 0.75f);
+            glUniform1f(locA_B, 0.15f);
+            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.gridVertexCount);
+        }
 
         // Existing zones overlay
         if (frame.overlayVertexCount > 0) {
             glUniform3f(locC_B, 0.15f, 0.65f, 0.35f);
             glUniform1f(locA_B, 0.30f);
-            glBindVertexArray(vaoPreview);
-            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.overlayVertexCount);
+            glDrawArrays(GL_TRIANGLES, (GLint)frame.gridVertexCount, (GLsizei)frame.overlayVertexCount);
         }
 
         // Active preview
@@ -349,8 +357,7 @@ void Renderer::render(const RenderFrame& frame) {
                 else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
                 glUniform1f(locA_B, 0.35f);
             }
-            glBindVertexArray(vaoPreview);
-            glDrawArrays(GL_TRIANGLES, (GLint)frame.overlayVertexCount, (GLsizei)frame.previewVertexCount);
+            glDrawArrays(GL_TRIANGLES, (GLint)(frame.gridVertexCount + frame.overlayVertexCount), (GLsizei)frame.previewVertexCount);
         }
 
         glDepthMask(GL_TRUE);

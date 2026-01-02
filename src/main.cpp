@@ -1561,8 +1561,24 @@ int main(int, char**) {
                 }
             }
         }
-        std::vector<glm::vec3> overlayAndPreview = zoneTool.overlayVerts;
+
+        // Lot grid (always show in Zone/Unzone mode)
+        std::vector<glm::vec3> lotGridVerts;
+        if (mode == Mode::Zone || mode == Mode::Unzone) {
+            lotGridVerts.reserve(state.lots.size() * 6);
+            const float lotDepth = 10.0f;
+            for (const auto& c : state.lots) {
+                float lotWidth = std::max(6.0f, c.d1 - c.d0);
+                AppendLotOverlayQuad(lotGridVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
+            }
+        }
+
+        std::vector<glm::vec3> overlayAndPreview = lotGridVerts;
+        std::size_t gridCount = overlayAndPreview.size();
+        overlayAndPreview.insert(overlayAndPreview.end(), zoneTool.overlayVerts.begin(), zoneTool.overlayVerts.end());
+        std::size_t overlayCount = overlayAndPreview.size() - gridCount;
         overlayAndPreview.insert(overlayAndPreview.end(), state.zonePreviewVerts.begin(), state.zonePreviewVerts.end());
+        std::size_t previewCount = overlayAndPreview.size() - gridCount - overlayCount;
         renderer.updatePreviewMesh(overlayAndPreview);
 
         // ImGui
@@ -1646,8 +1662,9 @@ int main(int, char**) {
         RenderFrame frame;
         frame.viewProj = viewProj;
         frame.roadVertexCount = state.roadMeshVerts.size();
-        frame.overlayVertexCount = zoneTool.overlayVerts.size();
-        frame.previewVertexCount = state.zonePreviewVerts.size();
+        frame.gridVertexCount = gridCount;
+        frame.overlayVertexCount = overlayCount;
+        frame.previewVertexCount = previewCount;
         frame.houseStaticCount = state.houseStatic.size();
         frame.houseAnimCount = animModelsTmp.size();
         frame.drawRoadPreview = (mode == Mode::Road && roadTool.drawing && !state.zonePreviewVerts.empty());
