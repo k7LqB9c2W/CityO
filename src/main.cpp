@@ -40,6 +40,26 @@ static float LenXZ(const glm::vec3& a, const glm::vec3& b) {
     return std::sqrt(d.x*d.x + d.y*d.y);
 }
 
+constexpr float ORIGIN_STEP_M = 1024.0f;
+static glm::vec3 ComputeRenderOrigin(const glm::vec3& target) {
+    glm::vec3 o(0.0f);
+    o.x = std::floor(target.x / ORIGIN_STEP_M) * ORIGIN_STEP_M;
+    o.z = std::floor(target.z / ORIGIN_STEP_M) * ORIGIN_STEP_M;
+    return o;
+}
+
+constexpr float CHUNK_SIZE_M = 1024.0f;
+struct ChunkCoord { int32_t cx; int32_t cz; };
+static uint64_t PackChunk(int32_t cx, int32_t cz) {
+    return (uint64_t(uint32_t(cx)) << 32) | uint32_t(cz);
+}
+static ChunkCoord ChunkFromPosXZ(const glm::vec3& p) {
+    return {
+        (int32_t)std::floor(p.x / CHUNK_SIZE_M),
+        (int32_t)std::floor(p.z / CHUNK_SIZE_M)
+    };
+}
+
 struct Camera {
     glm::vec3 target{0.0f, 0.0f, 0.0f};
     float distance = 180.0f;
@@ -272,6 +292,8 @@ struct AppState {
     std::vector<Road> roads;
     std::vector<ZoneStrip> zones;
     std::vector<LotCell> lots;
+    std::unordered_map<uint64_t, std::vector<int>> lotIndicesByChunk;
+    std::unordered_map<uint64_t, std::vector<glm::mat4>> houseStaticByChunk;
 
     bool roadsDirty = true;
     bool housesDirty = true;
@@ -662,6 +684,7 @@ static void BuildZonePreviewMesh(
 
 static void RebuildLotCells(AppState& s) {
     s.lots.clear();
+    s.lotIndicesByChunk.clear();
     if (s.roads.empty()) return;
 
     const float roadHalf = 5.0f;
@@ -734,7 +757,10 @@ static void RebuildLotCells(AppState& s) {
                 c.zoned = false;
 
                 occupied.insert(k);
+                int idx = (int)s.lots.size();
                 s.lots.push_back(c);
+                uint64_t ck = PackChunk(ChunkFromPosXZ(center).cx, ChunkFromPosXZ(center).cz);
+                s.lotIndicesByChunk[ck].push_back(idx);
             }
         }
     }
@@ -770,6 +796,7 @@ static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec
 static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
     s.houseStatic.clear();
     s.houseAnim.clear();
+    s.houseStaticByChunk.clear();
 
     const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
     const float roadHalf = 5.0f;
@@ -844,6 +871,13 @@ static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
             M = glm::scale(M, houseSize);
             s.houseStatic.push_back(M);
         }
+        // Chunked storage for rendering
+        glm::mat4 Ms(1.0f);
+        Ms = glm::translate(Ms, pos);
+        Ms = Ms * R;
+        Ms = glm::scale(Ms, houseSize);
+        ChunkCoord cc = ChunkFromPosXZ(pos);
+        s.houseStaticByChunk[PackChunk(cc.cx, cc.cz)].push_back(Ms);
         markOccupied(pos);
         placedCenters.push_back(pos);
     }
@@ -1230,15 +1264,33 @@ int main(int, char**) {
         int mx, my;
         SDL_GetMouseState(&mx, &my);
 
+        glm::vec3 renderOrigin = ComputeRenderOrigin(cam.target);
+
         float aspect = (winH > 0) ? (float)winW / (float)winH : 1.0f;
-        float nearClip = Clamp(cam.distance * 0.02f, 5.0f, 200.0f);
-        float farClip  = Clamp(cam.distance * 120.0f, 50000.0f, 300000.0f);
+        float nearClip = Clamp(cam.distance * 0.05f, 20.0f, 300.0f);
+        float farClip  = Clamp(cam.distance * 60.0f, 5000.0f, 120000.0f);
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), aspect, nearClip, farClip);
-        glm::mat4 view = cam.view();
+
+        glm::vec3 eye = cam.position() - renderOrigin;
+        glm::vec3 tgt = cam.target - renderOrigin;
+        glm::mat4 view = glm::lookAt(eye, tgt, glm::vec3(0,1,0));
         glm::mat4 viewProj = proj * view;
 
-        glm::vec3 mouseHit;
-        bool hasHit = ScreenToGroundHit(mx, my, winW, winH, view, proj, mouseHit);
+        glm::vec3 mouseHitRel;
+        bool hasHit = ScreenToGroundHit(mx, my, winW, winH, view, proj, mouseHitRel);
+        glm::vec3 mouseHit = mouseHitRel + renderOrigin;
+
+        // Visible chunks around camera
+        ChunkCoord camChunk = ChunkFromPosXZ(cam.target);
+        const int viewRadius = 5;
+        std::vector<uint64_t> visibleChunks;
+        visibleChunks.reserve((2 * viewRadius + 1) * (2 * viewRadius + 1));
+        for (int dz = -viewRadius; dz <= viewRadius; ++dz) {
+            for (int dx = -viewRadius; dx <= viewRadius; ++dx) {
+                visibleChunks.push_back(PackChunk(camChunk.cx + dx, camChunk.cz + dz));
+            }
+        }
+        std::unordered_set<uint64_t> visibleChunkSet(visibleChunks.begin(), visibleChunks.end());
 
         // Update hover for zoning/unzoning
         if ((mode == Mode::Zone || mode == Mode::Unzone) && hasHit) {
@@ -1484,10 +1536,9 @@ int main(int, char**) {
             RebuildLotCells(state);
             // Re-apply zoning to lot cells after rebuild
             for (const auto& z : state.zones) MarkCellsForZone(state, z.roadId, z.d0, z.d1, z.sideMask);
-            renderer.updateRoadMesh(state.roadMeshVerts);
-            state.roadsDirty = false;
-            state.housesDirty = true;
-        }
+        state.roadsDirty = false;
+        state.housesDirty = true;
+    }
 
         // Rebuild houses if zones changed
         if (state.housesDirty) {
@@ -1521,7 +1572,10 @@ int main(int, char**) {
             R[2] = glm::vec4(facing, 0.0f);
             M = M * R;
             M = glm::scale(M, houseSizeAnim * s);
-            animModelsTmp.push_back(M);
+
+            ChunkCoord cc = ChunkFromPosXZ(h.pos);
+            bool visible = (visibleChunkSet.find(PackChunk(cc.cx, cc.cz)) != visibleChunkSet.end());
+            if (visible) animModelsTmp.push_back(M);
 
             if (t >= 1.0f) {
                 glm::mat4 S(1.0f);
@@ -1529,21 +1583,45 @@ int main(int, char**) {
                 S = S * R;
                 S = glm::scale(S, houseSizeAnim);
                 state.houseStatic.push_back(S);
+                state.houseStaticByChunk[PackChunk(cc.cx, cc.cz)].push_back(S);
             } else {
                 still.push_back(h);
             }
         }
         state.houseAnim.swap(still);
 
-        renderer.updateHouseInstances(state.houseStatic, animModelsTmp);
+        // Visible static houses from chunks
+        std::vector<glm::mat4> visibleStatic;
+        for (uint64_t key : visibleChunks) {
+            auto it = state.houseStaticByChunk.find(key);
+            if (it == state.houseStaticByChunk.end()) continue;
+            visibleStatic.insert(visibleStatic.end(), it->second.begin(), it->second.end());
+        }
+
+        std::vector<glm::mat4> houseStaticShifted;
+        houseStaticShifted.reserve(visibleStatic.size());
+        glm::mat4 Torigin = glm::translate(glm::mat4(1.0f), -renderOrigin);
+        for (const auto& M : visibleStatic) houseStaticShifted.push_back(Torigin * M);
+
+        std::vector<glm::mat4> animShifted;
+        animShifted.reserve(animModelsTmp.size());
+        for (const auto& M : animModelsTmp) animShifted.push_back(Torigin * M);
+
+        renderer.updateHouseInstances(houseStaticShifted, animShifted);
 
         // Overlay mesh generation (existing zones + preview)
         zoneTool.overlayVerts.clear();
-        for (const auto& c : state.lots) {
-            if (!c.zoned) continue;
-            float lotDepth = 10.0f;
-            float lotWidth = std::max(6.0f, c.d1 - c.d0);
-            AppendLotOverlayQuad(zoneTool.overlayVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
+        for (uint64_t key : visibleChunks) {
+            auto it = state.lotIndicesByChunk.find(key);
+            if (it == state.lotIndicesByChunk.end()) continue;
+            for (int idx : it->second) {
+                if (idx < 0 || idx >= (int)state.lots.size()) continue;
+                const auto& c = state.lots[idx];
+                if (!c.zoned) continue;
+                float lotDepth = 10.0f;
+                float lotWidth = std::max(6.0f, c.d1 - c.d0);
+                AppendLotOverlayQuad(zoneTool.overlayVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
+            }
         }
 
         state.zonePreviewVerts.clear();
@@ -1565,11 +1643,17 @@ int main(int, char**) {
         // Lot grid (always show in Zone/Unzone mode)
         std::vector<glm::vec3> lotGridVerts;
         if (mode == Mode::Zone || mode == Mode::Unzone) {
-            lotGridVerts.reserve(state.lots.size() * 6);
             const float lotDepth = 10.0f;
-            for (const auto& c : state.lots) {
-                float lotWidth = std::max(6.0f, c.d1 - c.d0);
-                AppendLotOverlayQuad(lotGridVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
+            for (uint64_t key : visibleChunks) {
+                auto it = state.lotIndicesByChunk.find(key);
+                if (it == state.lotIndicesByChunk.end()) continue;
+                lotGridVerts.reserve(lotGridVerts.size() + it->second.size() * 6);
+                for (int idx : it->second) {
+                    if (idx < 0 || idx >= (int)state.lots.size()) continue;
+                    const auto& c = state.lots[idx];
+                    float lotWidth = std::max(6.0f, c.d1 - c.d0);
+                    AppendLotOverlayQuad(lotGridVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
+                }
             }
         }
 
@@ -1579,6 +1663,7 @@ int main(int, char**) {
         std::size_t overlayCount = overlayAndPreview.size() - gridCount;
         overlayAndPreview.insert(overlayAndPreview.end(), state.zonePreviewVerts.begin(), state.zonePreviewVerts.end());
         std::size_t previewCount = overlayAndPreview.size() - gridCount - overlayCount;
+        for (auto& v : overlayAndPreview) v -= renderOrigin;
         renderer.updatePreviewMesh(overlayAndPreview);
 
         // ImGui
@@ -1646,27 +1731,34 @@ int main(int, char**) {
         if (hasHit && mode == Mode::Road && endpointSnap) {
             glm::vec3 ep; int rid; bool isStart;
             if (SnapToAnyEndpoint(state.roads, mouseHit, endpointSnapRadius, ep, rid, isStart)) {
-                markers.push_back({ep, glm::vec3(1.0f, 0.9f, 0.2f), 1.2f});
+                markers.push_back({ep - renderOrigin, glm::vec3(1.0f, 0.9f, 0.2f), 1.2f});
             }
         }
         if (hasHit && mode == Mode::Zone && !zoneTool.hoverValid) {
-            markers.push_back({mouseHit, glm::vec3(0.95f, 0.25f, 0.25f), 0.9f});
+            markers.push_back({mouseHit - renderOrigin, glm::vec3(0.95f, 0.25f, 0.25f), 0.9f});
         }
         if (roadTool.selectedRoadId != -1 && roadTool.selectedPointIndex != -1) {
             int idx = FindRoadIndexById(state.roads, roadTool.selectedRoadId);
             if (idx >= 0 && roadTool.selectedPointIndex < (int)state.roads[idx].pts.size()) {
-                markers.push_back({state.roads[idx].pts[roadTool.selectedPointIndex], glm::vec3(0.2f, 0.7f, 1.0f), 1.3f});
+                glm::vec3 p = state.roads[idx].pts[roadTool.selectedPointIndex] - renderOrigin;
+                markers.push_back({p, glm::vec3(0.2f, 0.7f, 1.0f), 1.3f});
             }
         }
 
+        // Shifted road mesh for rendering
+        std::vector<glm::vec3> roadRenderVerts;
+        roadRenderVerts.reserve(state.roadMeshVerts.size());
+        for (const auto& v : state.roadMeshVerts) roadRenderVerts.push_back(v - renderOrigin);
+        renderer.updateRoadMesh(roadRenderVerts);
+
         RenderFrame frame;
         frame.viewProj = viewProj;
-        frame.roadVertexCount = state.roadMeshVerts.size();
+        frame.roadVertexCount = roadRenderVerts.size();
         frame.gridVertexCount = gridCount;
         frame.overlayVertexCount = overlayCount;
         frame.previewVertexCount = previewCount;
-        frame.houseStaticCount = state.houseStatic.size();
-        frame.houseAnimCount = animModelsTmp.size();
+        frame.houseStaticCount = houseStaticShifted.size();
+        frame.houseAnimCount = animShifted.size();
         frame.drawRoadPreview = (mode == Mode::Road && roadTool.drawing && !state.zonePreviewVerts.empty());
         frame.zonePreviewValid = zoneTool.dragging ? true : zoneTool.hoverValid;
         frame.markers = std::move(markers);
