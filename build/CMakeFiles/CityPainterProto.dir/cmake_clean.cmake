@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/CityPainterProto.dir/external/imgui/imgui_widgets.cpp.obj.d"
   "CMakeFiles/CityPainterProto.dir/src/main.cpp.obj"
   "CMakeFiles/CityPainterProto.dir/src/main.cpp.obj.d"
+  "CMakeFiles/CityPainterProto.dir/src/renderer.cpp.obj"
+  "CMakeFiles/CityPainterProto.dir/src/renderer.cpp.obj.d"
   "CityPainterProto.exe"
   "CityPainterProto.exe.manifest"
   "CityPainterProto.lib"

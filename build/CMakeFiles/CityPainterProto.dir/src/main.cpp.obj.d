@@ -514,5 +514,6 @@ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.3443
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/string_view
 C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/macro_unscope.hpp
 C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
+C:/CityG/src/renderer.h
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/fstream
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_filebuf.hpp

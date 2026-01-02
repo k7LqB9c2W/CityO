@@ -15,6 +15,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "C:/CityG/external/imgui/imgui_tables.cpp" "CMakeFiles/CityPainterProto.dir/external/imgui/imgui_tables.cpp.obj" "msvc" "CMakeFiles/CityPainterProto.dir/external/imgui/imgui_tables.cpp.obj.d"
   "C:/CityG/external/imgui/imgui_widgets.cpp" "CMakeFiles/CityPainterProto.dir/external/imgui/imgui_widgets.cpp.obj" "msvc" "CMakeFiles/CityPainterProto.dir/external/imgui/imgui_widgets.cpp.obj.d"
   "C:/CityG/src/main.cpp" "CMakeFiles/CityPainterProto.dir/src/main.cpp.obj" "msvc" "CMakeFiles/CityPainterProto.dir/src/main.cpp.obj.d"
+  "C:/CityG/src/renderer.cpp" "CMakeFiles/CityPainterProto.dir/src/renderer.cpp.obj" "msvc" "CMakeFiles/CityPainterProto.dir/src/renderer.cpp.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -4,36 +4,11 @@ The following packages are already installed:
   * egl-registry:x64-windows@2025-05-27
     glad[core,gl-api-10,gl-api-11,gl-api-12,gl-api-13,gl-api-14,gl-api-15,gl-api-20,gl-api-21,gl-api-30,gl-api-31,gl-api-32,gl-api-33,loader]:x64-windows@0.1.36
     glm:x64-windows@1.0.2
+    nlohmann-json:x64-windows@3.12.0#1
   * opengl-registry:x64-windows@2025-10-23
     sdl2:x64-windows@2.32.10
   * vcpkg-cmake:x64-windows@2024-04-23
   * vcpkg-cmake-config:x64-windows@2024-05-23
-The following packages will be built and installed:
-    nlohmann-json:x64-windows@3.12.0#1
-Restored 0 package(s) from C:\Users\Jacob\AppData\Local\vcpkg\archives in 46 us. Use --debug to see more details.
-Installing 1/1 nlohmann-json:x64-windows@3.12.0#1...
-Building nlohmann-json:x64-windows@3.12.0#1...
-Downloading https://github.com/nlohmann/json/archive/v3.12.0.tar.gz -> nlohmann-json-v3.12.0.tar.gz
-Successfully downloaded nlohmann-json-v3.12.0.tar.gz
--- Extracting source C:/dev/vcpkg/downloads/nlohmann-json-v3.12.0.tar.gz
--- Applying patch fix-4742_std_optional.patch
--- Using source at C:/dev/vcpkg/buildtrees/nlohmann-json/src/v3.12.0-087f34fe5c.clean
--- Configuring x64-windows
--- Building x64-windows-dbg
--- Building x64-windows-rel
--- Fixing pkgconfig file: C:/dev/vcpkg/packages/nlohmann-json_x64-windows/share/pkgconfig/nlohmann_json.pc
--- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
--- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
--- Using msys root at C:/dev/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
--- Fixing pkgconfig file: C:/dev/vcpkg/packages/nlohmann-json_x64-windows/debug/share/pkgconfig/nlohmann_json.pc
--- Installing: C:/dev/vcpkg/packages/nlohmann-json_x64-windows/share/nlohmann-json/copyright
--- Performing post-build validation
-Starting submission of nlohmann-json:x64-windows@3.12.0#1 to 1 binary cache(s) in the background
-Elapsed time to handle nlohmann-json:x64-windows: 5.2 s
-nlohmann-json:x64-windows package ABI: 83b4f95c03dbfc928dc7d8c907d37da075739a1bbfdad8f12be698e26e9c0d8b
-Installed contents are licensed to you by owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
-Packages installed in this vcpkg installation declare the following licenses:
-MIT
 glad provides CMake targets:
 
   # this is heuristically generated, and may not be correct
@@ -71,6 +46,4 @@ sdl2 provides CMake targets:
         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
     )
 
-Waiting for 1 remaining binary cache submissions...
-Completed submission of nlohmann-json:x64-windows@3.12.0#1 to 1 binary cache(s) in 39.5 ms (1/1)
-All requested installations completed successfully in: 5.2 s
+All requested installations completed successfully in: 684 us

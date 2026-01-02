@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(CityPainterProto
   src/main.cpp
+  src/renderer.cpp
 
   external/imgui/imgui.cpp
   external/imgui/imgui_draw.cpp

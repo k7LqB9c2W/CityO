@@ -10,6 +10,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "renderer.h"
+
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -34,52 +36,6 @@ static uint32_t Hash32(uint32_t x) {
 static float LenXZ(const glm::vec3& a, const glm::vec3& b) {
     glm::vec2 d(b.x - a.x, b.z - a.z);
     return std::sqrt(d.x*d.x + d.y*d.y);
-}
-
-static void GLCheckShader(GLuint shader, const char* label) {
-    GLint ok = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-    if (!ok) {
-        GLint len = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
-        std::string log((size_t)len, '\0');
-        glGetShaderInfoLog(shader, len, &len, log.data());
-        SDL_Log("Shader compile failed (%s): %s", label, log.c_str());
-    }
-}
-
-static void GLCheckProgram(GLuint prog) {
-    GLint ok = 0;
-    glGetProgramiv(prog, GL_LINK_STATUS, &ok);
-    if (!ok) {
-        GLint len = 0;
-        glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
-        std::string log((size_t)len, '\0');
-        glGetProgramInfoLog(prog, len, &len, log.data());
-        SDL_Log("Program link failed: %s", log.c_str());
-    }
-}
-
-static GLuint MakeProgram(const char* vsSrc, const char* fsSrc) {
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vsSrc, nullptr);
-    glCompileShader(vs);
-    GLCheckShader(vs, "VS");
-
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fsSrc, nullptr);
-    glCompileShader(fs);
-    GLCheckShader(fs, "FS");
-
-    GLuint prog = glCreateProgram();
-    glAttachShader(prog, vs);
-    glAttachShader(prog, fs);
-    glLinkProgram(prog);
-    GLCheckProgram(prog);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-    return prog;
 }
 
 struct Camera {
@@ -510,40 +466,7 @@ struct CommandStack {
     }
 };
 
-// --- Rendering helpers ---
-static void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo) {
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
-
-    std::size_t vec4Size = sizeof(glm::vec4);
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(0 * vec4Size));
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * vec4Size));
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * vec4Size));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * vec4Size));
-
-    glVertexAttribDivisor(2, 1);
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-
-    glBindVertexArray(0);
-}
-
-static void UploadDynamicVerts(GLuint vbo, const std::vector<glm::vec3>& verts) {
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    if (!verts.empty()) {
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size() * sizeof(glm::vec3)), verts.data(), GL_DYNAMIC_DRAW);
-    } else {
-        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-static void RebuildAllRoadMesh(AppState& s, GLuint vboRoad) {
+static void RebuildAllRoadMesh(AppState& s) {
     s.roadMeshVerts.clear();
     const float roadWidth = 10.0f;
     const float y = 0.03f;
@@ -577,8 +500,6 @@ static void RebuildAllRoadMesh(AppState& s, GLuint vboRoad) {
             s.roadMeshVerts.push_back(bL);
         }
     }
-
-    UploadDynamicVerts(vboRoad, s.roadMeshVerts);
 }
 
 static void BuildZonePreviewMesh(
@@ -906,147 +827,14 @@ int main(int, char**) {
         return 1;
     }
 
-    glEnable(GL_DEPTH_TEST);
-
-    const char* vsBasic = R"(
-        #version 330 core
-        layout(location=0) in vec3 aPos;
-        uniform mat4 uViewProj;
-        uniform mat4 uModel;
-        void main() {
-            gl_Position = uViewProj * uModel * vec4(aPos, 1.0);
-        }
-    )";
-
-    const char* vsInstanced = R"(
-        #version 330 core
-        layout(location=0) in vec3 aPos;
-        layout(location=2) in mat4 iModel;
-        uniform mat4 uViewProj;
-        void main() {
-            gl_Position = uViewProj * iModel * vec4(aPos, 1.0);
-        }
-    )";
-
-    const char* fsColor = R"(
-        #version 330 core
-        out vec4 FragColor;
-        uniform vec3 uColor;
-        uniform float uAlpha;
-        void main() {
-            FragColor = vec4(uColor, uAlpha);
-        }
-    )";
-
-    GLuint progBasic = MakeProgram(vsBasic, fsColor);
-    GLuint progInst  = MakeProgram(vsInstanced, fsColor);
-
-    GLint locVP_B = glGetUniformLocation(progBasic, "uViewProj");
-    GLint locM_B  = glGetUniformLocation(progBasic, "uModel");
-    GLint locC_B  = glGetUniformLocation(progBasic, "uColor");
-    GLint locA_B  = glGetUniformLocation(progBasic, "uAlpha");
-
-    GLint locVP_I = glGetUniformLocation(progInst, "uViewProj");
-    GLint locC_I  = glGetUniformLocation(progInst, "uColor");
-    GLint locA_I  = glGetUniformLocation(progInst, "uAlpha");
-
-    // 4300 sq mi as a square
-    const float MAP_SIDE_M = 105500.0f;
-    const float HALF = MAP_SIDE_M * 0.5f;
-
-    glm::vec3 groundVerts[6] = {
-        {-HALF, 0.0f, -HALF},
-        { HALF, 0.0f, -HALF},
-        { HALF, 0.0f,  HALF},
-        {-HALF, 0.0f, -HALF},
-        { HALF, 0.0f,  HALF},
-        {-HALF, 0.0f,  HALF},
-    };
-
-    GLuint vaoGround=0, vboGround=0;
-    glGenVertexArrays(1, &vaoGround);
-    glGenBuffers(1, &vboGround);
-    glBindVertexArray(vaoGround);
-    glBindBuffer(GL_ARRAY_BUFFER, vboGround);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(groundVerts), groundVerts, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindVertexArray(0);
-
-    GLuint vaoRoad=0, vboRoad=0;
-    glGenVertexArrays(1, &vaoRoad);
-    glGenBuffers(1, &vboRoad);
-    glBindVertexArray(vaoRoad);
-    glBindBuffer(GL_ARRAY_BUFFER, vboRoad);
-    glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindVertexArray(0);
-
-    GLuint vaoZonePrev=0, vboZonePrev=0;
-    glGenVertexArrays(1, &vaoZonePrev);
-    glGenBuffers(1, &vboZonePrev);
-    glBindVertexArray(vaoZonePrev);
-    glBindBuffer(GL_ARRAY_BUFFER, vboZonePrev);
-    glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindVertexArray(0);
-
-    // Cube mesh
-    const glm::vec3 cube[36] = {
-        {-0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},
-        {-0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},{-0.5f, 0.5f, 0.5f},
-        { 0.5f,-0.5f,-0.5f},{-0.5f,-0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},
-        { 0.5f,-0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f},
-        { 0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f},
-        { 0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f, 0.5f},
-        {-0.5f,-0.5f,-0.5f},{-0.5f,-0.5f, 0.5f},{-0.5f, 0.5f, 0.5f},
-        {-0.5f,-0.5f,-0.5f},{-0.5f, 0.5f, 0.5f},{-0.5f, 0.5f,-0.5f},
-        {-0.5f, 0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},{ 0.5f, 0.5f,-0.5f},
-        {-0.5f, 0.5f, 0.5f},{ 0.5f, 0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},
-        {-0.5f,-0.5f,-0.5f},{ 0.5f,-0.5f,-0.5f},{ 0.5f,-0.5f, 0.5f},
-        {-0.5f,-0.5f,-0.5f},{ 0.5f,-0.5f, 0.5f},{-0.5f,-0.5f, 0.5f},
-    };
-
-    GLuint vboCube=0;
-    glGenBuffers(1, &vboCube);
-    glBindBuffer(GL_ARRAY_BUFFER, vboCube);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
-
-    GLuint vaoCubeSingle=0;
-    glGenVertexArrays(1, &vaoCubeSingle);
-    glBindVertexArray(vaoCubeSingle);
-    glBindBuffer(GL_ARRAY_BUFFER, vboCube);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindVertexArray(0);
-
-    GLuint vaoCubeInstStatic=0, vaoCubeInstAnim=0;
-    glGenVertexArrays(1, &vaoCubeInstStatic);
-    glGenVertexArrays(1, &vaoCubeInstAnim);
-
-    GLuint vboInstStatic=0, vboInstAnim=0;
-    glGenBuffers(1, &vboInstStatic);
-    glGenBuffers(1, &vboInstAnim);
-
-    glBindVertexArray(vaoCubeInstStatic);
-    glBindBuffer(GL_ARRAY_BUFFER, vboCube);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstStatic);
-    glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    SetupInstanceAttribs(vaoCubeInstStatic, vboInstStatic);
-
-    glBindVertexArray(vaoCubeInstAnim);
-    glBindBuffer(GL_ARRAY_BUFFER, vboCube);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstAnim);
-    glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-    SetupInstanceAttribs(vaoCubeInstAnim, vboInstAnim);
-
-    glBindVertexArray(0);
+    Renderer renderer;
+    if (!renderer.init()) {
+        SDL_Log("Renderer init failed");
+        SDL_GL_DeleteContext(glctx);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
 
     // ImGui
     IMGUI_CHECKVERSION();
@@ -1081,6 +869,8 @@ int main(int, char**) {
     bool running = true;
     bool rmbDown = false;
     int winW = 1280, winH = 720;
+    SDL_GetWindowSize(window, &winW, &winH);
+    renderer.resize(winW, winH);
 
     uint64_t perfFreq = SDL_GetPerformanceFrequency();
     uint64_t lastCounter = SDL_GetPerformanceCounter();
@@ -1240,7 +1030,7 @@ int main(int, char**) {
             if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
                 winW = e.window.data1;
                 winH = e.window.data2;
-                glViewport(0, 0, winW, winH);
+                renderer.resize(winW, winH);
             }
 
             if (e.type == SDL_MOUSEWHEEL && !io.WantCaptureMouse) {
@@ -1425,7 +1215,8 @@ int main(int, char**) {
             for (auto& r : state.roads) {
                 if (r.cumLen.size() != r.pts.size()) r.rebuildCum();
             }
-            RebuildAllRoadMesh(state, vboRoad);
+            RebuildAllRoadMesh(state);
+            renderer.updateRoadMesh(state.roadMeshVerts);
             state.roadsDirty = false;
         }
 
@@ -1464,23 +1255,12 @@ int main(int, char**) {
         }
         state.houseAnim.swap(still);
 
-        if (!state.houseStatic.empty()) {
-            glBindBuffer(GL_ARRAY_BUFFER, vboInstStatic);
-            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(state.houseStatic.size() * sizeof(glm::mat4)), state.houseStatic.data(), GL_DYNAMIC_DRAW);
-        }
-        if (!animModelsTmp.empty()) {
-            glBindBuffer(GL_ARRAY_BUFFER, vboInstAnim);
-            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(animModelsTmp.size() * sizeof(glm::mat4)), animModelsTmp.data(), GL_DYNAMIC_DRAW);
-        }
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        renderer.updateHouseInstances(state.houseStatic, animModelsTmp);
 
         // Overlay mesh generation (road preview while drawing, zone preview while zoning)
         state.zonePreviewVerts.clear();
         if (mode == Mode::Road && roadTool.drawing && roadTool.tempPts.size() >= 2) {
             BuildRoadPreviewMesh(state, roadTool.tempPts[0], roadTool.tempPts[1]);
-            if (!state.zonePreviewVerts.empty()) {
-                UploadDynamicVerts(vboZonePrev, state.zonePreviewVerts);
-            }
         } else if (mode == Mode::Zone) {
             int rid = zoneTool.dragging ? zoneTool.roadId : zoneTool.hoverRoadId;
             if (rid != -1) {
@@ -1489,12 +1269,10 @@ int main(int, char**) {
                     float a = zoneTool.dragging ? zoneTool.startD : zoneTool.hoverD;
                     float b = zoneTool.dragging ? zoneTool.endD : (zoneTool.hoverD + 40.0f);
                     BuildZonePreviewMesh(state, state.roads[ridx], a, b, zoneTool.sideMask, zoneTool.depth);
-                    if (!state.zonePreviewVerts.empty()) {
-                        UploadDynamicVerts(vboZonePrev, state.zonePreviewVerts);
-                    }
                 }
             }
         }
+        renderer.updatePreviewMesh(state.zonePreviewVerts);
 
         // ImGui
         ImGui_ImplOpenGL3_NewFrame();
@@ -1555,94 +1333,34 @@ int main(int, char**) {
 
         ImGui::Render();
 
-        // Render
-        glClearColor(0.55f, 0.75f, 0.95f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Ground
-        glUseProgram(progBasic);
-        glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &viewProj[0][0]);
-        glm::mat4 I(1.0f);
-        glUniformMatrix4fv(locM_B, 1, GL_FALSE, &I[0][0]);
-        glUniform3f(locC_B, 0.05f, 0.20f, 0.08f);
-        glUniform1f(locA_B, 1.0f);
-        glBindVertexArray(vaoGround);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        // Roads
-        glUniform3f(locC_B, 0.18f, 0.18f, 0.18f);
-        glUniform1f(locA_B, 1.0f);
-        glBindVertexArray(vaoRoad);
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)state.roadMeshVerts.size());
-
-        // Zone/road preview (translucent overlay)
-        if (!state.zonePreviewVerts.empty()) {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            if (mode == Mode::Road && roadTool.drawing) {
-                glUniform3f(locC_B, 0.20f, 0.65f, 0.95f);
-                glUniform1f(locA_B, 0.50f);
-            } else {
-                bool valid = zoneTool.dragging ? true : zoneTool.hoverValid;
-                if (valid) glUniform3f(locC_B, 0.20f, 0.85f, 0.35f);
-                else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
-
-                glUniform1f(locA_B, 0.35f);
-            }
-            glBindVertexArray(vaoZonePrev);
-            glDrawArrays(GL_TRIANGLES, 0, (GLsizei)state.zonePreviewVerts.size());
-
-            glDisable(GL_BLEND);
-        }
-
-        // Markers for endpoint snapping and selection
-        auto drawMarker = [&](glm::vec3 p, glm::vec3 color, float scale) {
-            glUseProgram(progBasic);
-            glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &viewProj[0][0]);
-            glm::mat4 M(1.0f);
-            M = glm::translate(M, glm::vec3(p.x, 0.4f, p.z));
-            M = glm::scale(M, glm::vec3(scale, scale, scale));
-            glUniformMatrix4fv(locM_B, 1, GL_FALSE, &M[0][0]);
-            glUniform3f(locC_B, color.x, color.y, color.z);
-            glUniform1f(locA_B, 1.0f);
-            glBindVertexArray(vaoCubeSingle);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        };
-
+        std::vector<RenderMarker> markers;
         if (hasHit && mode == Mode::Road && endpointSnap) {
             glm::vec3 ep; int rid; bool isStart;
             if (SnapToAnyEndpoint(state.roads, mouseHit, endpointSnapRadius, ep, rid, isStart)) {
-                drawMarker(ep, glm::vec3(1.0f, 0.9f, 0.2f), 1.2f);
+                markers.push_back({ep, glm::vec3(1.0f, 0.9f, 0.2f), 1.2f});
             }
         }
-
         if (hasHit && mode == Mode::Zone && !zoneTool.hoverValid) {
-            drawMarker(mouseHit, glm::vec3(0.95f, 0.25f, 0.25f), 0.9f);
+            markers.push_back({mouseHit, glm::vec3(0.95f, 0.25f, 0.25f), 0.9f});
         }
-
         if (roadTool.selectedRoadId != -1 && roadTool.selectedPointIndex != -1) {
             int idx = FindRoadIndexById(state.roads, roadTool.selectedRoadId);
             if (idx >= 0 && roadTool.selectedPointIndex < (int)state.roads[idx].pts.size()) {
-                drawMarker(state.roads[idx].pts[roadTool.selectedPointIndex], glm::vec3(0.2f, 0.7f, 1.0f), 1.3f);
+                markers.push_back({state.roads[idx].pts[roadTool.selectedPointIndex], glm::vec3(0.2f, 0.7f, 1.0f), 1.3f});
             }
         }
 
-        // Houses (instanced)
-        glUseProgram(progInst);
-        glUniformMatrix4fv(locVP_I, 1, GL_FALSE, &viewProj[0][0]);
-        glUniform3f(locC_I, 0.75f, 0.72f, 0.62f);
-        glUniform1f(locA_I, 1.0f);
+        RenderFrame frame;
+        frame.viewProj = viewProj;
+        frame.roadVertexCount = state.roadMeshVerts.size();
+        frame.previewVertexCount = state.zonePreviewVerts.size();
+        frame.houseStaticCount = state.houseStatic.size();
+        frame.houseAnimCount = animModelsTmp.size();
+        frame.drawRoadPreview = (mode == Mode::Road && roadTool.drawing && !state.zonePreviewVerts.empty());
+        frame.zonePreviewValid = zoneTool.dragging ? true : zoneTool.hoverValid;
+        frame.markers = std::move(markers);
 
-        if (!state.houseStatic.empty()) {
-            glBindVertexArray(vaoCubeInstStatic);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)state.houseStatic.size());
-        }
-        if (!animModelsTmp.empty()) {
-            glBindVertexArray(vaoCubeInstAnim);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)animModelsTmp.size());
-        }
-        glBindVertexArray(0);
+        renderer.render(frame);
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
@@ -1653,25 +1371,7 @@ int main(int, char**) {
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 
-    glDeleteBuffers(1, &vboGround);
-    glDeleteVertexArrays(1, &vaoGround);
-
-    glDeleteBuffers(1, &vboRoad);
-    glDeleteVertexArrays(1, &vaoRoad);
-
-    glDeleteBuffers(1, &vboZonePrev);
-    glDeleteVertexArrays(1, &vaoZonePrev);
-
-    glDeleteBuffers(1, &vboCube);
-    glDeleteVertexArrays(1, &vaoCubeSingle);
-
-    glDeleteBuffers(1, &vboInstStatic);
-    glDeleteBuffers(1, &vboInstAnim);
-    glDeleteVertexArrays(1, &vaoCubeInstStatic);
-    glDeleteVertexArrays(1, &vaoCubeInstAnim);
-
-    glDeleteProgram(progBasic);
-    glDeleteProgram(progInst);
+    renderer.shutdown();
 
     SDL_GL_DeleteContext(glctx);
     SDL_DestroyWindow(window);

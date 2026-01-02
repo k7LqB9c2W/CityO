@@ -286,6 +286,30 @@ src\main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\main.cpp.s
 .PHONY : src\main.cpp.s
 
+src\renderer.obj: src\renderer.cpp.obj
+.PHONY : src\renderer.obj
+
+# target to build an object file
+src\renderer.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj
+.PHONY : src\renderer.cpp.obj
+
+src\renderer.i: src\renderer.cpp.i
+.PHONY : src\renderer.i
+
+# target to preprocess a source file
+src\renderer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\renderer.cpp.i
+.PHONY : src\renderer.cpp.i
+
+src\renderer.s: src\renderer.cpp.s
+.PHONY : src\renderer.s
+
+# target to generate assembly for a file
+src\renderer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\renderer.cpp.s
+.PHONY : src\renderer.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -316,6 +340,9 @@ help:
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... src/renderer.obj
+	@echo ... src/renderer.i
+	@echo ... src/renderer.s
 .PHONY : help
 
 
