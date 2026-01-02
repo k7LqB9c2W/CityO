@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <limits>
+#include <unordered_set>
 
 using json = nlohmann::json;
 
@@ -156,6 +158,9 @@ struct Road {
         return p;
     }
 };
+
+// Forward declaration used in house placement clearance checks
+static float ClosestDistanceAlongRoadSq(const Road& r, const glm::vec3& p, float& outAlong, glm::vec3& outTan);
 
 static int FindRoadIndexById(const std::vector<Road>& roads, int id) {
     for (int i = 0; i < (int)roads.size(); i++) if (roads[i].id == id) return i;
@@ -584,11 +589,12 @@ static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
     s.houseStatic.clear();
     s.houseAnim.clear();
 
+    const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
     const float roadHalf = 5.0f;
-    const float setback = roadHalf + 5.0f;     // centerline to front row
+    const float desiredClear = 10.0f;          // minimum gap from road edge to house front
+    const float setback = roadHalf + desiredClear + houseSize.z * 0.5f; // centerline to house center
     const float spacing = 15.0f;               // along the road
     const float rowSpacing = 14.0f;            // away from road
-    const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
 
     for (const auto& z : s.zones) {
         int ridx = FindRoadIndexById(s.roads, z.roadId);
@@ -601,6 +607,34 @@ static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
 
         int rows = std::max(1, (int)std::floor(z.depth / rowSpacing));
 
+        std::unordered_set<uint64_t> occupied;
+        auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
+            return (uint64_t(uint32_t(gx)) << 32) | uint32_t(gz);
+        };
+        auto isOccupied = [&](const glm::vec3& pos) {
+            const float cell = 6.0f; // coarse grid to prevent overlapping houses
+            int32_t gx = (int32_t)std::floor(pos.x / cell);
+            int32_t gz = (int32_t)std::floor(pos.z / cell);
+            return occupied.find(cellKey(gx, gz)) != occupied.end();
+        };
+        auto markOccupied = [&](const glm::vec3& pos) {
+            const float cell = 6.0f;
+            int32_t gx = (int32_t)std::floor(pos.x / cell);
+            int32_t gz = (int32_t)std::floor(pos.z / cell);
+            occupied.insert(cellKey(gx, gz));
+        };
+
+        auto minCenterlineClearSq = [&](const glm::vec3& pos) -> float {
+            float best = std::numeric_limits<float>::max();
+            for (const auto& other : s.roads) {
+                if (other.pts.size() < 2) continue;
+                float dAlong; glm::vec3 tan;
+                float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
+                best = std::min(best, distSq);
+            }
+            return best;
+        };
+
         for (float d = a; d <= b; d += spacing) {
             glm::vec3 tan;
             glm::vec3 p = r.pointAt(d, tan);
@@ -610,6 +644,11 @@ static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
                 for (int row = 0; row < rows; row++) {
                     glm::vec3 pos = p + right * float(side) * (setback + row * rowSpacing);
                     pos.y = houseSize.y * 0.5f;
+
+                    float distSq = minCenterlineClearSq(pos);
+                    float clearFromEdge = std::sqrt(distSq) - roadHalf; // distance from nearest road edge
+                    if (clearFromEdge < desiredClear) continue; // too close to any road (intersections)
+                    if (isOccupied(pos)) continue; // avoid double builds/overlap
 
                     glm::vec3 up(0,1,0);
                     glm::vec3 facing = glm::normalize(-float(side) * right); // face toward road
@@ -632,6 +671,7 @@ static void RebuildHousesFromZones(AppState& s, bool animate, float nowSec) {
                         M = glm::scale(M, houseSize);
                         s.houseStatic.push_back(M);
                     }
+                    markOccupied(pos);
                 }
             };
 
@@ -879,6 +919,7 @@ int main(int, char**) {
 
     bool running = true;
     bool rmbDown = false;
+    bool mmbDown = false;
     int winW = 1280, winH = 720;
     SDL_GetWindowSize(window, &winW, &winH);
     renderer.resize(winW, winH);
@@ -908,13 +949,17 @@ int main(int, char**) {
 
         // Anchor at an existing endpoint if near one, but always create a new road (do not modify existing)
         glm::vec3 p0 = hit;
+        bool anchoredToEndpoint = false;
         if (endpointSnap) {
             glm::vec3 ep; int rid; bool isStart;
             if (SnapToAnyEndpoint(state.roads, hit, endpointSnapRadius, ep, rid, isStart)) {
                 p0 = ep;
+                anchoredToEndpoint = true;
             }
         }
-        p0 = applySnaps(p0, nullptr);
+        if (!anchoredToEndpoint) {
+            p0 = applySnaps(p0, nullptr);
+        }
         roadTool.tempPts.push_back(p0);
 
         roadTool.extending = false;
@@ -1052,10 +1097,22 @@ int main(int, char**) {
             }
             if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_RIGHT) {
                 rmbDown = false;
-                SDL_SetRelativeMouseMode(SDL_FALSE);
+                if (!mmbDown) SDL_SetRelativeMouseMode(SDL_FALSE);
+            }
+
+            if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_MIDDLE && !io.WantCaptureMouse) {
+                mmbDown = true;
+                SDL_SetRelativeMouseMode(SDL_TRUE);
+            }
+            if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_MIDDLE) {
+                mmbDown = false;
+                if (!rmbDown) SDL_SetRelativeMouseMode(SDL_FALSE);
             }
             if (e.type == SDL_MOUSEMOTION && rmbDown && !io.WantCaptureMouse) {
                 cam.yawRad += (float)e.motion.xrel * 0.004f;
+            }
+            if (e.type == SDL_MOUSEMOTION && mmbDown && !io.WantCaptureMouse) {
+                cam.pitchDeg = Clamp(cam.pitchDeg - (float)e.motion.yrel * 0.25f, 15.0f, 85.0f);
             }
 
             if (e.type == SDL_KEYDOWN && !e.key.repeat && !io.WantCaptureKeyboard) {
@@ -1113,17 +1170,26 @@ int main(int, char**) {
                 if (!hasHit) break;
 
                 if (mode == Mode::Road) {
-                    // If clicking near a road point, move it. Else start drawing/extend.
+                    // If clicking near a road point: start moving interior points, but endpoints start a new road.
                     int rid, pi;
                     if (PickRoadPoint(state.roads, mouseHit, roadPointPickRadius, rid, pi)) {
-                        roadTool.selectedRoadId = rid;
-                        roadTool.selectedPointIndex = pi;
-                        roadTool.movingPoint = true;
-
                         int idx = FindRoadIndexById(state.roads, rid);
-                        if (idx >= 0) roadTool.moveOld = state.roads[idx].pts[pi];
+                        bool isEndpoint = (idx >= 0) && (pi == 0 || pi == (int)state.roads[idx].pts.size() - 1);
+                        if (!isEndpoint) {
+                            roadTool.selectedRoadId = rid;
+                            roadTool.selectedPointIndex = pi;
+                            roadTool.movingPoint = true;
 
-                        statusText = "Moving point (drag).";
+                            if (idx >= 0) roadTool.moveOld = state.roads[idx].pts[pi];
+
+                            statusText = "Moving point (drag).";
+                        } else {
+                            // Start a new road anchored to this endpoint; do not move existing geometry.
+                            roadTool.selectedRoadId = -1;
+                            roadTool.selectedPointIndex = -1;
+                            startRoadDraw(state.roads[idx].pts[pi]);
+                            statusText = "Extending from endpoint (new road).";
+                        }
                     } else {
                         roadTool.selectedRoadId = -1;
                         roadTool.selectedPointIndex = -1;
