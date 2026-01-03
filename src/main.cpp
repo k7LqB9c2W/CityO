@@ -382,6 +382,8 @@ static uint8_t GetZoneFlagsAt(const AppState& s, const glm::vec3& pos) {
     return it->second.get(xi, zi);
 }
 
+static ZoneChunk& EnsureZoneChunk(AppState& s, uint64_t key);
+
 static bool WorldToZoneCell(const glm::vec3& p, int& outCx, int& outCz, int& outXi, int& outZi) {
     int cx = (int)std::floor(p.x / CHUNK_SIZE_M);
     int cz = (int)std::floor(p.z / CHUNK_SIZE_M);
