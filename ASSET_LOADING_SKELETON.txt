@@ -1,0 +1,24 @@
+CityG Asset Loading Skeleton (Step 5)
+
+Asset catalog
+- Asset manifests live in files named asset.json under the assets root.
+- Required JSON fields: version, id, type, mesh.
+- Optional fields: category, defaultScale, footprintM, pivotM, tags.
+- AssetId is a stable FNV-1a 32-bit hash of id.
+- Default mapping: category low_density -> buildings.house_low_01.
+- Fallback asset: builtin.cube_house (used when missing).
+
+Building instances
+- CPU data uses BuildingInstance { AssetId asset, localPos, yaw, scale, seed }.
+- AppState.buildingChunks stores instances grouped by chunk and asset.
+- Renderer draws one instanced batch per (chunk, asset) so meshes can differ.
+- Animated houses still use the cube instanced path for now.
+
+Mesh cache
+- MeshCache holds GPU meshes and a fallback cube.
+- glTF loading is optional and on-demand (first visible use of an asset).
+- MeshRelPath is resolved relative to the assets root.
+- If loading fails, the fallback cube mesh is used.
+
+Save format
+- save.json includes assetIdToString for debugging and future-proofing.

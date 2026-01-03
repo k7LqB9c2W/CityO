@@ -4,7 +4,7 @@
 # compile CXX with C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/cl.exe
 CXX_DEFINES = -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DSDL_MAIN_HANDLED
 
-CXX_INCLUDES = -IC:\CityG\external\imgui -IC:\CityG\external\imgui\backends -external:IC:\CityG\build\vcpkg_installed\x64-windows\include -external:IC:\CityG\build\vcpkg_installed\x64-windows\include\SDL2 -external:W0
+CXX_INCLUDES = -IC:\CityG\external\imgui -IC:\CityG\external\imgui\backends -IC:\CityG\external\cgltf -external:IC:\CityG\build\vcpkg_installed\x64-windows\include -external:IC:\CityG\build\vcpkg_installed\x64-windows\include\SDL2 -external:W0
 
 CXX_FLAGS = /DWIN32 /D_WINDOWS /EHsc /O2 /Ob2 /DNDEBUG -std:c++17 -MD
 

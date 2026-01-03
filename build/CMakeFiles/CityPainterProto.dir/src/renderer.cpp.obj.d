@@ -244,6 +244,17 @@ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/detail/setup.hpp
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/detail/type_half.inl
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/integer.hpp
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/detail/func_integer.inl
+C:/CityG/src/asset_catalog.h
+C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/string
+C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xstring
+C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_string_view.hpp
+C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iosfwd
+C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cctype
+D:/include/10.0.26100.0/ucrt/ctype.h
+C:/CityG/src/mesh_cache.h
+C:/CityG/build/vcpkg_installed/x64-windows/include/glad/glad.h
+C:/CityG/build/vcpkg_installed/x64-windows/include/KHR/khrplatform.h
+C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/unordered_set
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/SDL.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/SDL_main.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/SDL_stdinc.h
@@ -254,7 +265,6 @@ D://include/10.0.26100.0//shared/winpackagefamily.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/begin_code.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/close_code.h
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/stdarg.h
-D:/include/10.0.26100.0/ucrt/ctype.h
 D:/include/10.0.26100.0/ucrt/math.h
 D:/include/10.0.26100.0/ucrt/corecrt_math_defines.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/begin_code.h
@@ -390,8 +400,6 @@ C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/begin_code.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/close_code.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/begin_code.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/SDL2/close_code.h
-C:/CityG/build/vcpkg_installed/x64-windows/include/glad/glad.h
-C:/CityG/build/vcpkg_installed/x64-windows/include/KHR/khrplatform.h
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/matrix_transform.hpp
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/matrix_projection.hpp
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/../gtc/constants.hpp
@@ -406,8 +414,3 @@ C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/../ext/matrix_transfo
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/ext/matrix_transform.inl
 C:/CityG/build/vcpkg_installed/x64-windows/include/glm/gtc/matrix_transform.inl
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/array
-C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/string
-C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/xstring
-C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_string_view.hpp
-C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iosfwd
-C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cctype

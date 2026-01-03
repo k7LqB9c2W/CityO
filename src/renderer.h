@@ -4,10 +4,17 @@
 #include <vector>
 #include <unordered_map>
 
+#include "asset_catalog.h"
+
 struct RenderMarker {
     glm::vec3 pos{};
     glm::vec3 color{};
     float scale = 1.0f;
+};
+
+struct RenderHouseBatch {
+    uint64_t chunkKey = 0;
+    AssetId asset = 0;
 };
 
 struct RenderFrame {
@@ -19,7 +26,7 @@ struct RenderFrame {
     bool drawRoadPreview = false;
     bool zonePreviewValid = true;
     std::vector<RenderMarker> markers;
-    std::vector<uint64_t> visibleHouseChunks;
+    std::vector<RenderHouseBatch> visibleHouseBatches;
     std::size_t houseAnimCount = 0;
 };
 
@@ -28,13 +35,15 @@ struct HouseInstanceGPU {
     glm::vec4 scaleVar;  // xyz scale, w = variant/unused
 };
 
+struct MeshGpu;
+
 class Renderer {
 public:
     bool init();
     void resize(int w, int h);
     void updateRoadMesh(const std::vector<glm::vec3>& verts);
     void updatePreviewMesh(const std::vector<glm::vec3>& verts);
-    void updateHouseChunk(uint64_t key, const std::vector<HouseInstanceGPU>& instances);
+    void updateHouseChunk(uint64_t key, AssetId assetId, const MeshGpu& mesh, const std::vector<HouseInstanceGPU>& instances);
     void updateAnimHouses(const std::vector<HouseInstanceGPU>& animHouses);
     void render(const RenderFrame& frame);
     void shutdown();
@@ -74,10 +83,15 @@ private:
     struct ChunkBuf {
         unsigned int vao = 0;
         unsigned int vbo = 0;
+        unsigned int meshVbo = 0;
+        unsigned int meshEbo = 0;
+        std::size_t vertexCount = 0;
+        std::size_t indexCount = 0;
+        bool indexed = false;
         std::size_t count = 0;
         std::size_t capacity = 0;
     };
-    std::unordered_map<uint64_t, ChunkBuf> houseChunks;
+    std::unordered_map<uint64_t, std::unordered_map<AssetId, ChunkBuf>> houseChunks;
 
     // Buffer capacities to avoid reallocation thrash
     std::size_t capRoad = 0;

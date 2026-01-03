@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include "mesh_cache.h"
+
 #include <SDL.h>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -289,20 +291,38 @@ void Renderer::updatePreviewMesh(const std::vector<glm::vec3>& verts) {
     UploadDynamicVerts(vboPreview, capPreview, verts);
 }
 
-void Renderer::updateHouseChunk(uint64_t key, const std::vector<HouseInstanceGPU>& instances) {
-    auto& buf = houseChunks[key];
-    if (buf.vao == 0) {
-        glGenVertexArrays(1, &buf.vao);
-        glGenBuffers(1, &buf.vbo);
+void Renderer::updateHouseChunk(uint64_t key, AssetId assetId, const MeshGpu& mesh, const std::vector<HouseInstanceGPU>& instances) {
+    auto& assetMap = houseChunks[key];
+    auto& buf = assetMap[assetId];
+    if (buf.vao == 0 || buf.meshVbo != mesh.vbo || buf.meshEbo != mesh.ebo) {
+        if (buf.vao == 0) glGenVertexArrays(1, &buf.vao);
+        if (buf.vbo == 0) glGenBuffers(1, &buf.vbo);
         glBindVertexArray(buf.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vboCube);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+        GLsizei stride = mesh.vertexStride > 0 ? mesh.vertexStride : (GLsizei)sizeof(glm::vec3);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+        if (mesh.indexed && mesh.ebo) {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+        } else {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        }
         glBindBuffer(GL_ARRAY_BUFFER, buf.vbo);
         glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
         SetupInstanceAttribs(buf.vao, buf.vbo);
         glBindVertexArray(0);
+
+        buf.meshVbo = mesh.vbo;
+        buf.meshEbo = mesh.ebo;
+        buf.vertexCount = mesh.vertexCount;
+        buf.indexCount = mesh.indexCount;
+        buf.indexed = mesh.indexed;
+    } else {
+        buf.vertexCount = mesh.vertexCount;
+        buf.indexCount = mesh.indexCount;
+        buf.indexed = mesh.indexed;
     }
+
     glBindBuffer(GL_ARRAY_BUFFER, buf.vbo);
     std::size_t bytes = instances.size() * sizeof(HouseInstanceGPU);
     if (bytes == 0) {
@@ -422,13 +442,19 @@ void Renderer::render(const RenderFrame& frame) {
     // Houses are closed meshes; enable culling here for perf
     glEnable(GL_CULL_FACE);
 
-    for (uint64_t key : frame.visibleHouseChunks) {
-        auto it = houseChunks.find(key);
-        if (it == houseChunks.end()) continue;
-        const ChunkBuf& buf = it->second;
+    for (const auto& batch : frame.visibleHouseBatches) {
+        auto chunkIt = houseChunks.find(batch.chunkKey);
+        if (chunkIt == houseChunks.end()) continue;
+        auto assetIt = chunkIt->second.find(batch.asset);
+        if (assetIt == chunkIt->second.end()) continue;
+        const ChunkBuf& buf = assetIt->second;
         if (buf.count == 0) continue;
         glBindVertexArray(buf.vao);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)buf.count);
+        if (buf.indexed) {
+            glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)buf.indexCount, GL_UNSIGNED_INT, (void*)0, (GLsizei)buf.count);
+        } else {
+            glDrawArraysInstanced(GL_TRIANGLES, 0, (GLsizei)buf.vertexCount, (GLsizei)buf.count);
+        }
     }
 
     if (frame.houseAnimCount > 0) {
@@ -449,9 +475,11 @@ void Renderer::destroyGL() {
     glDeleteVertexArrays((GLsizei)std::size(vaos), vaos);
     glDeleteBuffers((GLsizei)std::size(vbos), vbos);
 
-    for (auto& kv : houseChunks) {
-        if (kv.second.vao) glDeleteVertexArrays(1, &kv.second.vao);
-        if (kv.second.vbo) glDeleteBuffers(1, &kv.second.vbo);
+    for (auto& chunkKv : houseChunks) {
+        for (auto& assetKv : chunkKv.second) {
+            if (assetKv.second.vao) glDeleteVertexArrays(1, &assetKv.second.vao);
+            if (assetKv.second.vbo) glDeleteBuffers(1, &assetKv.second.vbo);
+        }
     }
     houseChunks.clear();
 

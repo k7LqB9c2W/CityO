@@ -11,6 +11,8 @@
 #include <nlohmann/json.hpp>
 
 #include "renderer.h"
+#include "asset_catalog.h"
+#include "mesh_cache.h"
 
 #include <vector>
 #include <string>
@@ -270,10 +272,21 @@ struct ZoneStrip {
     float depth = 30.0f;
 };
 
+struct BuildingInstance {
+    AssetId asset = 0;
+    glm::vec3 localPos{};
+    float yaw = 0.0f;
+    glm::vec3 scale{1.0f, 1.0f, 1.0f};
+    uint32_t seed = 0;
+};
+
 struct HouseAnim {
     glm::vec3 pos;
     float spawnTime;
     glm::vec3 forward;
+    AssetId asset = 0;
+    glm::vec3 scale{1.0f, 1.0f, 1.0f};
+    uint32_t seed = 0;
 };
 
 struct ZoneChunk {
@@ -301,6 +314,10 @@ struct LotCell {
     bool zoned = false;
 };
 
+struct BuildingChunk {
+    std::unordered_map<AssetId, std::vector<BuildingInstance>> instancesByAsset;
+};
+
 struct AppState {
     int nextRoadId = 1;
     int nextZoneId = 1;
@@ -310,7 +327,7 @@ struct AppState {
     std::vector<LotCell> lots;
     std::unordered_map<uint64_t, std::vector<int>> lotIndicesByChunk;
     std::unordered_map<uint64_t, std::vector<glm::mat4>> houseStaticByChunk;
-    std::unordered_map<uint64_t, std::vector<HouseInstanceGPU>> buildingChunks;
+    std::unordered_map<uint64_t, BuildingChunk> buildingChunks;
     std::unordered_set<uint64_t> dirtyBuildingChunks;
     std::unordered_map<uint64_t, ZoneChunk> zoneChunks;
     std::unordered_set<uint64_t> dirtyZoneChunks;
@@ -885,7 +902,7 @@ static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec
     s.zonePreviewVerts.push_back(bL);
 }
 
-static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
+static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool animate, float nowSec) {
     s.houseStatic.clear();
     s.houseAnim.clear();
     s.houseStaticByChunk.clear();
@@ -895,6 +912,7 @@ static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
     const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
     const float roadHalf = 5.0f;
     const float desiredClear = 10.0f;          // minimum gap from road edge to house front
+    const AssetId defaultAsset = assets.resolveCategoryAsset("low_density");
 
     std::unordered_set<uint64_t> occupied;
     auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
@@ -952,12 +970,15 @@ static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
         R[1] = glm::vec4(up, 0.0f);
         R[2] = glm::vec4(facing, 0.0f);
 
+        uint32_t hx = (uint32_t)std::llround(pos.x * 10.0);
+        uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
+        uint32_t seed = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)(c.roadId * 131071U) ^ (c.side < 0 ? 0x9e3779b9U : 0U));
+        float yaw = std::atan2(facing.x, facing.z);
+        AssetId assetId = defaultAsset;
+
         if (animate) {
-            uint32_t hx = (uint32_t)std::llround(pos.x * 10.0);
-            uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
-            uint32_t h = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)(c.roadId * 131071U) ^ (c.side < 0 ? 0x9e3779b9U : 0U));
-            float jitter = (h % 120) / 1000.0f; // 0..0.119 sec
-            s.houseAnim.push_back({pos, nowSec + jitter, facing});
+            float jitter = (seed % 120) / 1000.0f; // 0..0.119 sec
+            s.houseAnim.push_back({pos, nowSec + jitter, facing, assetId, houseSize, seed});
         } else {
             glm::mat4 M(1.0f);
             M = glm::translate(M, pos);
@@ -973,22 +994,29 @@ static void RebuildHousesFromLots(AppState& s, bool animate, float nowSec) {
         ChunkCoord cc = ChunkFromPosXZ(pos);
         uint64_t ckey = PackChunk(cc.cx, cc.cz);
         s.houseStaticByChunk[ckey].push_back(Ms);
-        float yaw = std::atan2(facing.x, facing.z);
-        HouseInstanceGPU inst;
-        inst.posYaw = glm::vec4(pos, yaw);
-        inst.scaleVar = glm::vec4(houseSize, 0.0f);
-        s.buildingChunks[ckey].push_back(inst);
+        BuildingInstance inst;
+        inst.asset = assetId;
+        inst.localPos = pos;
+        inst.yaw = yaw;
+        inst.scale = houseSize;
+        inst.seed = seed;
+        s.buildingChunks[ckey].instancesByAsset[assetId].push_back(inst);
         s.dirtyBuildingChunks.insert(ckey);
         markOccupied(pos);
         placedCenters.push_back(pos);
     }
 }
 
-static bool SaveToJsonFile(const AppState& s, const std::string& path) {
+static bool SaveToJsonFile(const AppState& s, const AssetCatalog& assets, const std::string& path) {
     json j;
     j["version"] = 1;
     j["nextRoadId"] = s.nextRoadId;
     j["nextZoneId"] = s.nextZoneId;
+    json assetMap = json::object();
+    for (const auto& kv : assets.assets()) {
+        assetMap[std::to_string(kv.first)] = kv.second.idStr;
+    }
+    j["assetIdToString"] = assetMap;
 
     j["roads"] = json::array();
     for (const auto& r : s.roads) {
@@ -1203,6 +1231,14 @@ int main(int, char**) {
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForOpenGL(window, glctx);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+
+    AssetCatalog assets;
+    assets.loadAll("assets");
+
+    MeshCache meshCache;
+    if (!meshCache.init()) {
+        SDL_Log("MeshCache init failed");
+    }
 
     AppState state;
     CommandStack cmds;
@@ -1477,7 +1513,7 @@ int main(int, char**) {
                 }
 
                 if (ctrl && k == SDLK_s) {
-                    if (SaveToJsonFile(state, savePath)) statusText = "Saved.";
+                    if (SaveToJsonFile(state, assets, savePath)) statusText = "Saved.";
                     else statusText = "Save failed.";
                 }
 
@@ -1648,7 +1684,7 @@ int main(int, char**) {
         // Rebuild houses if zones changed
         if (state.housesDirty) {
             bool animate = true; // animate after zone/road edits for now
-            RebuildHousesFromLots(state, animate, nowSec);
+            RebuildHousesFromLots(state, assets, animate, nowSec);
             state.housesDirty = false;
         }
 
@@ -1666,8 +1702,7 @@ int main(int, char**) {
 
             glm::mat4 M(1.0f);
             M = glm::translate(M, h.pos);
-            // same houseSize as static, scaled by anim factor
-            const glm::vec3 houseSizeAnim(8.0f, 6.0f, 12.0f);
+            glm::vec3 houseSizeAnim = h.scale;
             glm::vec3 up(0,1,0);
             glm::vec3 facing = glm::normalize(h.forward);
             glm::vec3 basisRight = glm::normalize(glm::cross(up, facing));
@@ -1693,10 +1728,13 @@ int main(int, char**) {
                 state.houseStatic.push_back(S);
                 uint64_t ckey = PackChunk(cc.cx, cc.cz);
                 state.houseStaticByChunk[ckey].push_back(S);
-                HouseInstanceGPU inst;
-                inst.posYaw = glm::vec4(h.pos, std::atan2(h.forward.x, h.forward.z));
-                inst.scaleVar = glm::vec4(houseSizeAnim, 0.0f);
-                state.buildingChunks[ckey].push_back(inst);
+                BuildingInstance inst;
+                inst.asset = h.asset;
+                inst.localPos = h.pos;
+                inst.yaw = std::atan2(h.forward.x, h.forward.z);
+                inst.scale = houseSizeAnim;
+                inst.seed = h.seed;
+                state.buildingChunks[ckey].instancesByAsset[h.asset].push_back(inst);
                 state.dirtyBuildingChunks.insert(ckey);
             } else {
                 still.push_back(h);
@@ -1705,22 +1743,29 @@ int main(int, char**) {
         state.houseAnim.swap(still);
 
         // Upload visible chunk houses (static)
-        std::vector<uint64_t> visibleHouseKeys;
+        std::vector<RenderHouseBatch> visibleHouseBatches;
         glm::vec3 origin = renderOrigin;
         for (uint64_t key : visibleChunks) {
             auto it = state.buildingChunks.find(key);
             if (it == state.buildingChunks.end()) continue;
-            const auto& src = it->second;
-            std::vector<HouseInstanceGPU> shifted;
-            shifted.reserve(src.size());
-            for (const auto& inst : src) {
-                HouseInstanceGPU sInst = inst;
-                sInst.posYaw.x -= origin.x;
-                sInst.posYaw.z -= origin.z;
-                shifted.push_back(sInst);
+            const auto& chunk = it->second;
+            for (const auto& assetPair : chunk.instancesByAsset) {
+                AssetId assetId = assetPair.first;
+                const auto& src = assetPair.second;
+                std::vector<HouseInstanceGPU> shifted;
+                shifted.reserve(src.size());
+                for (const auto& inst : src) {
+                    HouseInstanceGPU sInst;
+                    sInst.posYaw = glm::vec4(inst.localPos, inst.yaw);
+                    sInst.posYaw.x -= origin.x;
+                    sInst.posYaw.z -= origin.z;
+                    sInst.scaleVar = glm::vec4(inst.scale, 0.0f);
+                    shifted.push_back(sInst);
+                }
+                const MeshGpu& mesh = meshCache.getOrLoad(assetId, assets);
+                renderer.updateHouseChunk(key, assetId, mesh, shifted);
+                visibleHouseBatches.push_back({key, assetId});
             }
-            renderer.updateHouseChunk(key, shifted);
-            visibleHouseKeys.push_back(key);
             state.dirtyBuildingChunks.erase(key);
         }
 
@@ -1789,7 +1834,11 @@ int main(int, char**) {
         ImGui::NewFrame();
 
         int houseCount = 0;
-        for (const auto& kv : state.buildingChunks) houseCount += (int)kv.second.size();
+        for (const auto& kv : state.buildingChunks) {
+            for (const auto& assetPair : kv.second.instancesByAsset) {
+                houseCount += (int)assetPair.second.size();
+            }
+        }
         houseCount += (int)state.houseAnim.size();
 
         ImGui::Begin("City Painter (Phase 1)");
@@ -1821,7 +1870,7 @@ int main(int, char**) {
         ImGui::Text("Save/Load (JSON, versioned)");
         ImGui::InputText("File", savePath, sizeof(savePath));
         if (ImGui::Button("Save")) {
-            if (SaveToJsonFile(state, savePath)) statusText = "Saved.";
+            if (SaveToJsonFile(state, assets, savePath)) statusText = "Saved.";
             else statusText = "Save failed.";
         }
         ImGui::SameLine();
@@ -1878,7 +1927,7 @@ int main(int, char**) {
         frame.gridVertexCount = gridCount;
         frame.overlayVertexCount = overlayCount;
         frame.previewVertexCount = previewCount;
-        frame.visibleHouseChunks = visibleHouseKeys;
+        frame.visibleHouseBatches = std::move(visibleHouseBatches);
         frame.houseAnimCount = animInstances.size();
         frame.drawRoadPreview = (mode == Mode::Road && roadTool.drawing && !state.zonePreviewVerts.empty());
         frame.zonePreviewValid = zoneTool.dragging ? true : zoneTool.hoverValid;
@@ -1896,6 +1945,7 @@ int main(int, char**) {
     ImGui::DestroyContext();
 
     renderer.shutdown();
+    meshCache.shutdown();
 
     SDL_GL_DeleteContext(glctx);
     SDL_DestroyWindow(window);

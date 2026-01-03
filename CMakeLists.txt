@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(CityPainterProto
   src/main.cpp
   src/renderer.cpp
+  src/asset_catalog.cpp
+  src/mesh_cache.cpp
 
   external/imgui/imgui.cpp
   external/imgui/imgui_draw.cpp
@@ -20,6 +22,7 @@ add_executable(CityPainterProto
 target_include_directories(CityPainterProto PRIVATE
   external/imgui
   external/imgui/backends
+  external/cgltf
 )
 
 target_compile_definitions(CityPainterProto PRIVATE

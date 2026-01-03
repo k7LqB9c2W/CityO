@@ -262,6 +262,30 @@ external\imgui\imgui_widgets.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.s
 .PHONY : external\imgui\imgui_widgets.cpp.s
 
+src\asset_catalog.obj: src\asset_catalog.cpp.obj
+.PHONY : src\asset_catalog.obj
+
+# target to build an object file
+src\asset_catalog.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\asset_catalog.cpp.obj
+.PHONY : src\asset_catalog.cpp.obj
+
+src\asset_catalog.i: src\asset_catalog.cpp.i
+.PHONY : src\asset_catalog.i
+
+# target to preprocess a source file
+src\asset_catalog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\asset_catalog.cpp.i
+.PHONY : src\asset_catalog.cpp.i
+
+src\asset_catalog.s: src\asset_catalog.cpp.s
+.PHONY : src\asset_catalog.s
+
+# target to generate assembly for a file
+src\asset_catalog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\asset_catalog.cpp.s
+.PHONY : src\asset_catalog.cpp.s
+
 src\main.obj: src\main.cpp.obj
 .PHONY : src\main.obj
 
@@ -285,6 +309,30 @@ src\main.s: src\main.cpp.s
 src\main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\main.cpp.s
 .PHONY : src\main.cpp.s
+
+src\mesh_cache.obj: src\mesh_cache.cpp.obj
+.PHONY : src\mesh_cache.obj
+
+# target to build an object file
+src\mesh_cache.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.obj
+.PHONY : src\mesh_cache.cpp.obj
+
+src\mesh_cache.i: src\mesh_cache.cpp.i
+.PHONY : src\mesh_cache.i
+
+# target to preprocess a source file
+src\mesh_cache.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.i
+.PHONY : src\mesh_cache.cpp.i
+
+src\mesh_cache.s: src\mesh_cache.cpp.s
+.PHONY : src\mesh_cache.s
+
+# target to generate assembly for a file
+src\mesh_cache.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.s
+.PHONY : src\mesh_cache.cpp.s
 
 src\renderer.obj: src\renderer.cpp.obj
 .PHONY : src\renderer.obj
@@ -337,9 +385,15 @@ help:
 	@echo ... external/imgui/imgui_widgets.obj
 	@echo ... external/imgui/imgui_widgets.i
 	@echo ... external/imgui/imgui_widgets.s
+	@echo ... src/asset_catalog.obj
+	@echo ... src/asset_catalog.i
+	@echo ... src/asset_catalog.s
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s
+	@echo ... src/mesh_cache.obj
+	@echo ... src/mesh_cache.i
+	@echo ... src/mesh_cache.s
 	@echo ... src/renderer.obj
 	@echo ... src/renderer.i
 	@echo ... src/renderer.s
