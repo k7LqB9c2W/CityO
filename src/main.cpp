@@ -797,8 +797,8 @@ static void RebuildLotCells(AppState& s) {
     if (s.roads.empty()) return;
 
     const float roadHalf = 5.0f;
-    const float lotDepth = 10.0f;     // standardized depth
-    const float cellLen = 12.0f;      // along road
+    const float lotDepth = 30.0f;     // standardized depth
+    const float cellLen = 16.0f;      // along road
     const float desiredClear = 10.0f;
     const float setback = roadHalf + desiredClear + (lotDepth * 0.5f);
 
@@ -902,12 +902,20 @@ static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec
     s.zonePreviewVerts.push_back(bL);
 }
 
+static glm::vec3 ApplyAssetScale(const AssetCatalog& assets, AssetId assetId, const glm::vec3& baseSize) {
+    const AssetDef* def = assets.find(assetId);
+    if (!def) return baseSize;
+    glm::vec3 scaled = def->meshRelPath.empty() ? baseSize : def->defaultScale;
+    if (scaled.x <= 0.0f || scaled.y <= 0.0f || scaled.z <= 0.0f) return baseSize;
+    return scaled;
+}
+
 static void AppendLotGridPreviewForRoad(std::vector<glm::vec3>& out, const Road& r, const std::vector<Road>& otherRoads) {
     if (r.pts.size() < 2 || r.cumLen.size() != r.pts.size()) return;
 
     const float roadHalf = 5.0f;
-    const float lotDepth = 10.0f;
-    const float cellLen = 12.0f;
+    const float lotDepth = 30.0f;
+    const float cellLen = 16.0f;
     const float desiredClear = 10.0f;
     const float setback = roadHalf + desiredClear + (lotDepth * 0.5f);
     const float intersectionPad = roadHalf + desiredClear + 5.0f;
@@ -951,7 +959,7 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     s.buildingChunks.clear();
     s.dirtyBuildingChunks.clear();
 
-    const glm::vec3 houseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
+    const glm::vec3 baseHouseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
     const float roadHalf = 5.0f;
     const float desiredClear = 10.0f;          // minimum gap from road edge to house front
     const AssetId defaultAsset = assets.resolveCategoryAsset("low_density");
@@ -973,7 +981,7 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         occupied.insert(cellKey(gx, gz));
     };
     std::vector<glm::vec3> placedCenters;
-    const float houseRadius = std::sqrt(houseSize.x * houseSize.x + houseSize.z * houseSize.z) * 0.5f;
+    const float houseRadius = std::sqrt(baseHouseSize.x * baseHouseSize.x + baseHouseSize.z * baseHouseSize.z) * 0.5f;
     const float minSpacing = houseRadius * 2.0f + 2.0f; // ensure footprints don't touch, esp. near intersections
     const float minSpacingSq = minSpacing * minSpacing;
 
@@ -990,6 +998,9 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
 
     for (const auto& c : s.lots) {
         if (!c.zoned) continue;
+
+        AssetId assetId = defaultAsset;
+        glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseHouseSize);
 
         glm::vec3 pos = c.center;
         pos.y = houseSize.y * 0.5f;
@@ -1016,8 +1027,6 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
         uint32_t seed = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)(c.roadId * 131071U) ^ (c.side < 0 ? 0x9e3779b9U : 0U));
         float yaw = std::atan2(facing.x, facing.z);
-        AssetId assetId = defaultAsset;
-
         if (animate) {
             float jitter = (seed % 120) / 1000.0f; // 0..0.119 sec
             s.houseAnim.push_back({pos, nowSec + jitter, facing, assetId, houseSize, seed});
@@ -1653,7 +1662,7 @@ int main(int, char**) {
         z.d0 = zoneTool.startD;
         z.d1 = zoneTool.endD;
         z.sideMask = zoneTool.sideMask;
-        z.depth = 10.0f;
+        z.depth = zoneTool.depth;
 
         if (ZoneOverlapsExisting(state, z.roadId, z.d0, z.d1)) {
             statusText = "Already zoned here.";
@@ -1822,7 +1831,7 @@ int main(int, char**) {
                 if (idx < 0 || idx >= (int)state.lots.size()) continue;
                 const auto& c = state.lots[idx];
                 if (!c.zoned) continue;
-                float lotDepth = 10.0f;
+                float lotDepth = 30.0f;
                 float lotWidth = std::max(6.0f, c.d1 - c.d0);
                 AppendLotOverlayQuad(zoneTool.overlayVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
             }
@@ -1838,8 +1847,7 @@ int main(int, char**) {
                 if (ridx >= 0 && state.roads[ridx].pts.size() >= 2) {
                     float a = zoneTool.dragging ? zoneTool.startD : zoneTool.hoverD;
                     float b = zoneTool.dragging ? zoneTool.endD : (zoneTool.hoverD + 40.0f);
-                    float depthFixed = 10.0f;
-                    BuildZonePreviewMesh(state, state.roads[ridx], a, b, zoneTool.sideMask, depthFixed);
+                    BuildZonePreviewMesh(state, state.roads[ridx], a, b, zoneTool.sideMask, zoneTool.depth);
                 }
             }
         }
@@ -1847,7 +1855,7 @@ int main(int, char**) {
         // Lot grid (always show in Zone/Unzone mode)
         std::vector<glm::vec3> lotGridVerts;
         if (mode == Mode::Zone || mode == Mode::Unzone || (mode == Mode::Road && roadTool.drawing)) {
-            const float lotDepth = 10.0f;
+            const float lotDepth = 30.0f;
             for (uint64_t key : visibleChunks) {
                 auto it = state.lotIndicesByChunk.find(key);
                 if (it == state.lotIndicesByChunk.end()) continue;
@@ -1906,7 +1914,7 @@ int main(int, char**) {
         ImGui::SliderFloat("Point pick radius (m)", &roadPointPickRadius, 2.0f, 15.0f, "%.0f");
         ImGui::Separator();
 
-        ImGui::Text("Zoning (depth fixed 10 m)");
+        ImGui::Text("Zoning (depth fixed 30 m)");
         ImGui::SliderFloat("Zone pick radius (m)", &zoneTool.pickRadius, 4.0f, 30.0f, "%.0f");
         ImGui::Text("Sides (V cycles): %s", (zoneTool.sideMask == 3) ? "Both" : (zoneTool.sideMask == 1) ? "Left" : "Right");
         ImGui::Separator();
