@@ -12,6 +12,7 @@ Building instances
 - CPU data uses BuildingInstance { AssetId asset, localPos, yaw, scale, seed }.
 - For mesh assets, defaultScale is used as the world scale (1.0 = Blender meters).
 - For the fallback cube, the base house size (8x6x12 m) is used.
+- footprintM is used as the footprint for spacing/corner collision checks.
 - AppState.buildingChunks stores instances grouped by chunk and asset.
 - Renderer draws one instanced batch per (chunk, asset) so meshes can differ.
 - Animated houses still use the cube instanced path for now.

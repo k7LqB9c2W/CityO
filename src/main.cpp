@@ -57,6 +57,10 @@ struct ChunkCoord { int32_t cx; int32_t cz; };
 static uint64_t PackChunk(int32_t cx, int32_t cz) {
     return (uint64_t(uint32_t(cx)) << 32) | uint32_t(cz);
 }
+static void UnpackChunk(uint64_t key, int32_t& cx, int32_t& cz) {
+    cx = (int32_t)(key >> 32);
+    cz = (int32_t)(key & 0xffffffffu);
+}
 static ChunkCoord ChunkFromPosXZ(const glm::vec3& p) {
     return {
         (int32_t)std::floor(p.x / CHUNK_SIZE_M),
@@ -263,15 +267,6 @@ static bool SnapToAnyEndpoint(
     return true;
 }
 
-struct ZoneStrip {
-    int id = 0;
-    int roadId = 0;
-    float d0 = 0.0f;
-    float d1 = 0.0f;
-    int sideMask = 3; // 1 = left, 2 = right, 3 = both
-    float depth = 30.0f;
-};
-
 struct BuildingInstance {
     AssetId asset = 0;
     glm::vec3 localPos{};
@@ -301,6 +296,24 @@ struct ZoneChunk {
         if (x < 0 || x >= DIM || z < 0 || z >= DIM) return 0;
         return cells[z * DIM + x];
     }
+};
+
+constexpr uint8_t ZONE_FLAG_BUILDABLE = 1 << 0;
+constexpr uint8_t ZONE_FLAG_ZONED = 1 << 1;
+constexpr uint8_t ZONE_FLAG_BLOCKED = 1 << 2;
+constexpr float ZONE_CELL_M = CHUNK_SIZE_M / ZoneChunk::DIM;
+constexpr int   ZONE_DEPTH_CELLS = 6;
+constexpr float ZONE_DEPTH_M = ZONE_DEPTH_CELLS * ZONE_CELL_M; // 48m with 8m cells
+constexpr float ROAD_WIDTH_M = 10.0f;
+constexpr float ROAD_HALF_M = ROAD_WIDTH_M * 0.5f;
+
+struct ZoneStrip {
+    int id = 0;
+    int roadId = 0;
+    float d0 = 0.0f;
+    float d1 = 0.0f;
+    int sideMask = 3; // 1 = left, 2 = right, 3 = both
+    float depth = ZONE_DEPTH_M;
 };
 
 struct LotCell {
@@ -333,6 +346,7 @@ struct AppState {
     std::unordered_set<uint64_t> dirtyZoneChunks;
 
     bool roadsDirty = true;
+    bool zonesDirty = true;
     bool housesDirty = true;
 
     std::vector<glm::vec3> roadMeshVerts;
@@ -356,20 +370,99 @@ static bool ZoneOverlapsExisting(const AppState& s, int roadId, float d0, float 
     return false;
 }
 
-static void MarkCellsForZone(AppState& s, int roadId, float d0, float d1, int sideMask) {
-    float a = std::min(d0, d1);
-    float b = std::max(d0, d1);
-    for (auto& c : s.lots) {
-        if (c.roadId != roadId) continue;
-        if (!(c.side == -1 && (sideMask & 1)) && !(c.side == 1 && (sideMask & 2))) continue;
-        if (ZonesOverlap(a, b, c.d0, c.d1)) c.zoned = true;
-    }
+static uint8_t GetZoneFlagsAt(const AppState& s, const glm::vec3& pos) {
+    ChunkCoord cc = ChunkFromPosXZ(pos);
+    uint64_t key = PackChunk(cc.cx, cc.cz);
+    auto it = s.zoneChunks.find(key);
+    if (it == s.zoneChunks.end()) return 0;
+    float originX = cc.cx * CHUNK_SIZE_M;
+    float originZ = cc.cz * CHUNK_SIZE_M;
+    int xi = (int)std::floor((pos.x - originX) / ZONE_CELL_M);
+    int zi = (int)std::floor((pos.z - originZ) / ZONE_CELL_M);
+    return it->second.get(xi, zi);
 }
 
-static void UnmarkCellsForRoad(AppState& s, int roadId) {
-    for (auto& c : s.lots) {
-        if (c.roadId == roadId) c.zoned = false;
+static bool WorldToZoneCell(const glm::vec3& p, int& outCx, int& outCz, int& outXi, int& outZi) {
+    int cx = (int)std::floor(p.x / CHUNK_SIZE_M);
+    int cz = (int)std::floor(p.z / CHUNK_SIZE_M);
+
+    float originX = cx * CHUNK_SIZE_M;
+    float originZ = cz * CHUNK_SIZE_M;
+
+    int xi = (int)std::floor((p.x - originX) / ZONE_CELL_M);
+    int zi = (int)std::floor((p.z - originZ) / ZONE_CELL_M);
+
+    if (xi < 0 || xi >= ZoneChunk::DIM || zi < 0 || zi >= ZoneChunk::DIM) return false;
+
+    outCx = cx;
+    outCz = cz;
+    outXi = xi;
+    outZi = zi;
+    return true;
+}
+
+static void SetZoneCellFlags(
+    AppState& s,
+    int cx,
+    int cz,
+    int xi,
+    int zi,
+    uint8_t setMask,
+    uint8_t clearMask)
+{
+    uint64_t key = PackChunk(cx, cz);
+    ZoneChunk& chunk = EnsureZoneChunk(s, key);
+    uint8_t v = chunk.get(xi, zi);
+    v |= setMask;
+    v &= (uint8_t)~clearMask;
+    chunk.set(xi, zi, v);
+    s.dirtyZoneChunks.insert(key);
+}
+
+static float ZoneRectCoverage(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+    int total = nx * nz;
+    int hit = 0;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            uint8_t flags = GetZoneFlagsAt(s, p);
+            if (flags & forbiddenMask) return 0.0f;
+            if ((flags & requiredMask) == requiredMask) hit++;
+        }
     }
+    return total > 0 ? (float)hit / (float)total : 0.0f;
+}
+
+static bool LotRectMeetsGrid(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask,
+    float minCoverage)
+{
+    return ZoneRectCoverage(s, center, forward, right, width, depth, requiredMask, forbiddenMask) >= minCoverage;
 }
 
 static ZoneChunk& EnsureZoneChunk(AppState& s, uint64_t key) {
@@ -389,22 +482,49 @@ static void StampZoneStrip(AppState& s, const ZoneStrip& z, bool add) {
     if (r.pts.size() < 2) return;
     float dA = std::min(z.d0, z.d1);
     float dB = std::max(z.d0, z.d1);
-    float depth = z.depth;
-    const float roadHalf = 5.0f;
-    const float cellSize = CHUNK_SIZE_M / ZoneChunk::DIM;
+    const float stepAlong = ZONE_CELL_M * 0.5f;
 
-    // conservative AABB
-    glm::vec3 t0, t1;
-    glm::vec3 p0 = r.pointAt(dA, t0);
-    glm::vec3 p1 = r.pointAt(dB, t1);
-    float pad = depth + roadHalf + 2.0f;
-    float minX = std::min(p0.x, p1.x) - pad;
-    float maxX = std::max(p0.x, p1.x) + pad;
-    float minZ = std::min(p0.z, p1.z) - pad;
-    float maxZ = std::max(p0.z, p1.z) + pad;
+    for (float d = dA; d <= dB; d += stepAlong) {
+        glm::vec3 tan;
+        glm::vec3 p = r.pointAt(d, tan);
+        if (glm::dot(tan, tan) < 1e-6f) continue;
+
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+
+        auto stampSide = [&](int side, int sideBit) {
+            if (!(z.sideMask & sideBit)) return;
+            for (int row = 0; row < ZONE_DEPTH_CELLS; ++row) {
+                float offset = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
+                glm::vec3 sample = p + right * (float(side) * offset);
+
+                int cx, cz, xi, zi;
+                if (!WorldToZoneCell(sample, cx, cz, xi, zi)) continue;
+                uint8_t flags = GetZoneFlagsAt(s, sample);
+                if (!(flags & ZONE_FLAG_BUILDABLE)) continue;
+                if (flags & ZONE_FLAG_BLOCKED) continue;
+
+                uint8_t setMask = add ? ZONE_FLAG_ZONED : 0;
+                uint8_t clrMask = add ? 0 : ZONE_FLAG_ZONED;
+                SetZoneCellFlags(s, cx, cz, xi, zi, setMask, clrMask);
+                s.dirtyBuildingChunks.insert(PackChunk(cx, cz));
+            }
+        };
+
+        stampSide(-1, 1);
+        stampSide(+1, 2);
+    }
+}
+
+static void StampBlockedDisk(AppState& s, const glm::vec3& center, float radiusM) {
+    float minX = center.x - radiusM;
+    float maxX = center.x + radiusM;
+    float minZ = center.z - radiusM;
+    float maxZ = center.z + radiusM;
 
     ChunkCoord cmin = ChunkFromPosXZ(glm::vec3(minX, 0, minZ));
     ChunkCoord cmax = ChunkFromPosXZ(glm::vec3(maxX, 0, maxZ));
+
+    float r2 = radiusM * radiusM;
 
     for (int cz = cmin.cz; cz <= cmax.cz; ++cz) {
         for (int cx = cmin.cx; cx <= cmax.cx; ++cx) {
@@ -413,30 +533,107 @@ static void StampZoneStrip(AppState& s, const ZoneStrip& z, bool add) {
             float originX = cx * CHUNK_SIZE_M;
             float originZ = cz * CHUNK_SIZE_M;
 
-            int x0 = std::max(0, (int)std::floor((minX - originX) / cellSize));
-            int x1 = std::min(ZoneChunk::DIM - 1, (int)std::floor((maxX - originX) / cellSize));
-            int z0 = std::max(0, (int)std::floor((minZ - originZ) / cellSize));
-            int z1 = std::min(ZoneChunk::DIM - 1, (int)std::floor((maxZ - originZ) / cellSize));
+            int x0 = std::max(0, (int)std::floor((minX - originX) / ZONE_CELL_M));
+            int x1 = std::min(ZoneChunk::DIM - 1, (int)std::floor((maxX - originX) / ZONE_CELL_M));
+            int z0 = std::max(0, (int)std::floor((minZ - originZ) / ZONE_CELL_M));
+            int z1 = std::min(ZoneChunk::DIM - 1, (int)std::floor((maxZ - originZ) / ZONE_CELL_M));
 
             for (int zi = z0; zi <= z1; ++zi) {
                 for (int xi = x0; xi <= x1; ++xi) {
-                    glm::vec3 p(originX + (xi + 0.5f) * cellSize, 0.0f, originZ + (zi + 0.5f) * cellSize);
-                    float dAlong; glm::vec3 tan;
-                    float distSq = ClosestDistanceAlongRoadSq(r, p, dAlong, tan);
-                    if (dAlong < dA || dAlong > dB) continue;
-                    float distEdge = std::sqrt(distSq) - roadHalf;
-                    if (distEdge > depth) continue;
-                    // side mask
-                    glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
-                    float sideDot = glm::dot(p - r.pointAt(dAlong, tan), right);
-                    if (sideDot < 0 && !(z.sideMask & 1)) continue;
-                    if (sideDot > 0 && !(z.sideMask & 2)) continue;
-                    chunk.set(xi, zi, add ? 1 : 0);
+                    glm::vec3 cellCenter(
+                        originX + (xi + 0.5f) * ZONE_CELL_M,
+                        0.0f,
+                        originZ + (zi + 0.5f) * ZONE_CELL_M
+                    );
+
+                    glm::vec2 d(cellCenter.x - center.x, cellCenter.z - center.z);
+                    if (d.x*d.x + d.y*d.y > r2) continue;
+
+                    uint8_t v = chunk.get(xi, zi);
+                    v |= ZONE_FLAG_BLOCKED;
+                    v &= (uint8_t)~ZONE_FLAG_BUILDABLE;
+                    v &= (uint8_t)~ZONE_FLAG_ZONED;
+                    chunk.set(xi, zi, v);
                     s.dirtyZoneChunks.insert(key);
                     s.dirtyBuildingChunks.insert(key);
                 }
             }
         }
+    }
+}
+
+static void StampRoadInfluence(AppState& s, const Road& r) {
+    if (r.pts.size() < 2) return;
+
+    float total = r.totalLen();
+    const float stepAlong = ZONE_CELL_M * 0.5f;
+
+    for (float d = 0.0f; d <= total; d += stepAlong) {
+        glm::vec3 tan;
+        glm::vec3 p = r.pointAt(d, tan);
+        if (glm::dot(tan, tan) < 1e-6f) continue;
+
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+
+        for (int side : {-1, +1}) {
+            for (int row = 0; row < ZONE_DEPTH_CELLS; ++row) {
+                float offset = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
+                glm::vec3 sample = p + right * (float(side) * offset);
+
+                int cx, cz, xi, zi;
+                if (!WorldToZoneCell(sample, cx, cz, xi, zi)) continue;
+                SetZoneCellFlags(s, cx, cz, xi, zi, ZONE_FLAG_BUILDABLE, 0);
+            }
+        }
+    }
+}
+
+static void RebuildZoneGrid(AppState& s) {
+    s.zoneChunks.clear();
+    s.dirtyZoneChunks.clear();
+    if (s.roads.empty()) return;
+
+    for (const auto& r : s.roads) {
+        StampRoadInfluence(s, r);
+    }
+
+    // Block junctions and road endpoints to keep grid clean at intersections.
+    struct JunctionInfo {
+        int count = 0;
+        glm::vec3 pos{};
+    };
+    std::unordered_map<uint64_t, JunctionInfo> junctions;
+    const float snap = 0.5f;
+    auto pointKey = [&](const glm::vec3& p) -> uint64_t {
+        int64_t qx = (int64_t)std::llround(p.x / snap);
+        int64_t qz = (int64_t)std::llround(p.z / snap);
+        return (uint64_t(uint32_t(qx)) << 32) | uint32_t(qz);
+    };
+
+    for (const auto& r : s.roads) {
+        for (const auto& p : r.pts) {
+            uint64_t key = pointKey(p);
+            auto& info = junctions[key];
+            if (info.count == 0) info.pos = p;
+            info.count++;
+        }
+    }
+
+    const float endcapRadius = ROAD_HALF_M + 1.5f * ZONE_CELL_M;
+    const float junctionRadius = ROAD_HALF_M + 2.5f * ZONE_CELL_M;
+    for (const auto& kv : junctions) {
+        if (kv.second.count >= 2) {
+            StampBlockedDisk(s, kv.second.pos, junctionRadius);
+        }
+    }
+    for (const auto& r : s.roads) {
+        if (r.pts.empty()) continue;
+        StampBlockedDisk(s, r.pts.front(), endcapRadius);
+        StampBlockedDisk(s, r.pts.back(), endcapRadius);
+    }
+
+    for (const auto& z : s.zones) {
+        StampZoneStrip(s, z, true);
     }
 }
 
@@ -599,21 +796,14 @@ struct CmdAddZone : ICommand {
             s.zones.push_back(zone);
             applied = true;
         }
-        MarkCellsForZone(s, zone.roadId, zone.d0, zone.d1, zone.sideMask);
-        StampZoneStrip(s, zone, true);
+        s.zonesDirty = true;
         s.housesDirty = true;
     }
 
     void undoIt(AppState& s) override {
         auto it = std::find_if(s.zones.begin(), s.zones.end(), [&](const ZoneStrip& z){ return z.id == zone.id; });
         if (it != s.zones.end()) s.zones.erase(it);
-        // Unmark cells for this zone
-        for (auto& c : s.lots) {
-            if (c.roadId != zone.roadId) continue;
-            if (!(c.side == -1 && (zone.sideMask & 1)) && !(c.side == 1 && (zone.sideMask & 2))) continue;
-            if (ZonesOverlap(zone.d0, zone.d1, c.d0, c.d1)) c.zoned = false;
-        }
-        StampZoneStrip(s, zone, false);
+        s.zonesDirty = true;
         s.housesDirty = true;
     }
 };
@@ -633,15 +823,13 @@ struct CmdClearZonesForRoad : ICommand {
                           s.zones.end());
             applied = true;
         }
-        UnmarkCellsForRoad(s, roadId);
-        for (const auto& z : removed) StampZoneStrip(s, z, false);
+        s.zonesDirty = true;
         s.housesDirty = true;
     }
 
     void undoIt(AppState& s) override {
         for (const auto& z : removed) s.zones.push_back(z);
-        for (const auto& z : removed) MarkCellsForZone(s, z.roadId, z.d0, z.d1, z.sideMask);
-        for (const auto& z : removed) StampZoneStrip(s, z, true);
+        s.zonesDirty = true;
         s.housesDirty = true;
     }
 };
@@ -680,7 +868,7 @@ struct CommandStack {
 
 static void RebuildAllRoadMesh(AppState& s) {
     s.roadMeshVerts.clear();
-    const float roadWidth = 10.0f;
+    const float roadWidth = ROAD_WIDTH_M;
     const float y = 0.03f;
 
     for (const auto& r : s.roads) {
@@ -714,7 +902,7 @@ static void RebuildAllRoadMesh(AppState& s) {
     }
 }
 
-static void AppendZoneMesh(
+[[maybe_unused]] static void AppendZoneMesh(
     std::vector<glm::vec3>& out,
     const Road& r,
     float d0,
@@ -726,7 +914,7 @@ static void AppendZoneMesh(
     float b = std::max(d0, d1);
     if (b - a < 1.0f) return;
 
-    const float roadHalf = 5.0f;
+    const float roadHalf = ROAD_HALF_M;
     const float setback = roadHalf + 1.0f;
     const float step = 6.0f;
     const float y = 0.04f;
@@ -761,7 +949,7 @@ static void AppendZoneMesh(
     if (sideMask & 2) emitStrip(+1);
 }
 
-static void AppendLotOverlayQuad(std::vector<glm::vec3>& out, const glm::vec3& center, const glm::vec3& forward, const glm::vec3& right, float width, float depth) {
+[[maybe_unused]] static void AppendLotOverlayQuad(std::vector<glm::vec3>& out, const glm::vec3& center, const glm::vec3& forward, const glm::vec3& right, float width, float depth) {
     const float y = 0.04f;
     glm::vec3 f = forward;
     if (glm::dot(f, f) < 1e-6f) f = glm::vec3(0,0,1);
@@ -779,6 +967,39 @@ static void AppendLotOverlayQuad(std::vector<glm::vec3>& out, const glm::vec3& c
     out.push_back(a); out.push_back(c); out.push_back(d);
 }
 
+static void AppendZoneCellQuad(std::vector<glm::vec3>& out, float originX, float originZ, int xi, int zi, float inset = 0.15f) {
+    const float y = 0.04f;
+
+    float x0 = originX + xi * ZONE_CELL_M + inset;
+    float z0 = originZ + zi * ZONE_CELL_M + inset;
+    float x1 = originX + (xi + 1) * ZONE_CELL_M - inset;
+    float z1 = originZ + (zi + 1) * ZONE_CELL_M - inset;
+
+    out.push_back({x0, y, z0}); out.push_back({x1, y, z0}); out.push_back({x1, y, z1});
+    out.push_back({x0, y, z0}); out.push_back({x1, y, z1}); out.push_back({x0, y, z1});
+}
+
+struct PreviewCellKey {
+    int32_t cx = 0;
+    int32_t cz = 0;
+    uint8_t xi = 0;
+    uint8_t zi = 0;
+
+    bool operator==(const PreviewCellKey& other) const {
+        return cx == other.cx && cz == other.cz && xi == other.xi && zi == other.zi;
+    }
+};
+
+struct PreviewCellKeyHash {
+    std::size_t operator()(const PreviewCellKey& k) const {
+        uint32_t h1 = Hash32((uint32_t)k.cx);
+        uint32_t h2 = Hash32((uint32_t)k.cz);
+        uint32_t h3 = Hash32((uint32_t(k.xi) << 16) | uint32_t(k.zi));
+        uint32_t h = h1 ^ (h2 * 0x9e3779b1U) ^ (h3 * 0x85ebca6bU);
+        return (std::size_t)h;
+    }
+};
+
 static void BuildZonePreviewMesh(
     AppState& s,
     const Road& r,
@@ -788,7 +1009,67 @@ static void BuildZonePreviewMesh(
     float depth)
 {
     s.zonePreviewVerts.clear();
-    AppendZoneMesh(s.zonePreviewVerts, r, d0, d1, sideMask, depth);
+    (void)depth;
+    float a = std::min(d0, d1);
+    float b = std::max(d0, d1);
+    const float stepAlong = ZONE_CELL_M * 0.5f;
+    std::unordered_set<PreviewCellKey, PreviewCellKeyHash> seen;
+
+    for (float d = a; d <= b; d += stepAlong) {
+        glm::vec3 tan;
+        glm::vec3 p = r.pointAt(d, tan);
+        if (glm::dot(tan, tan) < 1e-6f) continue;
+
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+        auto stampSide = [&](int side, int sideBit) {
+            if (!(sideMask & sideBit)) return;
+            for (int row = 0; row < ZONE_DEPTH_CELLS; ++row) {
+                float offset = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
+                glm::vec3 sample = p + right * (float(side) * offset);
+
+                int cx, cz, xi, zi;
+                if (!WorldToZoneCell(sample, cx, cz, xi, zi)) continue;
+                PreviewCellKey key{cx, cz, (uint8_t)xi, (uint8_t)zi};
+                if (seen.insert(key).second) {
+                    float originX = cx * CHUNK_SIZE_M;
+                    float originZ = cz * CHUNK_SIZE_M;
+                    AppendZoneCellQuad(s.zonePreviewVerts, originX, originZ, xi, zi);
+                }
+            }
+        };
+
+        stampSide(-1, 1);
+        stampSide(+1, 2);
+    }
+}
+
+static void AppendRoadInfluencePreview(std::vector<glm::vec3>& out, const Road& r) {
+    if (r.pts.size() < 2 || r.cumLen.size() != r.pts.size()) return;
+    const float stepAlong = ZONE_CELL_M * 0.5f;
+    std::unordered_set<PreviewCellKey, PreviewCellKeyHash> seen;
+
+    float total = r.totalLen();
+    for (float d = 0.0f; d <= total; d += stepAlong) {
+        glm::vec3 tan;
+        glm::vec3 p = r.pointAt(d, tan);
+        if (glm::dot(tan, tan) < 1e-6f) continue;
+
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+        for (int side : {-1, +1}) {
+            for (int row = 0; row < ZONE_DEPTH_CELLS; ++row) {
+                float offset = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
+                glm::vec3 sample = p + right * (float(side) * offset);
+
+                int cx, cz, xi, zi;
+                if (!WorldToZoneCell(sample, cx, cz, xi, zi)) continue;
+                PreviewCellKey key{cx, cz, (uint8_t)xi, (uint8_t)zi};
+                if (!seen.insert(key).second) continue;
+                float originX = cx * CHUNK_SIZE_M;
+                float originZ = cz * CHUNK_SIZE_M;
+                AppendZoneCellQuad(out, originX, originZ, xi, zi);
+            }
+        }
+    }
 }
 
 static void RebuildLotCells(AppState& s) {
@@ -796,32 +1077,11 @@ static void RebuildLotCells(AppState& s) {
     s.lotIndicesByChunk.clear();
     if (s.roads.empty()) return;
 
-    const float roadHalf = 5.0f;
-    const float lotDepth = 30.0f;     // standardized depth
-    const float cellLen = 16.0f;      // along road
-    const float desiredClear = 10.0f;
+    const float roadHalf = ROAD_HALF_M;
+    const float lotDepth = ZONE_DEPTH_M;
+    const float cellLen = ZONE_CELL_M * 2.0f;
+    const float desiredClear = 0.0f;
     const float setback = roadHalf + desiredClear + (lotDepth * 0.5f);
-
-    auto minCenterlineClearSq = [&](const glm::vec3& pos) -> float {
-        float best = std::numeric_limits<float>::max();
-        for (const auto& other : s.roads) {
-            if (other.pts.size() < 2) continue;
-            float dAlong; glm::vec3 tan;
-            float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
-            best = std::min(best, distSq);
-        }
-        return best;
-    };
-    auto minClearToOtherRoadSq = [&](const glm::vec3& pos, int currentRoadId) -> float {
-        float best = std::numeric_limits<float>::max();
-        for (const auto& other : s.roads) {
-            if (other.id == currentRoadId || other.pts.size() < 2) continue;
-            float dAlong; glm::vec3 tan;
-            float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
-            best = std::min(best, distSq);
-        }
-        return best;
-    };
 
     std::unordered_set<uint64_t> occupied;
     auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
@@ -829,7 +1089,8 @@ static void RebuildLotCells(AppState& s) {
     };
 
     const float dedupCell = 4.0f;
-    const float intersectionPad = roadHalf + desiredClear + 5.0f; // extra gap near junctions
+    const float buildableCoverage = 0.85f;
+    const float zonedCoverage = 0.75f;
 
     for (const auto& r : s.roads) {
         if (r.pts.size() < 2) continue;
@@ -841,14 +1102,13 @@ static void RebuildLotCells(AppState& s) {
             if (glm::dot(tan, tan) < 1e-6f) continue;
             glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
 
-            // Avoid generating lots whose centerline position hugs another road (intersection corners)
-            float clearToOther = std::sqrt(minClearToOtherRoadSq(base, r.id));
-            if (clearToOther - roadHalf < intersectionPad) continue;
-
             for (int side : {-1, 1}) {
                 glm::vec3 center = base + right * float(side) * setback;
-                float distEdge = std::sqrt(minCenterlineClearSq(center)) - roadHalf;
-                if (distEdge < desiredClear) continue;
+                if (!LotRectMeetsGrid(
+                        s, center, tan, right, cellLen, lotDepth,
+                        ZONE_FLAG_BUILDABLE, ZONE_FLAG_BLOCKED, buildableCoverage)) {
+                    continue;
+                }
 
                 int32_t gx = (int32_t)std::floor(center.x / dedupCell);
                 int32_t gz = (int32_t)std::floor(center.z / dedupCell);
@@ -863,7 +1123,9 @@ static void RebuildLotCells(AppState& s) {
                 c.center = center;
                 c.forward = glm::normalize(tan);
                 c.right = right;
-                c.zoned = false;
+                c.zoned = LotRectMeetsGrid(
+                    s, center, c.forward, c.right, cellLen, lotDepth,
+                    (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED), ZONE_FLAG_BLOCKED, zonedCoverage);
 
                 occupied.insert(k);
                 int idx = (int)s.lots.size();
@@ -876,7 +1138,7 @@ static void RebuildLotCells(AppState& s) {
 }
 
 static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec3& b) {
-    const float roadWidth = 10.0f;
+    const float roadWidth = ROAD_WIDTH_M;
     const float y = 0.05f;
 
     glm::vec3 dir = b - a;
@@ -910,26 +1172,69 @@ static glm::vec3 ApplyAssetScale(const AssetCatalog& assets, AssetId assetId, co
     return scaled;
 }
 
-static void AppendLotGridPreviewForRoad(std::vector<glm::vec3>& out, const Road& r, const std::vector<Road>& otherRoads) {
-    if (r.pts.size() < 2 || r.cumLen.size() != r.pts.size()) return;
+static glm::vec2 GetAssetFootprint(const AssetCatalog& assets, AssetId assetId, const glm::vec2& fallback) {
+    const AssetDef* def = assets.find(assetId);
+    if (!def) return fallback;
+    if (def->footprintM.x > 0.0f && def->footprintM.y > 0.0f) return def->footprintM;
+    return fallback;
+}
 
-    const float roadHalf = 5.0f;
-    const float lotDepth = 30.0f;
-    const float cellLen = 16.0f;
-    const float desiredClear = 10.0f;
-    const float setback = roadHalf + desiredClear + (lotDepth * 0.5f);
-    const float intersectionPad = roadHalf + desiredClear + 5.0f;
+[[maybe_unused]] static bool LotRectMeetsRoadBand(
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    float roadHalf,
+    float desiredClear,
+    float lotDepth,
+    const std::vector<Road>& roads,
+    const Road* extraRoad)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
 
-    auto minClearToOtherRoadSq = [&](const glm::vec3& pos) -> float {
+    auto minDistSqToRoads = [&](const glm::vec3& p) -> float {
         float best = std::numeric_limits<float>::max();
-        for (const auto& other : otherRoads) {
-            if (other.pts.size() < 2) continue;
+        for (const auto& r : roads) {
+            if (r.pts.size() < 2) continue;
             float dAlong; glm::vec3 tan;
-            float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
+            float distSq = ClosestDistanceAlongRoadSq(r, p, dAlong, tan);
+            best = std::min(best, distSq);
+        }
+        if (extraRoad && extraRoad->pts.size() >= 2) {
+            float dAlong; glm::vec3 tan;
+            float distSq = ClosestDistanceAlongRoadSq(*extraRoad, p, dAlong, tan);
             best = std::min(best, distSq);
         }
         return best;
     };
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            float distSq = minDistSqToRoads(p);
+            float distEdge = std::sqrt(distSq) - roadHalf;
+            if (distEdge < desiredClear || distEdge > desiredClear + lotDepth) return false;
+        }
+    }
+    return true;
+}
+
+[[maybe_unused]] static void AppendLotGridPreviewForRoad(std::vector<glm::vec3>& out, const Road& r, const std::vector<Road>& otherRoads) {
+    if (r.pts.size() < 2 || r.cumLen.size() != r.pts.size()) return;
+
+    const float roadHalf = ROAD_HALF_M;
+    const float lotDepth = ZONE_DEPTH_M;
+    const float cellLen = ZONE_CELL_M * 2.0f;
+    const float desiredClear = 0.0f;
+    const float setback = roadHalf + desiredClear + (lotDepth * 0.5f);
 
     float total = r.totalLen();
     for (float d = 0.0f; d + cellLen <= total; d += cellLen) {
@@ -939,13 +1244,11 @@ static void AppendLotGridPreviewForRoad(std::vector<glm::vec3>& out, const Road&
         if (glm::dot(tan, tan) < 1e-6f) continue;
         glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
 
-        float clearToOther = std::sqrt(minClearToOtherRoadSq(base));
-        if (clearToOther - roadHalf < intersectionPad) continue;
-
         for (int side : {-1, 1}) {
             glm::vec3 center = base + right * float(side) * setback;
-            float distEdge = std::sqrt(minClearToOtherRoadSq(center)) - roadHalf;
-            if (distEdge < desiredClear) continue;
+            if (!LotRectMeetsRoadBand(center, tan, right, cellLen, lotDepth, roadHalf, desiredClear, lotDepth, otherRoads, &r)) {
+                continue;
+            }
             float lotWidth = std::max(6.0f, cellLen);
             AppendLotOverlayQuad(out, center, tan, right, lotWidth, lotDepth);
         }
@@ -960,8 +1263,9 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     s.dirtyBuildingChunks.clear();
 
     const glm::vec3 baseHouseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
-    const float roadHalf = 5.0f;
-    const float desiredClear = 10.0f;          // minimum gap from road edge to house front
+    const float roadHalf = ROAD_HALF_M;
+    const float desiredClear = 0.0f; // matches buildable band start
+    const float lotDepth = ZONE_DEPTH_M;
     const AssetId defaultAsset = assets.resolveCategoryAsset("low_density");
 
     std::unordered_set<uint64_t> occupied;
@@ -980,10 +1284,43 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         int32_t gz = (int32_t)std::floor(pos.z / cell);
         occupied.insert(cellKey(gx, gz));
     };
-    std::vector<glm::vec3> placedCenters;
-    const float houseRadius = std::sqrt(baseHouseSize.x * baseHouseSize.x + baseHouseSize.z * baseHouseSize.z) * 0.5f;
-    const float minSpacing = houseRadius * 2.0f + 2.0f; // ensure footprints don't touch, esp. near intersections
-    const float minSpacingSq = minSpacing * minSpacing;
+    struct PlacedHouse {
+        glm::vec3 pos{};
+        float radius = 0.0f;
+    };
+    std::vector<PlacedHouse> placed;
+    std::unordered_map<uint64_t, std::vector<int>> placedByCell;
+    const float placementCell = 8.0f;
+    auto placeCellKey = [](int32_t gx, int32_t gz) -> uint64_t {
+        return (uint64_t(uint32_t(gx)) << 32) | uint32_t(gz);
+    };
+    auto addPlaced = [&](const glm::vec3& pos, float radius) {
+        PlacedHouse ph{pos, radius};
+        int idx = (int)placed.size();
+        placed.push_back(ph);
+        int32_t gx = (int32_t)std::floor(pos.x / placementCell);
+        int32_t gz = (int32_t)std::floor(pos.z / placementCell);
+        placedByCell[placeCellKey(gx, gz)].push_back(idx);
+    };
+    auto canPlace = [&](const glm::vec3& pos, float radius) -> bool {
+        int32_t gx = (int32_t)std::floor(pos.x / placementCell);
+        int32_t gz = (int32_t)std::floor(pos.z / placementCell);
+        int range = (int)std::ceil(radius / placementCell) + 1;
+        float minDist = radius + 0.5f;
+        for (int dz = -range; dz <= range; dz++) {
+            for (int dx = -range; dx <= range; dx++) {
+                auto it = placedByCell.find(placeCellKey(gx + dx, gz + dz));
+                if (it == placedByCell.end()) continue;
+                for (int idx : it->second) {
+                    const auto& other = placed[idx];
+                    float minPair = minDist + other.radius;
+                    glm::vec3 d = pos - other.pos;
+                    if (glm::dot(d, d) < minPair * minPair) return false;
+                }
+            }
+        }
+        return true;
+    };
 
     auto minCenterlineClearSq = [&](const glm::vec3& pos) -> float {
         float best = std::numeric_limits<float>::max();
@@ -1001,6 +1338,9 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
 
         AssetId assetId = defaultAsset;
         glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseHouseSize);
+        glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseHouseSize.x, baseHouseSize.z));
+        if (footprint.x > (c.d1 - c.d0) || footprint.y > lotDepth) continue;
+        float radius = 0.5f * std::sqrt(footprint.x * footprint.x + footprint.y * footprint.y);
 
         glm::vec3 pos = c.center;
         pos.y = houseSize.y * 0.5f;
@@ -1009,11 +1349,7 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         float clearFromEdge = std::sqrt(distSq) - roadHalf; // distance from nearest road edge
         if (clearFromEdge < desiredClear) continue; // too close to any road (intersections)
         if (isOccupied(pos)) continue; // avoid double builds/overlap
-        bool tooClose = false;
-        for (const auto& pc : placedCenters) {
-            if (glm::dot(pos - pc, pos - pc) < minSpacingSq) { tooClose = true; break; }
-        }
-        if (tooClose) continue;
+        if (!canPlace(pos, radius)) continue;
 
         glm::vec3 up(0,1,0);
         glm::vec3 facing = glm::normalize(-float(c.side) * c.right); // face toward road
@@ -1054,7 +1390,7 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         s.buildingChunks[ckey].instancesByAsset[assetId].push_back(inst);
         s.dirtyBuildingChunks.insert(ckey);
         markOccupied(pos);
-        placedCenters.push_back(pos);
+        addPlaced(pos, radius);
     }
 }
 
@@ -1088,7 +1424,7 @@ static bool SaveToJsonFile(const AppState& s, const AssetCatalog& assets, const 
         jz["d0"] = z.d0;
         jz["d1"] = z.d1;
         jz["sideMask"] = z.sideMask;
-        jz["depth"] = z.depth;
+        jz["depth"] = ZONE_DEPTH_M;
         j["zones"].push_back(jz);
     }
 
@@ -1140,11 +1476,12 @@ static bool LoadFromJsonFile(AppState& s, const std::string& path) {
         z.d0 = jz.value("d0", 0.0f);
         z.d1 = jz.value("d1", 0.0f);
         z.sideMask = jz.value("sideMask", 3);
-        z.depth = jz.value("depth", 30.0f);
+        z.depth = ZONE_DEPTH_M;
         s.zones.push_back(z);
     }
 
     s.roadsDirty = true;
+    s.zonesDirty = true;
     s.housesDirty = true;
     return true;
 }
@@ -1177,7 +1514,7 @@ struct ZoneTool {
     float hoverD = 0.0f;
 
     int sideMask = 3;   // 1 left, 2 right, 3 both
-    float depth = 30.0f;
+    float depth = ZONE_DEPTH_M;
     float pickRadius = 12.0f;
 
     // For overlay visualization of zoned road spans
@@ -1662,7 +1999,7 @@ int main(int, char**) {
         z.d0 = zoneTool.startD;
         z.d1 = zoneTool.endD;
         z.sideMask = zoneTool.sideMask;
-        z.depth = zoneTool.depth;
+        z.depth = ZONE_DEPTH_M;
 
         if (ZoneOverlapsExisting(state, z.roadId, z.d0, z.d1)) {
             statusText = "Already zoned here.";
@@ -1719,18 +2056,20 @@ int main(int, char**) {
             }
         }
 
-        // Rebuild road mesh if dirty
-        if (state.roadsDirty) {
+        // Rebuild roads/zones/lot grid if dirty
+        if (state.roadsDirty || state.zonesDirty) {
             for (auto& r : state.roads) {
                 if (r.cumLen.size() != r.pts.size()) r.rebuildCum();
             }
-            RebuildAllRoadMesh(state);
+            if (state.roadsDirty) {
+                RebuildAllRoadMesh(state);
+            }
+            RebuildZoneGrid(state);
             RebuildLotCells(state);
-            // Re-apply zoning to lot cells after rebuild
-            for (const auto& z : state.zones) MarkCellsForZone(state, z.roadId, z.d0, z.d1, z.sideMask);
-        state.roadsDirty = false;
-        state.housesDirty = true;
-    }
+            state.roadsDirty = false;
+            state.zonesDirty = false;
+            state.housesDirty = true;
+        }
 
         // Rebuild houses if zones changed
         if (state.housesDirty) {
@@ -1822,24 +2161,38 @@ int main(int, char**) {
 
         renderer.updateAnimHouses(animInstances);
 
-        // Overlay mesh generation (existing zones + preview)
-        zoneTool.overlayVerts.clear();
+        // Overlay mesh generation (grid + zones + preview)
+        bool showGrid = (mode == Mode::Zone || mode == Mode::Unzone || (mode == Mode::Road && roadTool.drawing));
+        std::vector<glm::vec3> buildableVerts;
+        std::vector<glm::vec3> zonedVerts;
         for (uint64_t key : visibleChunks) {
-            auto it = state.lotIndicesByChunk.find(key);
-            if (it == state.lotIndicesByChunk.end()) continue;
-            for (int idx : it->second) {
-                if (idx < 0 || idx >= (int)state.lots.size()) continue;
-                const auto& c = state.lots[idx];
-                if (!c.zoned) continue;
-                float lotDepth = 30.0f;
-                float lotWidth = std::max(6.0f, c.d1 - c.d0);
-                AppendLotOverlayQuad(zoneTool.overlayVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
+            auto it = state.zoneChunks.find(key);
+            if (it == state.zoneChunks.end()) continue;
+            int32_t cx, cz;
+            UnpackChunk(key, cx, cz);
+            float originX = cx * CHUNK_SIZE_M;
+            float originZ = cz * CHUNK_SIZE_M;
+            const ZoneChunk& chunk = it->second;
+            for (int zi = 0; zi < ZoneChunk::DIM; ++zi) {
+                for (int xi = 0; xi < ZoneChunk::DIM; ++xi) {
+                    uint8_t f = chunk.get(xi, zi);
+                    if (showGrid && (f & ZONE_FLAG_BUILDABLE) && !(f & ZONE_FLAG_BLOCKED)) {
+                        AppendZoneCellQuad(buildableVerts, originX, originZ, xi, zi);
+                    }
+                    if ((f & ZONE_FLAG_ZONED) && !(f & ZONE_FLAG_BLOCKED)) {
+                        AppendZoneCellQuad(zonedVerts, originX, originZ, xi, zi);
+                    }
+                }
             }
         }
 
         state.zonePreviewVerts.clear();
         if (mode == Mode::Road && roadTool.drawing && roadTool.tempPts.size() >= 2) {
+            Road preview;
+            preview.pts = roadTool.tempPts;
+            preview.rebuildCum();
             BuildRoadPreviewMesh(state, roadTool.tempPts[0], roadTool.tempPts[1]);
+            AppendRoadInfluencePreview(state.zonePreviewVerts, preview);
         } else if (mode == Mode::Zone) {
             int rid = zoneTool.dragging ? zoneTool.roadId : zoneTool.hoverRoadId;
             if (rid != -1) {
@@ -1852,32 +2205,9 @@ int main(int, char**) {
             }
         }
 
-        // Lot grid (always show in Zone/Unzone mode)
-        std::vector<glm::vec3> lotGridVerts;
-        if (mode == Mode::Zone || mode == Mode::Unzone || (mode == Mode::Road && roadTool.drawing)) {
-            const float lotDepth = 30.0f;
-            for (uint64_t key : visibleChunks) {
-                auto it = state.lotIndicesByChunk.find(key);
-                if (it == state.lotIndicesByChunk.end()) continue;
-                lotGridVerts.reserve(lotGridVerts.size() + it->second.size() * 6);
-                for (int idx : it->second) {
-                    if (idx < 0 || idx >= (int)state.lots.size()) continue;
-                    const auto& c = state.lots[idx];
-                    float lotWidth = std::max(6.0f, c.d1 - c.d0);
-                    AppendLotOverlayQuad(lotGridVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
-                }
-            }
-        }
-        if (mode == Mode::Road && roadTool.drawing && roadTool.tempPts.size() >= 2) {
-            Road preview;
-            preview.pts = roadTool.tempPts;
-            preview.rebuildCum();
-            AppendLotGridPreviewForRoad(lotGridVerts, preview, state.roads);
-        }
-
-        std::vector<glm::vec3> overlayAndPreview = lotGridVerts;
+        std::vector<glm::vec3> overlayAndPreview = buildableVerts;
         std::size_t gridCount = overlayAndPreview.size();
-        overlayAndPreview.insert(overlayAndPreview.end(), zoneTool.overlayVerts.begin(), zoneTool.overlayVerts.end());
+        overlayAndPreview.insert(overlayAndPreview.end(), zonedVerts.begin(), zonedVerts.end());
         std::size_t overlayCount = overlayAndPreview.size() - gridCount;
         overlayAndPreview.insert(overlayAndPreview.end(), state.zonePreviewVerts.begin(), state.zonePreviewVerts.end());
         std::size_t previewCount = overlayAndPreview.size() - gridCount - overlayCount;
@@ -1914,7 +2244,7 @@ int main(int, char**) {
         ImGui::SliderFloat("Point pick radius (m)", &roadPointPickRadius, 2.0f, 15.0f, "%.0f");
         ImGui::Separator();
 
-        ImGui::Text("Zoning (depth fixed 30 m)");
+        ImGui::Text("Zoning (depth fixed: %d cells, %.0f m)", ZONE_DEPTH_CELLS, ZONE_DEPTH_M);
         ImGui::SliderFloat("Zone pick radius (m)", &zoneTool.pickRadius, 4.0f, 30.0f, "%.0f");
         ImGui::Text("Sides (V cycles): %s", (zoneTool.sideMask == 3) ? "Both" : (zoneTool.sideMask == 1) ? "Left" : "Right");
         ImGui::Separator();
