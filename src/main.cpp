@@ -306,6 +306,50 @@ constexpr int   ZONE_DEPTH_CELLS = 6;
 constexpr float ZONE_DEPTH_M = ZONE_DEPTH_CELLS * ZONE_CELL_M; // 48m with 8m cells
 constexpr float ROAD_WIDTH_M = 10.0f;
 constexpr float ROAD_HALF_M = ROAD_WIDTH_M * 0.5f;
+constexpr uint8_t ZONE_TYPE_SHIFT = 3;
+constexpr uint8_t ZONE_TYPE_MASK = 0x18; // 2 bits for 4 zone types
+
+enum class ZoneType : uint8_t {
+    Residential = 0,
+    Commercial = 1,
+    Industrial = 2,
+    Office = 3
+};
+
+static uint8_t ZoneTypeBits(ZoneType t) {
+    return (uint8_t(t) << ZONE_TYPE_SHIFT) & ZONE_TYPE_MASK;
+}
+
+static ZoneType ZoneTypeFromFlags(uint8_t flags) {
+    return (ZoneType)((flags & ZONE_TYPE_MASK) >> ZONE_TYPE_SHIFT);
+}
+
+static const char* ZoneTypeName(ZoneType t) {
+    switch (t) {
+        case ZoneType::Commercial: return "Commercial";
+        case ZoneType::Industrial: return "Industrial";
+        case ZoneType::Office: return "Office";
+        default: return "Residential";
+    }
+}
+
+static const char* ZoneTypeCategory(ZoneType t) {
+    switch (t) {
+        case ZoneType::Commercial: return "commercial";
+        case ZoneType::Industrial: return "industrial";
+        case ZoneType::Office: return "office";
+        default: return "residential";
+    }
+}
+
+static glm::vec3 BaseSizeForZone(ZoneType t) {
+    switch (t) {
+        case ZoneType::Commercial: return glm::vec3(12.0f, 8.0f, 14.0f);
+        case ZoneType::Industrial: return glm::vec3(14.0f, 8.0f, 20.0f);
+        case ZoneType::Office: return glm::vec3(12.0f, 30.0f, 12.0f); // ~10 stories
+        default: return glm::vec3(8.0f, 6.0f, 12.0f);
+    }
+}
 
 struct ZoneStrip {
     int id = 0;
@@ -313,6 +357,7 @@ struct ZoneStrip {
     float d0 = 0.0f;
     float d1 = 0.0f;
     int sideMask = 3; // 1 = left, 2 = right, 3 = both
+    ZoneType type = ZoneType::Residential;
     float depth = ZONE_DEPTH_M;
 };
 
@@ -325,6 +370,7 @@ struct LotCell {
     glm::vec3 forward{};
     glm::vec3 right{};
     bool zoned = false;
+    ZoneType zoneType = ZoneType::Residential;
 };
 
 struct BuildingChunk {
@@ -453,6 +499,45 @@ static float ZoneRectCoverage(
     return total > 0 ? (float)hit / (float)total : 0.0f;
 }
 
+static ZoneType ZoneRectMajorityType(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+    std::array<int, 4> counts{};
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            uint8_t flags = GetZoneFlagsAt(s, p);
+            if (!(flags & ZONE_FLAG_ZONED)) continue;
+            int idx = (int)ZoneTypeFromFlags(flags);
+            if (idx >= 0 && idx < (int)counts.size()) counts[idx]++;
+        }
+    }
+
+    int best = 0;
+    int bestCount = -1;
+    for (int i = 0; i < (int)counts.size(); i++) {
+        if (counts[i] > bestCount) {
+            bestCount = counts[i];
+            best = i;
+        }
+    }
+    return (ZoneType)best;
+}
+
 static bool LotRectMeetsGrid(
     const AppState& s,
     const glm::vec3& center,
@@ -505,8 +590,8 @@ static void StampZoneStrip(AppState& s, const ZoneStrip& z, bool add) {
                 if (!(flags & ZONE_FLAG_BUILDABLE)) continue;
                 if (flags & ZONE_FLAG_BLOCKED) continue;
 
-                uint8_t setMask = add ? ZONE_FLAG_ZONED : 0;
-                uint8_t clrMask = add ? 0 : ZONE_FLAG_ZONED;
+                uint8_t setMask = add ? (uint8_t)(ZONE_FLAG_ZONED | ZoneTypeBits(z.type)) : 0;
+                uint8_t clrMask = add ? ZONE_TYPE_MASK : (uint8_t)(ZONE_FLAG_ZONED | ZONE_TYPE_MASK);
                 SetZoneCellFlags(s, cx, cz, xi, zi, setMask, clrMask);
                 s.dirtyBuildingChunks.insert(PackChunk(cx, cz));
             }
@@ -555,6 +640,7 @@ static void StampBlockedDisk(AppState& s, const glm::vec3& center, float radiusM
                     v |= ZONE_FLAG_BLOCKED;
                     v &= (uint8_t)~ZONE_FLAG_BUILDABLE;
                     v &= (uint8_t)~ZONE_FLAG_ZONED;
+                    v &= (uint8_t)~ZONE_TYPE_MASK;
                     chunk.set(xi, zi, v);
                     s.dirtyZoneChunks.insert(key);
                     s.dirtyBuildingChunks.insert(key);
@@ -1128,6 +1214,7 @@ static void RebuildLotCells(AppState& s) {
                 c.zoned = LotRectMeetsGrid(
                     s, center, c.forward, c.right, cellLen, lotDepth,
                     (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED), ZONE_FLAG_BLOCKED, zonedCoverage);
+                c.zoneType = ZoneRectMajorityType(s, center, c.forward, c.right, cellLen, lotDepth);
 
                 occupied.insert(k);
                 int idx = (int)s.lots.size();
@@ -1264,11 +1351,13 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     s.buildingChunks.clear();
     s.dirtyBuildingChunks.clear();
 
-    const glm::vec3 baseHouseSize = glm::vec3(8.0f, 6.0f, 12.0f); // width, height, depth
     const float roadHalf = ROAD_HALF_M;
     const float desiredClear = 0.0f; // matches buildable band start
     const float lotDepth = ZONE_DEPTH_M;
-    const AssetId defaultAsset = assets.resolveCategoryAsset("low_density");
+    const AssetId residentialAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Residential));
+    const AssetId commercialAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Commercial));
+    const AssetId industrialAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Industrial));
+    const AssetId officeAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Office));
 
     std::unordered_set<uint64_t> occupied;
     auto cellKey = [](int32_t gx, int32_t gz) -> uint64_t {
@@ -1338,9 +1427,18 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     for (const auto& c : s.lots) {
         if (!c.zoned) continue;
 
-        AssetId assetId = defaultAsset;
-        glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseHouseSize);
-        glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseHouseSize.x, baseHouseSize.z));
+        ZoneType lotType = c.zoneType;
+        AssetId assetId = residentialAsset;
+        switch (lotType) {
+            case ZoneType::Commercial: assetId = commercialAsset; break;
+            case ZoneType::Industrial: assetId = industrialAsset; break;
+            case ZoneType::Office: assetId = officeAsset; break;
+            default: assetId = residentialAsset; break;
+        }
+
+        glm::vec3 baseSize = BaseSizeForZone(lotType);
+        glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseSize);
+        glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseSize.x, baseSize.z));
         if (footprint.x > (c.d1 - c.d0) || footprint.y > lotDepth) continue;
         float radius = 0.5f * std::sqrt(footprint.x * footprint.x + footprint.y * footprint.y);
 
@@ -1426,6 +1524,7 @@ static bool SaveToJsonFile(const AppState& s, const AssetCatalog& assets, const 
         jz["d0"] = z.d0;
         jz["d1"] = z.d1;
         jz["sideMask"] = z.sideMask;
+        jz["zoneType"] = (int)z.type;
         jz["depth"] = ZONE_DEPTH_M;
         j["zones"].push_back(jz);
     }
@@ -1478,6 +1577,9 @@ static bool LoadFromJsonFile(AppState& s, const std::string& path) {
         z.d0 = jz.value("d0", 0.0f);
         z.d1 = jz.value("d1", 0.0f);
         z.sideMask = jz.value("sideMask", 3);
+        int typeVal = jz.value("zoneType", 0);
+        typeVal = (int)Clamp((float)typeVal, 0.0f, 3.0f);
+        z.type = (ZoneType)typeVal;
         z.depth = ZONE_DEPTH_M;
         s.zones.push_back(z);
     }
@@ -1516,6 +1618,7 @@ struct ZoneTool {
     float hoverD = 0.0f;
 
     int sideMask = 3;   // 1 left, 2 right, 3 both
+    ZoneType type = ZoneType::Residential;
     float depth = ZONE_DEPTH_M;
     float pickRadius = 12.0f;
 
@@ -1877,8 +1980,11 @@ int main(int, char**) {
                 if (k == SDLK_ESCAPE) running = false;
 
                 if (k == SDLK_1) { mode = Mode::Road; statusText = "Road mode."; }
-                if (k == SDLK_2) { mode = Mode::Zone; statusText = "Zone mode."; }
-                if (k == SDLK_3) { mode = Mode::Unzone; statusText = "Unzone mode."; }
+                if (k == SDLK_2) { mode = Mode::Zone; zoneTool.type = ZoneType::Residential; statusText = "Zone: Residential."; }
+                if (k == SDLK_3) { mode = Mode::Zone; zoneTool.type = ZoneType::Commercial; statusText = "Zone: Commercial."; }
+                if (k == SDLK_4) { mode = Mode::Zone; zoneTool.type = ZoneType::Industrial; statusText = "Zone: Industrial."; }
+                if (k == SDLK_5) { mode = Mode::Zone; zoneTool.type = ZoneType::Office; statusText = "Zone: Office."; }
+                if (k == SDLK_6) { mode = Mode::Unzone; statusText = "Unzone mode."; }
 
                 if (k == SDLK_g) { gridSnap = !gridSnap; statusText = gridSnap ? "Grid snap ON" : "Grid snap OFF"; }
                 if (k == SDLK_h) { angleSnap = !angleSnap; statusText = angleSnap ? "Angle snap ON" : "Angle snap OFF"; }
@@ -2001,6 +2107,7 @@ int main(int, char**) {
         z.d0 = zoneTool.startD;
         z.d1 = zoneTool.endD;
         z.sideMask = zoneTool.sideMask;
+        z.type = zoneTool.type;
         z.depth = ZONE_DEPTH_M;
 
         if (ZoneOverlapsExisting(state, z.roadId, z.d0, z.d1)) {
@@ -2166,7 +2273,10 @@ int main(int, char**) {
         // Overlay mesh generation (grid + zones + preview)
         bool showGrid = (mode == Mode::Zone || mode == Mode::Unzone || (mode == Mode::Road && roadTool.drawing));
         std::vector<glm::vec3> buildableVerts;
-        std::vector<glm::vec3> zonedVerts;
+        std::vector<glm::vec3> zonedResidential;
+        std::vector<glm::vec3> zonedCommercial;
+        std::vector<glm::vec3> zonedIndustrial;
+        std::vector<glm::vec3> zonedOffice;
         for (uint64_t key : visibleChunks) {
             auto it = state.zoneChunks.find(key);
             if (it == state.zoneChunks.end()) continue;
@@ -2182,7 +2292,20 @@ int main(int, char**) {
                         AppendZoneCellQuad(buildableVerts, originX, originZ, xi, zi);
                     }
                     if ((f & ZONE_FLAG_ZONED) && !(f & ZONE_FLAG_BLOCKED)) {
-                        AppendZoneCellQuad(zonedVerts, originX, originZ, xi, zi);
+                        switch (ZoneTypeFromFlags(f)) {
+                            case ZoneType::Commercial:
+                                AppendZoneCellQuad(zonedCommercial, originX, originZ, xi, zi);
+                                break;
+                            case ZoneType::Industrial:
+                                AppendZoneCellQuad(zonedIndustrial, originX, originZ, xi, zi);
+                                break;
+                            case ZoneType::Office:
+                                AppendZoneCellQuad(zonedOffice, originX, originZ, xi, zi);
+                                break;
+                            default:
+                                AppendZoneCellQuad(zonedResidential, originX, originZ, xi, zi);
+                                break;
+                        }
                     }
                 }
             }
@@ -2207,12 +2330,27 @@ int main(int, char**) {
             }
         }
 
-        std::vector<glm::vec3> overlayAndPreview = buildableVerts;
-        std::size_t gridCount = overlayAndPreview.size();
-        overlayAndPreview.insert(overlayAndPreview.end(), zonedVerts.begin(), zonedVerts.end());
-        std::size_t overlayCount = overlayAndPreview.size() - gridCount;
+        std::vector<glm::vec3> overlayAndPreview;
+        overlayAndPreview.reserve(
+            buildableVerts.size()
+            + zonedResidential.size()
+            + zonedCommercial.size()
+            + zonedIndustrial.size()
+            + zonedOffice.size()
+            + state.zonePreviewVerts.size());
+        overlayAndPreview.insert(overlayAndPreview.end(), buildableVerts.begin(), buildableVerts.end());
+        overlayAndPreview.insert(overlayAndPreview.end(), zonedResidential.begin(), zonedResidential.end());
+        overlayAndPreview.insert(overlayAndPreview.end(), zonedCommercial.begin(), zonedCommercial.end());
+        overlayAndPreview.insert(overlayAndPreview.end(), zonedIndustrial.begin(), zonedIndustrial.end());
+        overlayAndPreview.insert(overlayAndPreview.end(), zonedOffice.begin(), zonedOffice.end());
         overlayAndPreview.insert(overlayAndPreview.end(), state.zonePreviewVerts.begin(), state.zonePreviewVerts.end());
-        std::size_t previewCount = overlayAndPreview.size() - gridCount - overlayCount;
+
+        std::size_t gridCount = buildableVerts.size();
+        std::size_t resCount = zonedResidential.size();
+        std::size_t comCount = zonedCommercial.size();
+        std::size_t indCount = zonedIndustrial.size();
+        std::size_t officeCount = zonedOffice.size();
+        std::size_t previewCount = state.zonePreviewVerts.size();
         for (auto& v : overlayAndPreview) v -= renderOrigin;
         renderer.updatePreviewMesh(overlayAndPreview);
 
@@ -2230,7 +2368,17 @@ int main(int, char**) {
         houseCount += (int)state.houseAnim.size();
 
         ImGui::Begin("City Painter (Phase 1)");
-        const char* modeLabel = (mode == Mode::Road) ? "Road (1)" : (mode == Mode::Zone) ? "Zone (2)" : "Unzone (3)";
+        const char* modeLabel = "Road (1)";
+        if (mode == Mode::Zone) {
+            switch (zoneTool.type) {
+                case ZoneType::Commercial: modeLabel = "Commercial (3)"; break;
+                case ZoneType::Industrial: modeLabel = "Industrial (4)"; break;
+                case ZoneType::Office: modeLabel = "Office (5)"; break;
+                default: modeLabel = "Residential (2)"; break;
+            }
+        } else if (mode == Mode::Unzone) {
+            modeLabel = "Unzone (6)";
+        }
         ImGui::Text("Mode: %s", modeLabel);
         ImGui::Text("Roads: %d", (int)state.roads.size());
         ImGui::Text("Zones: %d", (int)state.zones.size());
@@ -2247,6 +2395,7 @@ int main(int, char**) {
         ImGui::Separator();
 
         ImGui::Text("Zoning (depth fixed: %d cells, %.0f m)", ZONE_DEPTH_CELLS, ZONE_DEPTH_M);
+        ImGui::Text("Zone type: %s (2-5)", ZoneTypeName(zoneTool.type));
         ImGui::SliderFloat("Zone pick radius (m)", &zoneTool.pickRadius, 4.0f, 30.0f, "%.0f");
         ImGui::Text("Sides (V cycles): %s", (zoneTool.sideMask == 3) ? "Both" : (zoneTool.sideMask == 1) ? "Left" : "Right");
         ImGui::Separator();
@@ -2276,7 +2425,8 @@ int main(int, char**) {
         ImGui::BulletText("Delete/Backspace deletes selected point (roads keep >= 2 points)");
         ImGui::BulletText("Road drawing: click empty space and hold LMB");
         ImGui::BulletText("To extend: start near an existing road end and draw outward");
-        ImGui::BulletText("Unzone (3): click near a road to remove its zones");
+        ImGui::BulletText("Zone types: 2 residential, 3 commercial, 4 industrial, 5 office");
+        ImGui::BulletText("Unzone (6): click near a road to remove its zones");
         ImGui::BulletText("Zoning won't stack on already-zoned road spans");
         ImGui::Separator();
 
@@ -2316,12 +2466,16 @@ int main(int, char**) {
         frame.viewProj = viewProj;
         frame.roadVertexCount = roadRenderVerts.size();
         frame.gridVertexCount = gridCount;
-        frame.overlayVertexCount = overlayCount;
+        frame.zoneResidentialVertexCount = resCount;
+        frame.zoneCommercialVertexCount = comCount;
+        frame.zoneIndustrialVertexCount = indCount;
+        frame.zoneOfficeVertexCount = officeCount;
         frame.previewVertexCount = previewCount;
         frame.visibleHouseBatches = std::move(visibleHouseBatches);
         frame.houseAnimCount = animInstances.size();
         frame.drawRoadPreview = (mode == Mode::Road && roadTool.drawing && !state.zonePreviewVerts.empty());
         frame.zonePreviewValid = zoneTool.dragging ? true : zoneTool.hoverValid;
+        frame.zonePreviewType = (uint8_t)zoneTool.type;
         frame.markers = std::move(markers);
 
         renderer.render(frame);

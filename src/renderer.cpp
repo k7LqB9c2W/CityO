@@ -383,7 +383,11 @@ void Renderer::render(const RenderFrame& frame) {
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.roadVertexCount);
 
     // Preview overlay
-    if (frame.gridVertexCount + frame.overlayVertexCount + frame.previewVertexCount > 0) {
+    std::size_t overlayTotal = frame.zoneResidentialVertexCount
+        + frame.zoneCommercialVertexCount
+        + frame.zoneIndustrialVertexCount
+        + frame.zoneOfficeVertexCount;
+    if (frame.gridVertexCount + overlayTotal + frame.previewVertexCount > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);
@@ -397,11 +401,40 @@ void Renderer::render(const RenderFrame& frame) {
             glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.gridVertexCount);
         }
 
-        // Existing zones overlay
-        if (frame.overlayVertexCount > 0) {
-            glUniform3f(locC_B, 0.15f, 0.65f, 0.35f);
+        auto applyZoneColor = [&](uint8_t zoneType) {
+            switch (zoneType) {
+                case 1: glUniform3f(locC_B, 0.20f, 0.45f, 0.90f); break; // commercial (blue)
+                case 2: glUniform3f(locC_B, 0.85f, 0.75f, 0.20f); break; // industrial (yellow)
+                case 3: glUniform3f(locC_B, 0.45f, 0.75f, 0.95f); break; // office (light blue)
+                default: glUniform3f(locC_B, 0.15f, 0.65f, 0.35f); break; // residential
+            }
+        };
+
+        // Existing zones overlay (by type)
+        GLint offset = (GLint)frame.gridVertexCount;
+        if (frame.zoneResidentialVertexCount > 0) {
+            applyZoneColor(0);
             glUniform1f(locA_B, 0.30f);
-            glDrawArrays(GL_TRIANGLES, (GLint)frame.gridVertexCount, (GLsizei)frame.overlayVertexCount);
+            glDrawArrays(GL_TRIANGLES, offset, (GLsizei)frame.zoneResidentialVertexCount);
+            offset += (GLint)frame.zoneResidentialVertexCount;
+        }
+        if (frame.zoneCommercialVertexCount > 0) {
+            applyZoneColor(1);
+            glUniform1f(locA_B, 0.30f);
+            glDrawArrays(GL_TRIANGLES, offset, (GLsizei)frame.zoneCommercialVertexCount);
+            offset += (GLint)frame.zoneCommercialVertexCount;
+        }
+        if (frame.zoneIndustrialVertexCount > 0) {
+            applyZoneColor(2);
+            glUniform1f(locA_B, 0.30f);
+            glDrawArrays(GL_TRIANGLES, offset, (GLsizei)frame.zoneIndustrialVertexCount);
+            offset += (GLint)frame.zoneIndustrialVertexCount;
+        }
+        if (frame.zoneOfficeVertexCount > 0) {
+            applyZoneColor(3);
+            glUniform1f(locA_B, 0.30f);
+            glDrawArrays(GL_TRIANGLES, offset, (GLsizei)frame.zoneOfficeVertexCount);
+            offset += (GLint)frame.zoneOfficeVertexCount;
         }
 
         // Active preview
@@ -410,11 +443,11 @@ void Renderer::render(const RenderFrame& frame) {
                 glUniform3f(locC_B, 0.20f, 0.65f, 0.95f);
                 glUniform1f(locA_B, 0.50f);
             } else {
-                if (frame.zonePreviewValid) glUniform3f(locC_B, 0.20f, 0.85f, 0.35f);
+                if (frame.zonePreviewValid) applyZoneColor(frame.zonePreviewType);
                 else glUniform3f(locC_B, 0.90f, 0.20f, 0.20f);
                 glUniform1f(locA_B, 0.35f);
             }
-            glDrawArrays(GL_TRIANGLES, (GLint)(frame.gridVertexCount + frame.overlayVertexCount), (GLsizei)frame.previewVertexCount);
+            glDrawArrays(GL_TRIANGLES, offset, (GLsizei)frame.previewVertexCount);
         }
 
         glDepthMask(GL_TRUE);

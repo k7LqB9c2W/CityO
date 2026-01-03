@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <unordered_map>
+#include <cstdint>
 
 #include "asset_catalog.h"
 
@@ -21,10 +22,14 @@ struct RenderFrame {
     glm::mat4 viewProj{1.0f};
     std::size_t roadVertexCount = 0;
     std::size_t gridVertexCount = 0;
-    std::size_t overlayVertexCount = 0;
+    std::size_t zoneResidentialVertexCount = 0;
+    std::size_t zoneCommercialVertexCount = 0;
+    std::size_t zoneIndustrialVertexCount = 0;
+    std::size_t zoneOfficeVertexCount = 0;
     std::size_t previewVertexCount = 0;
     bool drawRoadPreview = false;
     bool zonePreviewValid = true;
+    uint8_t zonePreviewType = 0;
     std::vector<RenderMarker> markers;
     std::vector<RenderHouseBatch> visibleHouseBatches;
     std::size_t houseAnimCount = 0;

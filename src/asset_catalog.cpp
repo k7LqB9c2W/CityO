@@ -50,6 +50,10 @@ bool AssetCatalog::registerAsset(AssetDef def) {
 
 void AssetCatalog::registerBuiltinDefaults() {
     defaultByCategoryStr["low_density"] = "buildings.house_low_01";
+    defaultByCategoryStr["residential"] = "buildings.house_low_01";
+    defaultByCategoryStr["commercial"] = "buildings.commercial_01";
+    defaultByCategoryStr["industrial"] = "buildings.industrial_01";
+    defaultByCategoryStr["office"] = "buildings.office_01";
 
     AssetDef fallback;
     fallback.idStr = "builtin.cube_house";
