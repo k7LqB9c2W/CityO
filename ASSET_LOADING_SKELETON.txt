@@ -22,3 +22,45 @@ Mesh cache
 
 Save format
 - save.json includes assetIdToString for debugging and future-proofing.
+
+
+
+Here’s the guide for adding a house mesh right now.
+
+  Where to put the .glb
+
+  - Asset root is assets/ relative to the app’s working directory (currently assets.loadAll("assets") in src/main.cpp).
+  - Put your mesh anywhere under that folder. Example path:
+      - assets/buildings/house_low_01/house_low_01.glb
+
+  What to name it
+
+  - The filename can be anything; the manifest controls it.
+  - For the current houses, the default category mapping expects an asset id of buildings.house_low_01.
+
+  Create asset.json
+
+  - Add an asset.json alongside the mesh (or anywhere under assets/).
+  - Required fields: version, id, type, mesh.
+
+  Example assets/buildings/house_low_01/asset.json:
+
+  {
+    "version": 1,
+    "id": "buildings.house_low_01",
+    "type": "building",
+    "category": "low_density",
+    "mesh": "buildings/house_low_01/house_low_01.glb",
+    "defaultScale": [1.0, 1.0, 1.0],
+    "footprintM": [8.0, 12.0],
+    "pivotM": [0.0, 0.0, 0.0],
+    "tags": ["house", "low_density"]
+  }
+
+  Notes specific to current houses
+
+  - Houses use category low_density, which maps to buildings.house_low_01 by default in src/asset_catalog.cpp.
+  - If the mesh fails to load, it falls back to the cube.
+  - The loader only reads POSITION (no normals/UVs yet), and uses the first mesh/primitive in the file.
+
+  If you want the default house id to be something else, I can update the mapping in src/asset_catalog.cpp.

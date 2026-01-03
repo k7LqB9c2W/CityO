@@ -1,0 +1,11 @@
+  {
+    "version": 1,
+    "id": "buildings.house_low_01",
+    "type": "building",
+    "category": "low_density",
+    "mesh": "buildings/house_low_01/house_low_01.gltf",
+    "defaultScale": [1.0, 1.0, 1.0],
+    "footprintM": [8.0, 12.0],
+    "pivotM": [0.0, 0.0, 0.0],
+    "tags": ["house", "low_density"]
+  }

@@ -902,6 +902,48 @@ static void BuildRoadPreviewMesh(AppState& s, const glm::vec3& a, const glm::vec
     s.zonePreviewVerts.push_back(bL);
 }
 
+static void AppendLotGridPreviewForRoad(std::vector<glm::vec3>& out, const Road& r, const std::vector<Road>& otherRoads) {
+    if (r.pts.size() < 2 || r.cumLen.size() != r.pts.size()) return;
+
+    const float roadHalf = 5.0f;
+    const float lotDepth = 10.0f;
+    const float cellLen = 12.0f;
+    const float desiredClear = 10.0f;
+    const float setback = roadHalf + desiredClear + (lotDepth * 0.5f);
+    const float intersectionPad = roadHalf + desiredClear + 5.0f;
+
+    auto minClearToOtherRoadSq = [&](const glm::vec3& pos) -> float {
+        float best = std::numeric_limits<float>::max();
+        for (const auto& other : otherRoads) {
+            if (other.pts.size() < 2) continue;
+            float dAlong; glm::vec3 tan;
+            float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
+            best = std::min(best, distSq);
+        }
+        return best;
+    };
+
+    float total = r.totalLen();
+    for (float d = 0.0f; d + cellLen <= total; d += cellLen) {
+        float mid = d + cellLen * 0.5f;
+        glm::vec3 tan;
+        glm::vec3 base = r.pointAt(mid, tan);
+        if (glm::dot(tan, tan) < 1e-6f) continue;
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+
+        float clearToOther = std::sqrt(minClearToOtherRoadSq(base));
+        if (clearToOther - roadHalf < intersectionPad) continue;
+
+        for (int side : {-1, 1}) {
+            glm::vec3 center = base + right * float(side) * setback;
+            float distEdge = std::sqrt(minClearToOtherRoadSq(center)) - roadHalf;
+            if (distEdge < desiredClear) continue;
+            float lotWidth = std::max(6.0f, cellLen);
+            AppendLotOverlayQuad(out, center, tan, right, lotWidth, lotDepth);
+        }
+    }
+}
+
 static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool animate, float nowSec) {
     s.houseStatic.clear();
     s.houseAnim.clear();
@@ -1804,7 +1846,7 @@ int main(int, char**) {
 
         // Lot grid (always show in Zone/Unzone mode)
         std::vector<glm::vec3> lotGridVerts;
-        if (mode == Mode::Zone || mode == Mode::Unzone) {
+        if (mode == Mode::Zone || mode == Mode::Unzone || (mode == Mode::Road && roadTool.drawing)) {
             const float lotDepth = 10.0f;
             for (uint64_t key : visibleChunks) {
                 auto it = state.lotIndicesByChunk.find(key);
@@ -1817,6 +1859,12 @@ int main(int, char**) {
                     AppendLotOverlayQuad(lotGridVerts, c.center, c.forward, c.right, lotWidth, lotDepth);
                 }
             }
+        }
+        if (mode == Mode::Road && roadTool.drawing && roadTool.tempPts.size() >= 2) {
+            Road preview;
+            preview.pts = roadTool.tempPts;
+            preview.rebuildCum();
+            AppendLotGridPreviewForRoad(lotGridVerts, preview, state.roads);
         }
 
         std::vector<glm::vec3> overlayAndPreview = lotGridVerts;
@@ -1903,6 +1951,9 @@ int main(int, char**) {
             if (SnapToAnyEndpoint(state.roads, mouseHit, endpointSnapRadius, ep, rid, isStart)) {
                 markers.push_back({ep - renderOrigin, glm::vec3(1.0f, 0.9f, 0.2f), 1.2f});
             }
+        }
+        if (hasHit && mode == Mode::Road) {
+            markers.push_back({mouseHit - renderOrigin, glm::vec3(0.95f, 0.25f, 0.25f), 0.9f});
         }
         if (hasHit && mode == Mode::Zone && !zoneTool.hoverValid) {
             markers.push_back({mouseHit - renderOrigin, glm::vec3(0.95f, 0.25f, 0.25f), 0.9f});
