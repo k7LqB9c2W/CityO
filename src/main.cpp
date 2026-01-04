@@ -304,7 +304,7 @@ constexpr uint8_t ZONE_FLAG_BLOCKED = 1 << 2;
 constexpr float ZONE_CELL_M = CHUNK_SIZE_M / ZoneChunk::DIM;
 constexpr int   ZONE_DEPTH_CELLS = 6;
 constexpr float ZONE_DEPTH_M = ZONE_DEPTH_CELLS * ZONE_CELL_M; // 48m with 8m cells
-constexpr float ROAD_WIDTH_M = 10.0f;
+constexpr float ROAD_WIDTH_M = 16.0f;
 constexpr float ROAD_HALF_M = ROAD_WIDTH_M * 0.5f;
 constexpr uint8_t ZONE_TYPE_SHIFT = 3;
 constexpr uint8_t ZONE_TYPE_MASK = 0x18; // 2 bits for 4 zone types
@@ -346,7 +346,7 @@ static glm::vec3 BaseSizeForZone(ZoneType t) {
     switch (t) {
         case ZoneType::Commercial: return glm::vec3(12.0f, 8.0f, 14.0f);
         case ZoneType::Industrial: return glm::vec3(14.0f, 8.0f, 20.0f);
-        case ZoneType::Office: return glm::vec3(12.0f, 30.0f, 12.0f); // ~10 stories
+        case ZoneType::Office: return glm::vec3(100.0f, 30.0f, 100.0f); // ~10 stories
         default: return glm::vec3(8.0f, 6.0f, 12.0f);
     }
 }
@@ -461,8 +461,8 @@ static void SetZoneCellFlags(
     uint64_t key = PackChunk(cx, cz);
     ZoneChunk& chunk = EnsureZoneChunk(s, key);
     uint8_t v = chunk.get(xi, zi);
-    v |= setMask;
     v &= (uint8_t)~clearMask;
+    v |= setMask;
     chunk.set(xi, zi, v);
     s.dirtyZoneChunks.insert(key);
 }
@@ -602,7 +602,7 @@ static void StampZoneStrip(AppState& s, const ZoneStrip& z, bool add) {
     }
 }
 
-static void StampBlockedDisk(AppState& s, const glm::vec3& center, float radiusM) {
+[[maybe_unused]] static void StampBlockedDisk(AppState& s, const glm::vec3& center, float radiusM) {
     float minX = center.x - radiusM;
     float maxX = center.x + radiusM;
     float minZ = center.z - radiusM;
@@ -676,6 +676,33 @@ static void StampRoadInfluence(AppState& s, const Road& r) {
     }
 }
 
+static void StampRoadSurfaceBlocked(AppState& s, const Road& r) {
+    if (r.pts.size() < 2) return;
+
+    float total = r.totalLen();
+    const float stepAlong = ZONE_CELL_M * 0.5f;
+    const float stepAcross = ZONE_CELL_M * 0.5f;
+
+    for (float d = 0.0f; d <= total; d += stepAlong) {
+        glm::vec3 tan;
+        glm::vec3 p = r.pointAt(d, tan);
+        if (glm::dot(tan, tan) < 1e-6f) continue;
+
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0,1,0), tan));
+        for (float off = -ROAD_HALF_M; off <= ROAD_HALF_M; off += stepAcross) {
+            glm::vec3 sample = p + right * off;
+
+            int cx, cz, xi, zi;
+            if (!WorldToZoneCell(sample, cx, cz, xi, zi)) continue;
+            SetZoneCellFlags(
+                s, cx, cz, xi, zi,
+                ZONE_FLAG_BLOCKED,
+                (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED | ZONE_TYPE_MASK));
+            s.dirtyBuildingChunks.insert(PackChunk(cx, cz));
+        }
+    }
+}
+
 static void RebuildZoneGrid(AppState& s) {
     s.zoneChunks.clear();
     s.dirtyZoneChunks.clear();
@@ -683,41 +710,7 @@ static void RebuildZoneGrid(AppState& s) {
 
     for (const auto& r : s.roads) {
         StampRoadInfluence(s, r);
-    }
-
-    // Block junctions and road endpoints to keep grid clean at intersections.
-    struct JunctionInfo {
-        int count = 0;
-        glm::vec3 pos{};
-    };
-    std::unordered_map<uint64_t, JunctionInfo> junctions;
-    const float snap = 0.5f;
-    auto pointKey = [&](const glm::vec3& p) -> uint64_t {
-        int64_t qx = (int64_t)std::llround(p.x / snap);
-        int64_t qz = (int64_t)std::llround(p.z / snap);
-        return (uint64_t(uint32_t(qx)) << 32) | uint32_t(qz);
-    };
-
-    for (const auto& r : s.roads) {
-        for (const auto& p : r.pts) {
-            uint64_t key = pointKey(p);
-            auto& info = junctions[key];
-            if (info.count == 0) info.pos = p;
-            info.count++;
-        }
-    }
-
-    const float endcapRadius = ROAD_HALF_M + 1.5f * ZONE_CELL_M;
-    const float junctionRadius = ROAD_HALF_M + 2.5f * ZONE_CELL_M;
-    for (const auto& kv : junctions) {
-        if (kv.second.count >= 2) {
-            StampBlockedDisk(s, kv.second.pos, junctionRadius);
-        }
-    }
-    for (const auto& r : s.roads) {
-        if (r.pts.empty()) continue;
-        StampBlockedDisk(s, r.pts.front(), endcapRadius);
-        StampBlockedDisk(s, r.pts.back(), endcapRadius);
+        StampRoadSurfaceBlocked(s, r);
     }
 
     for (const auto& z : s.zones) {
@@ -1264,6 +1257,7 @@ static glm::vec3 ApplyAssetScale(const AssetCatalog& assets, AssetId assetId, co
 static glm::vec2 GetAssetFootprint(const AssetCatalog& assets, AssetId assetId, const glm::vec2& fallback) {
     const AssetDef* def = assets.find(assetId);
     if (!def) return fallback;
+    if (def->meshRelPath.empty()) return fallback;
     if (def->footprintM.x > 0.0f && def->footprintM.y > 0.0f) return def->footprintM;
     return fallback;
 }
