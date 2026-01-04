@@ -346,7 +346,7 @@ static glm::vec3 BaseSizeForZone(ZoneType t) {
     switch (t) {
         case ZoneType::Commercial: return glm::vec3(12.0f, 8.0f, 14.0f);
         case ZoneType::Industrial: return glm::vec3(14.0f, 8.0f, 20.0f);
-        case ZoneType::Office: return glm::vec3(30.0f, 30.0f, 30.0f); // ~10 stories
+        case ZoneType::Office: return glm::vec3(25.0f, 30.0f, 25.0f); // ~10 stories
         default: return glm::vec3(8.0f, 6.0f, 12.0f);
     }
 }
@@ -494,6 +494,40 @@ static float ZoneRectCoverage(
             uint8_t flags = GetZoneFlagsAt(s, p);
             if (flags & forbiddenMask) return 0.0f;
             if ((flags & requiredMask) == requiredMask) hit++;
+        }
+    }
+    return total > 0 ? (float)hit / (float)total : 0.0f;
+}
+
+static float ZoneRectTypeCoverage(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    ZoneType type,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+    int total = nx * nz;
+    int hit = 0;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            uint8_t flags = GetZoneFlagsAt(s, p);
+            if (flags & forbiddenMask) return 0.0f;
+            if ((flags & requiredMask) != requiredMask) continue;
+            if (ZoneTypeFromFlags(flags) == type) hit++;
         }
     }
     return total > 0 ? (float)hit / (float)total : 0.0f;
@@ -1348,6 +1382,7 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     const float roadHalf = ROAD_HALF_M;
     const float desiredClear = 0.0f; // matches buildable band start
     const float lotDepth = ZONE_DEPTH_M;
+    const float minTypeCoverage = 0.85f;
     const AssetId residentialAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Residential));
     const AssetId commercialAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Commercial));
     const AssetId industrialAsset = assets.resolveCategoryAsset(ZoneTypeCategory(ZoneType::Industrial));
@@ -1419,9 +1454,11 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     };
 
     for (const auto& c : s.lots) {
-        if (!c.zoned) continue;
+        uint8_t centerFlags = GetZoneFlagsAt(s, c.center);
+        if (!(centerFlags & ZONE_FLAG_ZONED)) continue;
+        if (centerFlags & ZONE_FLAG_BLOCKED) continue;
 
-        ZoneType lotType = c.zoneType;
+        ZoneType lotType = ZoneTypeFromFlags(centerFlags);
         AssetId assetId = residentialAsset;
         switch (lotType) {
             case ZoneType::Commercial: assetId = commercialAsset; break;
@@ -1433,8 +1470,19 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         glm::vec3 baseSize = BaseSizeForZone(lotType);
         glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseSize);
         glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseSize.x, baseSize.z));
-        if (footprint.x > (c.d1 - c.d0) || footprint.y > lotDepth) continue;
-        float radius = 0.5f * std::sqrt(footprint.x * footprint.x + footprint.y * footprint.y);
+        float alignedAlong = std::ceil(footprint.x / ZONE_CELL_M) * ZONE_CELL_M;
+        float alignedDepth = std::ceil(footprint.y / ZONE_CELL_M) * ZONE_CELL_M;
+        alignedAlong = std::max(alignedAlong, ZONE_CELL_M);
+        alignedDepth = std::max(alignedDepth, ZONE_CELL_M);
+        if (alignedDepth > lotDepth) continue;
+
+        float typeCoverage = ZoneRectTypeCoverage(
+            s, c.center, c.forward, c.right,
+            alignedDepth, alignedAlong, lotType,
+            (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED), ZONE_FLAG_BLOCKED);
+        if (typeCoverage < minTypeCoverage) continue;
+
+        float radius = 0.5f * std::sqrt(alignedAlong * alignedAlong + alignedDepth * alignedDepth);
 
         glm::vec3 pos = c.center;
         pos.y = houseSize.y * 0.5f;
@@ -1903,6 +1951,8 @@ int main(int, char**) {
         glm::vec3 tgt = cam.target - renderOrigin;
         glm::mat4 view = glm::lookAt(eye, tgt, glm::vec3(0,1,0));
         glm::mat4 viewProj = proj * view;
+        glm::mat4 viewSky = glm::mat4(glm::mat3(view));
+        glm::mat4 viewProjSky = proj * viewSky;
 
         glm::vec3 mouseHitRel;
         bool hasHit = ScreenToGroundHit(mx, my, winW, winH, view, proj, mouseHitRel);
@@ -2458,6 +2508,7 @@ int main(int, char**) {
 
         RenderFrame frame;
         frame.viewProj = viewProj;
+        frame.viewProjSky = viewProjSky;
         frame.roadVertexCount = roadRenderVerts.size();
         frame.gridVertexCount = gridCount;
         frame.zoneResidentialVertexCount = resCount;

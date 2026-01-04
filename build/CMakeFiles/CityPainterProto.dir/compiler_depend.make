@@ -2631,11 +2631,229 @@ CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-window
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_transform.hpp
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_transform.inl
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.inl
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\windows.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\sdkddkver.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\excpt.h"
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\windef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\minwindef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\specstrings.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\specstrings_strict.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\specstrings_undef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\driverspecs.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\sdv_driverspecs.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winnt.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\kernelspecs.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\basetsd.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\guiddef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack4.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack4.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack4.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\apiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\ktmtypes.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\apisetcconv.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\minwinbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\apiquery2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\processenv.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\fileapifromapp.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\fileapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\debugapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\utilapiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\handleapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\errhandlingapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\fibersapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\namedpipeapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\profileapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\heapapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\ioapiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\synchapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\interlockedapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\processthreadsapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\sysinfoapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\memoryapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\enclaveapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\threadpoollegacyapiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\threadpoolapiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\jobapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\jobapi2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\wow64apiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\libloaderapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\securitybaseapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\namespaceapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\systemtopologyapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\processtopologyapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\securityappcontainer.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\realtimeapiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\winerror.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\timezoneapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\wingdi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack4.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack4.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winuser.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\tvout.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winnls.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\datetimeapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\stringapiset.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winnls.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\wincon.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\wincontypes.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\consoleapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\consoleapi2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\consoleapi3.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winver.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\verrsrc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winreg.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\reason.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winnetwk.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\wnnc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\cderr.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\dde.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\ddeml.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\dlgs.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\lzexpand.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsystem.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mciapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmiscapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmiscapi2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\playsoundapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmeapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\timeapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\joystickapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mmsyscom.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\nb30.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\rpc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\rpcdce.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\rpcdcep.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\rpcnsi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\rpcnterr.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\rpcasync.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\shellapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winperf.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winsock.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\inaddr.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\wincrypt.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\bcrypt.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\ncrypt.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\dpapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winefs.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winscard.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\wtypes.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\rpcndr.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\rpcnsip.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\rpcsal.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\wtypesbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\guiddef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winioctl.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack1.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\winsmcrd.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winspool.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\prsht.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\ole2.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\objbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\combaseapi.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\unknwnbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\objidlbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\guiddef.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\cguid.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\coml2api.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\objidl.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\um\unknwn.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\propidlbase.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\um\oaidl.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\urlmon.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\um\oleidl.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\um\servprov.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\um\msxml.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\propidl.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\oleauto.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\pshpack8.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\poppack.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\commdlg.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\prsht.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\stralign.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\winsvc.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\mcx.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\imm.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\ime_cmodes.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\wincodec.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\um\ocidl.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\dxgiformat.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\dxgitype.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\shared\dxgicommon.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\shared\intsafe.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\\include\10.0.26100.0\\um\dcommon.h
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\array"
 
 
 
 D:\\include\10.0.26100.0\\um\utilapiset.h:
+
+D:\\include\10.0.26100.0\\um\winsock.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xlocinfo":
 
@@ -2652,6 +2870,8 @@ C:\CityG\external\imgui\backends\imgui_impl_opengl3.cpp:
 D:\include\10.0.26100.0\ucrt\corecrt_wctype.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cmath":
+
+D:\\include\10.0.26100.0\\um\objidlbase.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_string.h":
 
@@ -2701,6 +2921,8 @@ D:\include\10.0.26100.0\ucrt\corecrt_memory.h:
 
 C:\CityG\external\imgui\imgui_draw.cpp:
 
+D:\\include\10.0.26100.0\\um\combaseapi.h:
+
 D:\include\10.0.26100.0\ucrt\corecrt_memcpy_s.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_stdinc.h:
@@ -2738,6 +2960,10 @@ D:\include\10.0.26100.0\ucrt\corecrt_wstdio.h:
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4.hpp:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\output\serializer.hpp:
+
+D:\include\10.0.26100.0\um\msxml.h:
+
+D:\\include\10.0.26100.0\\shared\cderr.h:
 
 D:\\include\10.0.26100.0\\shared\pshpack4.h:
 
@@ -2789,6 +3015,8 @@ D:\\include\10.0.26100.0\\shared\specstrings_undef.h:
 
 D:\include\10.0.26100.0\shared\sdv_driverspecs.h:
 
+D:\\include\10.0.26100.0\\um\wincrypt.h:
+
 D:\\include\10.0.26100.0\\shared\ktmtypes.h:
 
 D:\\include\10.0.26100.0\\um\threadpoolapiset.h:
@@ -2823,6 +3051,8 @@ D:\include\10.0.26100.0\ucrt\corecrt_wdirect.h:
 
 D:\\include\10.0.26100.0\\shared\tvout.h:
 
+D:\\include\10.0.26100.0\\um\oleauto.h:
+
 D:\include\10.0.26100.0\shared\pshpack8.h:
 
 D:\\include\10.0.26100.0\\shared\poppack.h:
@@ -2855,9 +3085,13 @@ D:\\include\10.0.26100.0\\um\processenv.h:
 
 D:\\include\10.0.26100.0\\um\libloaderapi.h:
 
+D:\\include\10.0.26100.0\\um\coml2api.h:
+
 D:\\include\10.0.26100.0\\um\debugapi.h:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2.hpp:
+
+D:\\include\10.0.26100.0\\um\commdlg.h:
 
 vcpkg_installed\x64-windows\include\glm\ext\matrix_projection.inl:
 
@@ -2925,6 +3159,8 @@ vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp:
 
 D:\\include\10.0.26100.0\\shared\wnnc.h:
 
+D:\\include\10.0.26100.0\\shared\wtypes.h:
+
 D:\\include\10.0.26100.0\\um\timezoneapi.h:
 
 D:\\include\10.0.26100.0\\shared\pshpack1.h:
@@ -2977,6 +3213,8 @@ vcpkg_installed\x64-windows\include\KHR\khrplatform.h:
 
 D:\\include\10.0.26100.0\\um\winnetwk.h:
 
+D:\\include\10.0.26100.0\\um\timeapi.h:
+
 D:\\include\10.0.26100.0\\shared\stralign.h:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3_precision.hpp:
@@ -2992,6 +3230,8 @@ D:\\include\10.0.26100.0\\um\winsvc.h:
 D:\\include\10.0.26100.0\\um\mcx.h:
 
 vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x4.hpp:
+
+D:\\include\10.0.26100.0\\um\winperf.h:
 
 vcpkg_installed\x64-windows\include\glm\detail\compute_vector_decl.hpp:
 
@@ -3043,6 +3283,8 @@ D:\include\10.0.26100.0\ucrt\corecrt_wprocess.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_keycode.h:
 
+D:\\include\10.0.26100.0\\shared\pshpack8.h:
+
 D:\include\10.0.26100.0\ucrt\corecrt_wtime.h:
 
 D:\include\10.0.26100.0\ucrt\sys\stat.h:
@@ -3062,6 +3304,8 @@ vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec2.hpp:
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\setjmp.h":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\chrono":
+
+D:\\include\10.0.26100.0\\shared\bcrypt.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\immintrin.h":
 
@@ -3084,6 +3328,8 @@ vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3_sized.hpp:
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\mmintrin.h":
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\abi_macros.hpp:
+
+D:\\include\10.0.26100.0\\shared\winsmcrd.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\zmmintrin.h":
 
@@ -3126,6 +3372,8 @@ vcpkg_installed\x64-windows\include\glm\detail\func_packing.inl:
 D:\include\10.0.26100.0\ucrt\process.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_startup.h":
+
+D:\\include\10.0.26100.0\\um\wincodec.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_rwops.h:
 
@@ -3197,6 +3445,8 @@ vcpkg_installed\x64-windows\include\SDL2\SDL_hints.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_loadso.h:
 
+D:\\include\10.0.26100.0\\um\propidlbase.h:
+
 vcpkg_installed\x64-windows\include\SDL2\SDL_log.h:
 
 vcpkg_installed\x64-windows\include\SDL2\SDL_messagebox.h:
@@ -3231,6 +3481,8 @@ C:\CityG\external\imgui\imgui.cpp:
 
 D:\\include\10.0.26100.0\\um\Windows.h:
 
+D:\\include\10.0.26100.0\\um\objbase.h:
+
 D:\\include\10.0.26100.0\\um\shellapi.h:
 
 C:\CityG\external\imgui\imstb_truetype.h:
@@ -3259,6 +3511,8 @@ D:\include\10.0.26100.0\ucrt\locale.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new_debug.h":
 
+D:\\include\10.0.26100.0\\um\winefs.h:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new.h":
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2.hpp:
@@ -3283,6 +3537,8 @@ vcpkg_installed\x64-windows\include\glm\detail\type_half.hpp:
 
 vcpkg_installed\x64-windows\include\glm\detail\..\simd\platform.h:
 
+D:\\include\10.0.26100.0\\um\dde.h:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdint":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits":
@@ -3290,6 +3546,8 @@ vcpkg_installed\x64-windows\include\glm\detail\..\simd\platform.h:
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2.hpp:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\conversions\to_chars.hpp:
+
+D:\\include\10.0.26100.0\\um\mmsyscom.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xhash":
 
@@ -3401,6 +3659,8 @@ vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4_precision.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4.hpp:
 
+D:\\include\10.0.26100.0\\um\joystickapi.h:
+
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4_sized.hpp:
@@ -3447,6 +3707,8 @@ C:\CityG\src\main.cpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2.hpp:
 
+D:\\include\10.0.26100.0\\um\ole2.h:
+
 vcpkg_installed\x64-windows\include\glm\detail\type_mat3x2.inl:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2.hpp:
@@ -3477,13 +3739,19 @@ vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4.hpp:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string":
 
+D:\\include\10.0.26100.0\\shared\rpcnterr.h:
+
 vcpkg_installed\x64-windows\include\glm\detail\type_vec1.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3_precision.hpp:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x3.hpp:
 
+D:\\include\10.0.26100.0\\shared\rpcasync.h:
+
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x3_precision.hpp:
+
+D:\\include\10.0.26100.0\\um\mmiscapi2.h:
 
 vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x4.hpp:
 
@@ -3541,6 +3809,8 @@ vcpkg_installed\x64-windows\include\glm\detail\func_integer.inl:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xfacet":
 
+D:\\include\10.0.26100.0\\um\dcommon.h:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_string_view.hpp":
 
 C:\CityG\src\renderer.cpp:
@@ -3549,6 +3819,8 @@ vcpkg_installed\x64-windows\include\nlohmann\json.hpp:
 
 vcpkg_installed\x64-windows\include\nlohmann\adl_serializer.hpp:
 
+D:\\include\10.0.26100.0\\shared\dxgitype.h:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_heap_algorithms.hpp":
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_filebuf.hpp":
@@ -3556,6 +3828,8 @@ vcpkg_installed\x64-windows\include\nlohmann\adl_serializer.hpp:
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\memory":
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\macro_scope.hpp:
+
+D:\\include\10.0.26100.0\\um\unknwnbase.h:
 
 vcpkg_installed\x64-windows\include\nlohmann\detail\json_ref.hpp:
 
@@ -3599,7 +3873,11 @@ vcpkg_installed\x64-windows\include\glm\gtc\constants.inl:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xcall_once.h":
 
+D:\\include\10.0.26100.0\\um\propidl.h:
+
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xerrc.h":
+
+D:\\include\10.0.26100.0\\um\winioctl.h:
 
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xthreads.h":
 
@@ -3672,3 +3950,73 @@ C:\CityG\src\renderer.h:
 C:\CityG\src\mesh_cache.cpp:
 
 C:\CityG\external\cgltf\cgltf.h:
+
+D:\\include\10.0.26100.0\\um\ddeml.h:
+
+D:\\include\10.0.26100.0\\um\dlgs.h:
+
+D:\\include\10.0.26100.0\\um\lzexpand.h:
+
+D:\\include\10.0.26100.0\\um\mmsystem.h:
+
+D:\\include\10.0.26100.0\\um\mciapi.h:
+
+D:\\include\10.0.26100.0\\um\mmiscapi.h:
+
+D:\\include\10.0.26100.0\\um\playsoundapi.h:
+
+D:\\include\10.0.26100.0\\um\mmeapi.h:
+
+D:\\include\10.0.26100.0\\um\nb30.h:
+
+D:\\include\10.0.26100.0\\shared\rpc.h:
+
+D:\\include\10.0.26100.0\\shared\rpcdce.h:
+
+D:\\include\10.0.26100.0\\shared\rpcdcep.h:
+
+D:\\include\10.0.26100.0\\um\rpcnsi.h:
+
+D:\\include\10.0.26100.0\\shared\inaddr.h:
+
+D:\\include\10.0.26100.0\\um\ncrypt.h:
+
+D:\\include\10.0.26100.0\\um\dpapi.h:
+
+D:\\include\10.0.26100.0\\um\winscard.h:
+
+D:\include\10.0.26100.0\shared\rpcndr.h:
+
+D:\\include\10.0.26100.0\\um\rpcnsip.h:
+
+D:\\include\10.0.26100.0\\shared\rpcsal.h:
+
+D:\include\10.0.26100.0\shared\wtypesbase.h:
+
+D:\include\10.0.26100.0\shared\guiddef.h:
+
+D:\\include\10.0.26100.0\\um\winspool.h:
+
+D:\\include\10.0.26100.0\\um\prsht.h:
+
+D:\\include\10.0.26100.0\\um\cguid.h:
+
+D:\\include\10.0.26100.0\\um\objidl.h:
+
+D:\include\10.0.26100.0\um\unknwn.h:
+
+D:\include\10.0.26100.0\um\oaidl.h:
+
+D:\\include\10.0.26100.0\\um\urlmon.h:
+
+D:\include\10.0.26100.0\um\oleidl.h:
+
+D:\include\10.0.26100.0\um\servprov.h:
+
+D:\include\10.0.26100.0\um\ocidl.h:
+
+D:\\include\10.0.26100.0\\shared\dxgiformat.h:
+
+D:\include\10.0.26100.0\shared\dxgicommon.h:
+
+D:\\include\10.0.26100.0\\shared\intsafe.h:

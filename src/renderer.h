@@ -20,6 +20,7 @@ struct RenderHouseBatch {
 
 struct RenderFrame {
     glm::mat4 viewProj{1.0f};
+    glm::mat4 viewProjSky{1.0f};
     std::size_t roadVertexCount = 0;
     std::size_t gridVertexCount = 0;
     std::size_t zoneResidentialVertexCount = 0;
@@ -59,6 +60,8 @@ private:
     // Programs
     unsigned int progBasic = 0;
     unsigned int progInst = 0;
+    unsigned int progGround = 0;
+    unsigned int progSky = 0;
 
     // Uniform locations
     int locVP_B = -1;
@@ -68,10 +71,22 @@ private:
     int locVP_I = -1;
     int locC_I = -1;
     int locA_I = -1;
+    int locVP_G = -1;
+    int locM_G = -1;
+    int locGrassTile_G = -1;
+    int locNoiseTile_G = -1;
+    int locGrassTex_G = -1;
+    int locNoiseTex_G = -1;
+    int locVP_S = -1;
+    int locSkyTex_S = -1;
 
     // Buffers / VAOs
     unsigned int vaoGround = 0;
     unsigned int vboGround = 0;
+    unsigned int texGrass = 0;
+    unsigned int texNoise = 0;
+    unsigned int vaoSkybox = 0;
+    unsigned int texSkybox = 0;
 
     unsigned int vaoRoad = 0;
     unsigned int vboRoad = 0;

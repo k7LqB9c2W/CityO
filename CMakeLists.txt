@@ -41,6 +41,7 @@ target_link_libraries(CityPainterProto PRIVATE
   glm::glm
   nlohmann_json::nlohmann_json
   opengl32
+  windowscodecs
 )
 
 

@@ -1,3 +1,7 @@
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include "renderer.h"
 
 #include "mesh_cache.h"
@@ -5,10 +9,13 @@
 #include <SDL.h>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <windows.h>
+#include <wincodec.h>
 
 #include <array>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace {
 
@@ -18,6 +25,13 @@ bool GLCheckProgram(GLuint prog);
 void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo);
 void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts);
 void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::mat4>& mats);
+std::wstring Utf8ToWide(const char* str);
+bool LoadImageWIC(const char* path, std::vector<uint8_t>& outPixels, int& outW, int& outH);
+GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h);
+GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool* outOk);
+GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+GLuint LoadCubemap(const char* faces[6], bool* outOk);
 
 bool GLCheckShader(GLuint shader, const char* label) {
     GLint ok = 0;
@@ -132,6 +146,216 @@ void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
+std::wstring Utf8ToWide(const char* str) {
+    if (!str || !str[0]) return {};
+    int len = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
+    if (len <= 1) return {};
+    std::wstring out(len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, out.data(), len);
+    out.pop_back(); // remove null terminator
+    return out;
+}
+
+bool LoadImageWIC(const char* path, std::vector<uint8_t>& outPixels, int& outW, int& outH) {
+    outPixels.clear();
+    outW = 0;
+    outH = 0;
+    if (!path || !path[0]) return false;
+
+    HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    bool coInit = (hr == S_OK || hr == S_FALSE);
+    if (hr == RPC_E_CHANGED_MODE) {
+        coInit = false;
+    } else if (FAILED(hr)) {
+        return false;
+    }
+
+    IWICImagingFactory* factory = nullptr;
+    hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
+                          IID_IWICImagingFactory, (void**)&factory);
+    if (FAILED(hr)) {
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    std::wstring wpath = Utf8ToWide(path);
+    if (wpath.empty()) {
+        factory->Release();
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    IWICBitmapDecoder* decoder = nullptr;
+    hr = factory->CreateDecoderFromFilename(wpath.c_str(), nullptr, GENERIC_READ,
+                                            WICDecodeMetadataCacheOnLoad, &decoder);
+    if (FAILED(hr)) {
+        factory->Release();
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    IWICBitmapFrameDecode* frame = nullptr;
+    hr = decoder->GetFrame(0, &frame);
+    if (FAILED(hr)) {
+        decoder->Release();
+        factory->Release();
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    IWICFormatConverter* converter = nullptr;
+    hr = factory->CreateFormatConverter(&converter);
+    if (FAILED(hr)) {
+        frame->Release();
+        decoder->Release();
+        factory->Release();
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    hr = converter->Initialize(frame, GUID_WICPixelFormat32bppRGBA,
+                               WICBitmapDitherTypeNone, nullptr, 0.0,
+                               WICBitmapPaletteTypeCustom);
+    if (FAILED(hr)) {
+        converter->Release();
+        frame->Release();
+        decoder->Release();
+        factory->Release();
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    UINT w = 0;
+    UINT h = 0;
+    converter->GetSize(&w, &h);
+    if (w == 0 || h == 0) {
+        converter->Release();
+        frame->Release();
+        decoder->Release();
+        factory->Release();
+        if (coInit) CoUninitialize();
+        return false;
+    }
+
+    outPixels.resize((size_t)w * (size_t)h * 4);
+    hr = converter->CopyPixels(nullptr, w * 4, (UINT)outPixels.size(), outPixels.data());
+
+    converter->Release();
+    frame->Release();
+    decoder->Release();
+    factory->Release();
+    if (coInit) CoUninitialize();
+
+    if (FAILED(hr)) {
+        outPixels.clear();
+        return false;
+    }
+
+    outW = (int)w;
+    outH = (int)h;
+    return true;
+}
+
+GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h) {
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glGenerateMipmap(GL_TEXTURE_2D);
+#ifdef GL_TEXTURE_MAX_ANISOTROPY_EXT
+    float maxAniso = 0.0f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+    if (maxAniso > 0.0f) {
+        float aniso = (maxAniso < 8.0f) ? maxAniso : 8.0f;
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+    }
+#endif
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return tex;
+}
+
+GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    uint8_t pixel[4] = { r, g, b, a };
+    return CreateTextureFromRGBA(pixel, 1, 1);
+}
+
+GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool* outOk) {
+    std::vector<uint8_t> pixels;
+    int w = 0;
+    int h = 0;
+    if (LoadImageWIC(path, pixels, w, h)) {
+        if (outOk) *outOk = true;
+        return CreateTextureFromRGBA(pixels.data(), w, h);
+    }
+    if (outOk) *outOk = false;
+    SDL_Log("Texture load failed: %s", path);
+    return CreateSolidTexture(r, g, b, a);
+}
+
+GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+    uint8_t pixel[4] = { r, g, b, a };
+    for (int i = 0; i < 6; ++i) {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    return tex;
+}
+
+GLuint LoadCubemap(const char* faces[6], bool* outOk) {
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
+
+    bool ok = true;
+    int w = 0;
+    int h = 0;
+    std::vector<uint8_t> pixels;
+    for (int i = 0; i < 6; ++i) {
+        int wi = 0;
+        int hi = 0;
+        if (!LoadImageWIC(faces[i], pixels, wi, hi)) {
+            ok = false;
+            break;
+        }
+        if (i == 0) {
+            w = wi;
+            h = hi;
+        } else if (wi != w || hi != h) {
+            ok = false;
+            break;
+        }
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    }
+
+    if (!ok) {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        glDeleteTextures(1, &tex);
+        if (outOk) *outOk = false;
+        return CreateSolidCubemap(120, 160, 210, 255);
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    if (outOk) *outOk = true;
+    return tex;
+}
+
 } // namespace
 
 bool Renderer::init() {
@@ -169,6 +393,35 @@ bool Renderer::init() {
         }
     )";
 
+    const char* vsGround = R"(
+        #version 330 core
+        layout(location=0) in vec3 aPos;
+        uniform mat4 uViewProj;
+        uniform mat4 uModel;
+        uniform float uGrassTileM;
+        uniform float uNoiseTileM;
+        out vec2 vGrassUV;
+        out vec2 vNoiseUV;
+        void main() {
+            vec4 world = uModel * vec4(aPos, 1.0);
+            vGrassUV = world.xz / uGrassTileM;
+            vNoiseUV = world.xz / uNoiseTileM;
+            gl_Position = uViewProj * world;
+        }
+    )";
+
+    const char* vsSky = R"(
+        #version 330 core
+        layout(location=0) in vec3 aPos;
+        out vec3 vDir;
+        uniform mat4 uViewProj;
+        void main() {
+            vDir = aPos;
+            vec4 pos = uViewProj * vec4(aPos, 1.0);
+            gl_Position = pos.xyww;
+        }
+    )";
+
     const char* fsColor = R"(
         #version 330 core
         out vec4 FragColor;
@@ -179,9 +432,37 @@ bool Renderer::init() {
         }
     )";
 
+    const char* fsSky = R"(
+        #version 330 core
+        in vec3 vDir;
+        out vec4 FragColor;
+        uniform samplerCube uSkybox;
+        void main() {
+            FragColor = texture(uSkybox, normalize(vDir));
+        }
+    )";
+
+    const char* fsGround = R"(
+        #version 330 core
+        in vec2 vGrassUV;
+        in vec2 vNoiseUV;
+        out vec4 FragColor;
+        uniform sampler2D uGrassTex;
+        uniform sampler2D uNoiseTex;
+        void main() {
+            vec3 grass = texture(uGrassTex, vGrassUV).rgb;
+            float n = texture(uNoiseTex, vNoiseUV).r;
+            float shade = mix(0.85, 1.15, n);
+            vec3 color = grass * shade;
+            FragColor = vec4(color, 1.0);
+        }
+    )";
+
     progBasic = MakeProgram(vsBasic, fsColor);
     progInst = MakeProgram(vsInstanced, fsColor);
-    if (!progBasic || !progInst) return false;
+    progGround = MakeProgram(vsGround, fsGround);
+    progSky = MakeProgram(vsSky, fsSky);
+    if (!progBasic || !progInst || !progGround || !progSky) return false;
 
     locVP_B = glGetUniformLocation(progBasic, "uViewProj");
     locM_B = glGetUniformLocation(progBasic, "uModel");
@@ -191,10 +472,43 @@ bool Renderer::init() {
     locVP_I = glGetUniformLocation(progInst, "uViewProj");
     locC_I = glGetUniformLocation(progInst, "uColor");
     locA_I = glGetUniformLocation(progInst, "uAlpha");
+    locVP_G = glGetUniformLocation(progGround, "uViewProj");
+    locM_G = glGetUniformLocation(progGround, "uModel");
+    locGrassTile_G = glGetUniformLocation(progGround, "uGrassTileM");
+    locNoiseTile_G = glGetUniformLocation(progGround, "uNoiseTileM");
+    locGrassTex_G = glGetUniformLocation(progGround, "uGrassTex");
+    locNoiseTex_G = glGetUniformLocation(progGround, "uNoiseTex");
+    locVP_S = glGetUniformLocation(progSky, "uViewProj");
+    locSkyTex_S = glGetUniformLocation(progSky, "uSkybox");
     if (locVP_B < 0 || locM_B < 0 || locC_B < 0 || locA_B < 0 ||
-        locVP_I < 0 || locC_I < 0 || locA_I < 0) {
+        locVP_I < 0 || locC_I < 0 || locA_I < 0 ||
+        locVP_G < 0 || locM_G < 0 || locGrassTile_G < 0 || locNoiseTile_G < 0 ||
+        locGrassTex_G < 0 || locNoiseTex_G < 0 ||
+        locVP_S < 0 || locSkyTex_S < 0) {
         SDL_Log("Renderer init failed: missing uniforms.");
         return false;
+    }
+
+    bool grassOk = false;
+    bool noiseOk = false;
+    texGrass = LoadTexture2D("assets/textures/grass.png", 80, 110, 70, 255, &grassOk);
+    texNoise = LoadTexture2D("assets/textures/grayscale.png", 128, 128, 128, 255, &noiseOk);
+    if (!grassOk || !noiseOk) {
+        SDL_Log("Renderer: using fallback ground texture(s).");
+    }
+
+    const char* skyFaces[6] = {
+        "assets/textures/Daylight Box_Right.png",
+        "assets/textures/Daylight Box_Left.png",
+        "assets/textures/Daylight Box_Top.png",
+        "assets/textures/Daylight Box_Bottom.png",
+        "assets/textures/Daylight Box_Front.png",
+        "assets/textures/Daylight Box_Back.png"
+    };
+    bool skyOk = false;
+    texSkybox = LoadCubemap(skyFaces, &skyOk);
+    if (!skyOk) {
+        SDL_Log("Renderer: using fallback skybox texture.");
     }
 
     // Ground quad
@@ -256,6 +570,13 @@ bool Renderer::init() {
     glGenBuffers(1, &vboCube);
     glBindBuffer(GL_ARRAY_BUFFER, vboCube);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+    glGenVertexArrays(1, &vaoSkybox);
+    glBindVertexArray(vaoSkybox);
+    glBindBuffer(GL_ARRAY_BUFFER, vboCube);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glBindVertexArray(0);
 
     glGenVertexArrays(1, &vaoCubeSingle);
     glBindVertexArray(vaoCubeSingle);
@@ -367,16 +688,36 @@ void Renderer::render(const RenderFrame& frame) {
     // Ground/roads/overlays are single-sided quads; render without culling
     glDisable(GL_CULL_FACE);
 
-    glUseProgram(progBasic);
-    glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &frame.viewProj[0][0]);
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
+    glUseProgram(progSky);
+    glUniformMatrix4fv(locVP_S, 1, GL_FALSE, &frame.viewProjSky[0][0]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texSkybox);
+    glUniform1i(locSkyTex_S, 0);
+    glBindVertexArray(vaoSkybox);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
 
     glm::mat4 I(1.0f);
-    glUniformMatrix4fv(locM_B, 1, GL_FALSE, &I[0][0]);
-    glUniform3f(locC_B, 0.05f, 0.20f, 0.08f);
-    glUniform1f(locA_B, 1.0f);
+    glUseProgram(progGround);
+    glUniformMatrix4fv(locVP_G, 1, GL_FALSE, &frame.viewProj[0][0]);
+    glUniformMatrix4fv(locM_G, 1, GL_FALSE, &I[0][0]);
+    glUniform1f(locGrassTile_G, 4.0f);
+    glUniform1f(locNoiseTile_G, 96.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texGrass);
+    glUniform1i(locGrassTex_G, 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texNoise);
+    glUniform1i(locNoiseTex_G, 1);
     glBindVertexArray(vaoGround);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
+    glUseProgram(progBasic);
+    glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &frame.viewProj[0][0]);
+    glUniformMatrix4fv(locM_B, 1, GL_FALSE, &I[0][0]);
     glUniform3f(locC_B, 0.18f, 0.18f, 0.18f);
     glUniform1f(locA_B, 1.0f);
     glBindVertexArray(vaoRoad);
@@ -501,8 +842,13 @@ void Renderer::render(const RenderFrame& frame) {
 void Renderer::destroyGL() {
     if (progBasic) { glDeleteProgram(progBasic); progBasic = 0; }
     if (progInst) { glDeleteProgram(progInst); progInst = 0; }
+    if (progGround) { glDeleteProgram(progGround); progGround = 0; }
+    if (progSky) { glDeleteProgram(progSky); progSky = 0; }
+    if (texGrass) { glDeleteTextures(1, &texGrass); texGrass = 0; }
+    if (texNoise) { glDeleteTextures(1, &texNoise); texNoise = 0; }
+    if (texSkybox) { glDeleteTextures(1, &texSkybox); texSkybox = 0; }
 
-    GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoCubeSingle, vaoCubeInstAnim };
+    GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoSkybox, vaoCubeSingle, vaoCubeInstAnim };
     GLuint vbos[] = { vboGround, vboRoad, vboPreview, vboCube, vboInstAnim };
 
     glDeleteVertexArrays((GLsizei)std::size(vaos), vaos);
@@ -516,7 +862,7 @@ void Renderer::destroyGL() {
     }
     houseChunks.clear();
 
-    vaoGround = vaoRoad = vaoPreview = vaoCubeSingle = vaoCubeInstAnim = 0;
+    vaoGround = vaoRoad = vaoPreview = vaoSkybox = vaoCubeSingle = vaoCubeInstAnim = 0;
     vboGround = vboRoad = vboPreview = vboCube = vboInstAnim = 0;
 }
 

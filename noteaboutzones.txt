@@ -1,0 +1,17 @@
+1/3/26 6:51pm
+─ Worked for 7m 47s ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• Enabled multi‑cell building footprints by validating each building’s full footprint against the zone grid, so larger
+  buildings can span multiple 8m tiles without touching lot density.
+
+  - src/main.cpp: added ZoneRectTypeCoverage and used it in RebuildHousesFromLots with cell‑aligned footprints; removed
+    the hard 16m/48m lot size gate and now gate on actual footprint coverage instead.
+
+  Important limitation: a footprint deeper than the zone band still won’t spawn (zone depth is 48m from ZONE_DEPTH_CELLS
+  = 6). So 100m‑deep buildings still fail unless you deepen zoning or treat them as special cases.
+
+  If you want next steps:
+
+  1. I can add a “large footprint” path that merges multiple zoned rows to allow deeper buildings (by increasing
+     ZONE_DEPTH_CELLS or adding a separate large‑lot placement rule).
+  2. I can add a debug overlay to visualize footprint coverage and why a placement was rejected.
