@@ -346,7 +346,7 @@ static glm::vec3 BaseSizeForZone(ZoneType t) {
     switch (t) {
         case ZoneType::Commercial: return glm::vec3(12.0f, 8.0f, 14.0f);
         case ZoneType::Industrial: return glm::vec3(14.0f, 8.0f, 20.0f);
-        case ZoneType::Office: return glm::vec3(100.0f, 30.0f, 100.0f); // ~10 stories
+        case ZoneType::Office: return glm::vec3(30.0f, 30.0f, 30.0f); // ~10 stories
         default: return glm::vec3(8.0f, 6.0f, 12.0f);
     }
 }
