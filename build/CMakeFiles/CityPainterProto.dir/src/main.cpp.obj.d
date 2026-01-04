@@ -518,5 +518,7 @@ C:/CityG/src/renderer.h
 C:/CityG/src/asset_catalog.h
 C:/CityG/src/mesh_cache.h
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/unordered_set
+C:/CityG/src/config.h
+C:/CityG/src/image_loader.h
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/fstream
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/__msvc_filebuf.hpp

@@ -9,6 +9,7 @@ add_executable(CityPainterProto
   src/renderer.cpp
   src/asset_catalog.cpp
   src/mesh_cache.cpp
+  src/image_loader.cpp
 
   external/imgui/imgui.cpp
   external/imgui/imgui_draw.cpp

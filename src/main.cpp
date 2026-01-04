@@ -13,6 +13,8 @@
 #include "renderer.h"
 #include "asset_catalog.h"
 #include "mesh_cache.h"
+#include "config.h"
+#include "image_loader.h"
 
 #include <vector>
 #include <string>
@@ -298,6 +300,20 @@ struct ZoneChunk {
     }
 };
 
+struct WaterChunk {
+    static constexpr int DIM = ZoneChunk::DIM;
+    std::array<uint8_t, DIM * DIM> cells{};
+    void clear() { cells.fill(0); }
+    void set(int x, int z, uint8_t v) {
+        if (x < 0 || x >= DIM || z < 0 || z >= DIM) return;
+        cells[z * DIM + x] = v;
+    }
+    uint8_t get(int x, int z) const {
+        if (x < 0 || x >= DIM || z < 0 || z >= DIM) return 0;
+        return cells[z * DIM + x];
+    }
+};
+
 constexpr uint8_t ZONE_FLAG_BUILDABLE = 1 << 0;
 constexpr uint8_t ZONE_FLAG_ZONED = 1 << 1;
 constexpr uint8_t ZONE_FLAG_BLOCKED = 1 << 2;
@@ -306,6 +322,7 @@ constexpr int   ZONE_DEPTH_CELLS = 6;
 constexpr float ZONE_DEPTH_M = ZONE_DEPTH_CELLS * ZONE_CELL_M; // 48m with 8m cells
 constexpr float ROAD_WIDTH_M = 16.0f;
 constexpr float ROAD_HALF_M = ROAD_WIDTH_M * 0.5f;
+constexpr float WATER_SURFACE_Y = 0.02f;
 constexpr uint8_t ZONE_TYPE_SHIFT = 3;
 constexpr uint8_t ZONE_TYPE_MASK = 0x18; // 2 bits for 4 zone types
 
@@ -377,6 +394,12 @@ struct BuildingChunk {
     std::unordered_map<AssetId, std::vector<BuildingInstance>> instancesByAsset;
 };
 
+struct MinimapState {
+    GLuint texture = 0;
+    int size = 512;
+    bool dirty = true;
+};
+
 struct AppState {
     int nextRoadId = 1;
     int nextZoneId = 1;
@@ -390,6 +413,7 @@ struct AppState {
     std::unordered_set<uint64_t> dirtyBuildingChunks;
     std::unordered_map<uint64_t, ZoneChunk> zoneChunks;
     std::unordered_set<uint64_t> dirtyZoneChunks;
+    std::unordered_map<uint64_t, WaterChunk> waterChunks;
 
     bool roadsDirty = true;
     bool zonesDirty = true;
@@ -416,6 +440,8 @@ static bool ZoneOverlapsExisting(const AppState& s, int roadId, float d0, float 
     return false;
 }
 
+static bool WorldToZoneCell(const glm::vec3& p, int& outCx, int& outCz, int& outXi, int& outZi);
+
 static uint8_t GetZoneFlagsAt(const AppState& s, const glm::vec3& pos) {
     ChunkCoord cc = ChunkFromPosXZ(pos);
     uint64_t key = PackChunk(cc.cx, cc.cz);
@@ -428,7 +454,17 @@ static uint8_t GetZoneFlagsAt(const AppState& s, const glm::vec3& pos) {
     return it->second.get(xi, zi);
 }
 
+static uint8_t GetWaterAt(const AppState& s, const glm::vec3& pos) {
+    int cx, cz, xi, zi;
+    if (!WorldToZoneCell(pos, cx, cz, xi, zi)) return 0;
+    uint64_t key = PackChunk(cx, cz);
+    auto it = s.waterChunks.find(key);
+    if (it == s.waterChunks.end()) return 0;
+    return it->second.get(xi, zi);
+}
+
 static ZoneChunk& EnsureZoneChunk(AppState& s, uint64_t key);
+static WaterChunk& EnsureWaterChunk(AppState& s, uint64_t key);
 
 static bool WorldToZoneCell(const glm::vec3& p, int& outCx, int& outCz, int& outXi, int& outZi) {
     int cx = (int)std::floor(p.x / CHUNK_SIZE_M);
@@ -596,6 +632,16 @@ static ZoneChunk& EnsureZoneChunk(AppState& s, uint64_t key) {
     return it->second;
 }
 
+static WaterChunk& EnsureWaterChunk(AppState& s, uint64_t key) {
+    auto it = s.waterChunks.find(key);
+    if (it == s.waterChunks.end()) {
+        WaterChunk w;
+        w.clear();
+        it = s.waterChunks.emplace(key, std::move(w)).first;
+    }
+    return it->second;
+}
+
 static void StampZoneStrip(AppState& s, const ZoneStrip& z, bool add) {
     int ridx = FindRoadIndexById(s.roads, z.roadId);
     if (ridx < 0) return;
@@ -737,6 +783,118 @@ static void StampRoadSurfaceBlocked(AppState& s, const Road& r) {
     }
 }
 
+static void StampWaterMask(AppState& s) {
+    if (s.waterChunks.empty()) return;
+    for (const auto& kv : s.waterChunks) {
+        int32_t cx, cz;
+        UnpackChunk(kv.first, cx, cz);
+        const WaterChunk& chunk = kv.second;
+        for (int zi = 0; zi < WaterChunk::DIM; ++zi) {
+            for (int xi = 0; xi < WaterChunk::DIM; ++xi) {
+                if (chunk.get(xi, zi) == 0) continue;
+                SetZoneCellFlags(
+                    s, cx, cz, xi, zi,
+                    ZONE_FLAG_BLOCKED,
+                    (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED | ZONE_TYPE_MASK));
+                s.dirtyBuildingChunks.insert(PackChunk(cx, cz));
+            }
+        }
+    }
+}
+
+static bool LoadWaterMaskFromImage(AppState& s, const char* path, float threshold) {
+    std::vector<uint8_t> pixels;
+    int w = 0;
+    int h = 0;
+    if (!LoadImageRGBA(path, pixels, w, h)) return false;
+    if (w <= 0 || h <= 0) return false;
+
+    s.waterChunks.clear();
+
+    const float mapHalf = MAP_HALF_M;
+    const float invMap = 1.0f / MAP_SIDE_M;
+    const float startX = -mapHalf + ZONE_CELL_M * 0.5f;
+    const float startZ = -mapHalf + ZONE_CELL_M * 0.5f;
+    const int cellsPerSide = (int)std::ceil(MAP_SIDE_M / ZONE_CELL_M);
+
+    int waterCells = 0;
+    for (int gz = 0; gz < cellsPerSide; ++gz) {
+        float wz = startZ + gz * ZONE_CELL_M;
+        float v = 1.0f - ((wz + mapHalf) * invMap);
+        if (v < 0.0f || v > 1.0f) continue;
+        int pz = (int)Clamp(std::floor(v * (float)h), 0.0f, (float)(h - 1));
+        for (int gx = 0; gx < cellsPerSide; ++gx) {
+            float wx = startX + gx * ZONE_CELL_M;
+            float u = (wx + mapHalf) * invMap;
+            if (u < 0.0f || u > 1.0f) continue;
+            int px = (int)Clamp(std::floor(u * (float)w), 0.0f, (float)(w - 1));
+            const uint8_t* p = &pixels[(pz * w + px) * 4];
+            float lum = (p[0] + p[1] + p[2]) * (1.0f / (3.0f * 255.0f));
+            if (lum < threshold) continue;
+
+            glm::vec3 sample(wx, 0.0f, wz);
+            int cx, cz, xi, zi;
+            if (!WorldToZoneCell(sample, cx, cz, xi, zi)) continue;
+            WaterChunk& wc = EnsureWaterChunk(s, PackChunk(cx, cz));
+            if (wc.get(xi, zi) == 0) {
+                wc.set(xi, zi, 1);
+                waterCells++;
+            }
+        }
+    }
+
+    SDL_Log("Water mask loaded: %d cells from %s", waterCells, path);
+    s.zonesDirty = true;
+    s.housesDirty = true;
+    return true;
+}
+
+static void UpdateMinimapTexture(MinimapState& mm, const AppState& s) {
+    if (!mm.dirty && mm.texture != 0) return;
+    if (mm.size <= 0) return;
+
+    if (mm.texture == 0) {
+        glGenTextures(1, &mm.texture);
+    }
+
+    std::vector<uint8_t> pixels;
+    pixels.resize((size_t)mm.size * (size_t)mm.size * 4);
+    const float mapHalf = MAP_HALF_M;
+    const float invMap = 1.0f / MAP_SIDE_M;
+    const uint8_t land[3] = { 32, 96, 40 };
+    const uint8_t water[3] = { 40, 80, 120 };
+
+    const bool hasWater = !s.waterChunks.empty();
+    for (int y = 0; y < mm.size; ++y) {
+        float v = (y + 0.5f) / (float)mm.size;
+        float wz = (0.5f - v) * MAP_SIDE_M;
+        for (int x = 0; x < mm.size; ++x) {
+            float u = (x + 0.5f) / (float)mm.size;
+            float wx = (u - 0.5f) * MAP_SIDE_M;
+            bool isWater = false;
+            if (hasWater) {
+                isWater = GetWaterAt(s, glm::vec3(wx, 0.0f, wz)) != 0;
+            }
+            const uint8_t* c = isWater ? water : land;
+            size_t idx = (size_t)(y * mm.size + x) * 4;
+            pixels[idx + 0] = c[0];
+            pixels[idx + 1] = c[1];
+            pixels[idx + 2] = c[2];
+            pixels[idx + 3] = 255;
+        }
+    }
+
+    glBindTexture(GL_TEXTURE_2D, mm.texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mm.size, mm.size, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    mm.dirty = false;
+}
+
 static void RebuildZoneGrid(AppState& s) {
     s.zoneChunks.clear();
     s.dirtyZoneChunks.clear();
@@ -746,6 +904,7 @@ static void RebuildZoneGrid(AppState& s) {
         StampRoadInfluence(s, r);
         StampRoadSurfaceBlocked(s, r);
     }
+    StampWaterMask(s);
 
     for (const auto& z : s.zones) {
         StampZoneStrip(s, z, true);
@@ -1084,6 +1243,18 @@ static void RebuildAllRoadMesh(AppState& s) {
 
 static void AppendZoneCellQuad(std::vector<glm::vec3>& out, float originX, float originZ, int xi, int zi, float inset = 0.15f) {
     const float y = 0.04f;
+
+    float x0 = originX + xi * ZONE_CELL_M + inset;
+    float z0 = originZ + zi * ZONE_CELL_M + inset;
+    float x1 = originX + (xi + 1) * ZONE_CELL_M - inset;
+    float z1 = originZ + (zi + 1) * ZONE_CELL_M - inset;
+
+    out.push_back({x0, y, z0}); out.push_back({x1, y, z0}); out.push_back({x1, y, z1});
+    out.push_back({x0, y, z0}); out.push_back({x1, y, z1}); out.push_back({x0, y, z1});
+}
+
+static void AppendWaterCellQuad(std::vector<glm::vec3>& out, float originX, float originZ, int xi, int zi, float inset = 0.02f) {
+    const float y = WATER_SURFACE_Y;
 
     float x0 = originX + xi * ZONE_CELL_M + inset;
     float z0 = originZ + zi * ZONE_CELL_M + inset;
@@ -1796,7 +1967,10 @@ int main(int, char**) {
 
     // Save/load UI
     char savePath[260] = "save.json";
+    char waterMapPath[260] = "assets/maps/water_8192.png";
+    float waterThreshold = 0.5f;
     std::string statusText;
+    MinimapState minimap;
 
     bool running = true;
     bool rmbDown = false;
@@ -2321,35 +2495,48 @@ int main(int, char**) {
         std::vector<glm::vec3> zonedCommercial;
         std::vector<glm::vec3> zonedIndustrial;
         std::vector<glm::vec3> zonedOffice;
+        std::vector<glm::vec3> waterVerts;
         for (uint64_t key : visibleChunks) {
             auto it = state.zoneChunks.find(key);
-            if (it == state.zoneChunks.end()) continue;
+            auto wit = state.waterChunks.find(key);
+            if (it == state.zoneChunks.end() && wit == state.waterChunks.end()) continue;
             int32_t cx, cz;
             UnpackChunk(key, cx, cz);
             float originX = cx * CHUNK_SIZE_M;
             float originZ = cz * CHUNK_SIZE_M;
-            const ZoneChunk& chunk = it->second;
-            for (int zi = 0; zi < ZoneChunk::DIM; ++zi) {
-                for (int xi = 0; xi < ZoneChunk::DIM; ++xi) {
-                    uint8_t f = chunk.get(xi, zi);
-                    if (showGrid && (f & ZONE_FLAG_BUILDABLE) && !(f & ZONE_FLAG_BLOCKED)) {
-                        AppendZoneCellQuad(buildableVerts, originX, originZ, xi, zi);
-                    }
-                    if ((f & ZONE_FLAG_ZONED) && !(f & ZONE_FLAG_BLOCKED)) {
-                        switch (ZoneTypeFromFlags(f)) {
-                            case ZoneType::Commercial:
-                                AppendZoneCellQuad(zonedCommercial, originX, originZ, xi, zi);
-                                break;
-                            case ZoneType::Industrial:
-                                AppendZoneCellQuad(zonedIndustrial, originX, originZ, xi, zi);
-                                break;
-                            case ZoneType::Office:
-                                AppendZoneCellQuad(zonedOffice, originX, originZ, xi, zi);
-                                break;
-                            default:
-                                AppendZoneCellQuad(zonedResidential, originX, originZ, xi, zi);
-                                break;
+            if (it != state.zoneChunks.end()) {
+                const ZoneChunk& chunk = it->second;
+                for (int zi = 0; zi < ZoneChunk::DIM; ++zi) {
+                    for (int xi = 0; xi < ZoneChunk::DIM; ++xi) {
+                        uint8_t f = chunk.get(xi, zi);
+                        if (showGrid && (f & ZONE_FLAG_BUILDABLE) && !(f & ZONE_FLAG_BLOCKED)) {
+                            AppendZoneCellQuad(buildableVerts, originX, originZ, xi, zi);
                         }
+                        if ((f & ZONE_FLAG_ZONED) && !(f & ZONE_FLAG_BLOCKED)) {
+                            switch (ZoneTypeFromFlags(f)) {
+                                case ZoneType::Commercial:
+                                    AppendZoneCellQuad(zonedCommercial, originX, originZ, xi, zi);
+                                    break;
+                                case ZoneType::Industrial:
+                                    AppendZoneCellQuad(zonedIndustrial, originX, originZ, xi, zi);
+                                    break;
+                                case ZoneType::Office:
+                                    AppendZoneCellQuad(zonedOffice, originX, originZ, xi, zi);
+                                    break;
+                                default:
+                                    AppendZoneCellQuad(zonedResidential, originX, originZ, xi, zi);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (wit != state.waterChunks.end()) {
+                const WaterChunk& wchunk = wit->second;
+                for (int zi = 0; zi < WaterChunk::DIM; ++zi) {
+                    for (int xi = 0; xi < WaterChunk::DIM; ++xi) {
+                        if (wchunk.get(xi, zi) == 0) continue;
+                        AppendWaterCellQuad(waterVerts, originX, originZ, xi, zi);
                     }
                 }
             }
@@ -2397,6 +2584,9 @@ int main(int, char**) {
         std::size_t previewCount = state.zonePreviewVerts.size();
         for (auto& v : overlayAndPreview) v -= renderOrigin;
         renderer.updatePreviewMesh(overlayAndPreview);
+
+        for (auto& v : waterVerts) v -= renderOrigin;
+        renderer.updateWaterMesh(waterVerts);
 
         // ImGui
         ImGui_ImplOpenGL3_NewFrame();
@@ -2464,6 +2654,69 @@ int main(int, char**) {
         ImGui::Text("Ctrl+S save | Ctrl+O load");
         ImGui::Separator();
 
+        ImGui::Text("Water Map");
+        ImGui::InputText("Water map file", waterMapPath, sizeof(waterMapPath));
+        ImGui::SliderFloat("Water threshold", &waterThreshold, 0.0f, 1.0f, "%.2f");
+        if (ImGui::Button("Load Water Map")) {
+            if (LoadWaterMaskFromImage(state, waterMapPath, waterThreshold)) {
+                minimap.dirty = true;
+                statusText = "Water map loaded.";
+            } else {
+                statusText = "Water map load failed.";
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear Water")) {
+            state.waterChunks.clear();
+            state.zonesDirty = true;
+            state.housesDirty = true;
+            minimap.dirty = true;
+            statusText = "Water cleared.";
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Minimap");
+        UpdateMinimapTexture(minimap, state);
+        ImVec2 mapSize(240.0f, 240.0f);
+        ImGui::Image((ImTextureID)(intptr_t)minimap.texture, mapSize);
+        ImVec2 mapMin = ImGui::GetItemRectMin();
+        ImVec2 mapMax = ImGui::GetItemRectMax();
+        ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+        auto mapToScreen = [&](const glm::vec3& pos) {
+            float u = (pos.x / MAP_SIDE_M) + 0.5f;
+            float v = 0.5f - (pos.z / MAP_SIDE_M);
+            u = Clamp(u, 0.0f, 1.0f);
+            v = Clamp(v, 0.0f, 1.0f);
+            float sx = mapMin.x + u * (mapMax.x - mapMin.x);
+            float sy = mapMin.y + v * (mapMax.y - mapMin.y);
+            return ImVec2(sx, sy);
+        };
+
+        for (const auto& r : state.roads) {
+            for (size_t i = 1; i < r.pts.size(); ++i) {
+                ImVec2 p0 = mapToScreen(r.pts[i - 1]);
+                ImVec2 p1 = mapToScreen(r.pts[i]);
+                drawList->AddLine(p0, p1, IM_COL32(220, 220, 220, 160), 1.0f);
+            }
+        }
+
+        ImVec2 camPos = mapToScreen(cam.target);
+        drawList->AddCircleFilled(camPos, 3.0f, IM_COL32(255, 230, 80, 220));
+
+        if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            ImVec2 mp = ImGui::GetIO().MousePos;
+            float u = (mp.x - mapMin.x) / (mapMax.x - mapMin.x);
+            float v = (mp.y - mapMin.y) / (mapMax.y - mapMin.y);
+            u = Clamp(u, 0.0f, 1.0f);
+            v = Clamp(v, 0.0f, 1.0f);
+            cam.target.x = (u - 0.5f) * MAP_SIDE_M;
+            cam.target.z = (0.5f - v) * MAP_SIDE_M;
+            cam.target.y = 0.0f;
+            statusText = "Teleported.";
+        }
+        ImGui::Separator();
+
         ImGui::Text("Road editing");
         ImGui::BulletText("Click a road point to select and drag to move");
         ImGui::BulletText("Delete/Backspace deletes selected point (roads keep >= 2 points)");
@@ -2510,6 +2763,7 @@ int main(int, char**) {
         frame.viewProj = viewProj;
         frame.viewProjSky = viewProjSky;
         frame.roadVertexCount = roadRenderVerts.size();
+        frame.waterVertexCount = waterVerts.size();
         frame.gridVertexCount = gridCount;
         frame.zoneResidentialVertexCount = resCount;
         frame.zoneCommercialVertexCount = comCount;
@@ -2533,6 +2787,11 @@ int main(int, char**) {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
+
+    if (minimap.texture) {
+        glDeleteTextures(1, &minimap.texture);
+        minimap.texture = 0;
+    }
 
     renderer.shutdown();
     meshCache.shutdown();

@@ -286,6 +286,30 @@ src\asset_catalog.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\asset_catalog.cpp.s
 .PHONY : src\asset_catalog.cpp.s
 
+src\image_loader.obj: src\image_loader.cpp.obj
+.PHONY : src\image_loader.obj
+
+# target to build an object file
+src\image_loader.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj
+.PHONY : src\image_loader.cpp.obj
+
+src\image_loader.i: src\image_loader.cpp.i
+.PHONY : src\image_loader.i
+
+# target to preprocess a source file
+src\image_loader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.i
+.PHONY : src\image_loader.cpp.i
+
+src\image_loader.s: src\image_loader.cpp.s
+.PHONY : src\image_loader.s
+
+# target to generate assembly for a file
+src\image_loader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.s
+.PHONY : src\image_loader.cpp.s
+
 src\main.obj: src\main.cpp.obj
 .PHONY : src\main.obj
 
@@ -388,6 +412,9 @@ help:
 	@echo ... src/asset_catalog.obj
 	@echo ... src/asset_catalog.i
 	@echo ... src/asset_catalog.s
+	@echo ... src/image_loader.obj
+	@echo ... src/image_loader.i
+	@echo ... src/image_loader.s
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s

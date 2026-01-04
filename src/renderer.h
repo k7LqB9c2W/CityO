@@ -22,6 +22,7 @@ struct RenderFrame {
     glm::mat4 viewProj{1.0f};
     glm::mat4 viewProjSky{1.0f};
     std::size_t roadVertexCount = 0;
+    std::size_t waterVertexCount = 0;
     std::size_t gridVertexCount = 0;
     std::size_t zoneResidentialVertexCount = 0;
     std::size_t zoneCommercialVertexCount = 0;
@@ -48,6 +49,7 @@ public:
     bool init();
     void resize(int w, int h);
     void updateRoadMesh(const std::vector<glm::vec3>& verts);
+    void updateWaterMesh(const std::vector<glm::vec3>& verts);
     void updatePreviewMesh(const std::vector<glm::vec3>& verts);
     void updateHouseChunk(uint64_t key, AssetId assetId, const MeshGpu& mesh, const std::vector<HouseInstanceGPU>& instances);
     void updateAnimHouses(const std::vector<HouseInstanceGPU>& animHouses);
@@ -85,8 +87,11 @@ private:
     unsigned int vboGround = 0;
     unsigned int texGrass = 0;
     unsigned int texNoise = 0;
+    unsigned int texWater = 0;
     unsigned int vaoSkybox = 0;
     unsigned int texSkybox = 0;
+    unsigned int vaoWater = 0;
+    unsigned int vboWater = 0;
 
     unsigned int vaoRoad = 0;
     unsigned int vboRoad = 0;
@@ -115,6 +120,7 @@ private:
 
     // Buffer capacities to avoid reallocation thrash
     std::size_t capRoad = 0;
+    std::size_t capWater = 0;
     std::size_t capPreview = 0;
     std::size_t capInstAnim = 0;
 };

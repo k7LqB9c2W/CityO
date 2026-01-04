@@ -138,10 +138,30 @@ CMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.s: cmake_force
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.s /c C:\CityG\src\mesh_cache.cpp
 <<
 
+CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
+CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj: C:\CityG\src\image_loader.cpp
+CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/CityPainterProto.dir/src/image_loader.cpp.obj"
+	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\src\image_loader.cpp
+<<
+
+CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CityPainterProto.dir/src/image_loader.cpp.i"
+	C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe > CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.i @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\CityG\src\image_loader.cpp
+<<
+
+CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CityPainterProto.dir/src/image_loader.cpp.s"
+	C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
+ /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /FoNUL /FAs /FaCMakeFiles\CityPainterProto.dir\src\image_loader.cpp.s /c C:\CityG\src\image_loader.cpp
+<<
+
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj: C:\CityG\external\imgui\imgui.cpp
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui.cpp.obj"
 	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\external\imgui\imgui.cpp
 <<
@@ -161,7 +181,7 @@ CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.s: cmake_force
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj: C:\CityG\external\imgui\imgui_draw.cpp
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui_draw.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui_draw.cpp.obj"
 	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\external\imgui\imgui_draw.cpp
 <<
@@ -181,7 +201,7 @@ CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.s: cmake_force
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj: C:\CityG\external\imgui\imgui_tables.cpp
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui_tables.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui_tables.cpp.obj"
 	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\external\imgui\imgui_tables.cpp
 <<
@@ -201,7 +221,7 @@ CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.s: cmake_force
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.obj: C:\CityG\external\imgui\imgui_widgets.cpp
 CMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui_widgets.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/imgui_widgets.cpp.obj"
 	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\external\imgui\imgui_widgets.cpp
 <<
@@ -221,7 +241,7 @@ CMakeFiles\CityPainterProto.dir\external\imgui\imgui_widgets.cpp.s: cmake_force
 CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_sdl2.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
 CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_sdl2.cpp.obj: C:\CityG\external\imgui\backends\imgui_impl_sdl2.cpp
 CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_sdl2.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/backends/imgui_impl_sdl2.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/backends/imgui_impl_sdl2.cpp.obj"
 	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_sdl2.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_sdl2.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\external\imgui\backends\imgui_impl_sdl2.cpp
 <<
@@ -241,7 +261,7 @@ CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_sdl2.cpp.s: c
 CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_opengl3.cpp.obj: CMakeFiles\CityPainterProto.dir\flags.make
 CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_opengl3.cpp.obj: C:\CityG\external\imgui\backends\imgui_impl_opengl3.cpp
 CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_opengl3.cpp.obj: CMakeFiles\CityPainterProto.dir\compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/backends/imgui_impl_opengl3.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/CityPainterProto.dir/external/imgui/backends/imgui_impl_opengl3.cpp.obj"
 	$(CMAKE_COMMAND) -E cmake_cl_compile_depends --dep-file=CMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_opengl3.cpp.obj.d --working-dir=C:\CityG\build --filter-prefix="Note: including file: " -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\cl.exe @<<
  /nologo /TP $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) /showIncludes /FoCMakeFiles\CityPainterProto.dir\external\imgui\backends\imgui_impl_opengl3.cpp.obj /FdCMakeFiles\CityPainterProto.dir\ /FS -c C:\CityG\external\imgui\backends\imgui_impl_opengl3.cpp
 <<
@@ -264,6 +284,7 @@ CityPainterProto_OBJECTS = \
 "CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj" \
 "CMakeFiles\CityPainterProto.dir\src\asset_catalog.cpp.obj" \
 "CMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.obj" \
+"CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj" \
 "CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj" \
 "CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj" \
 "CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj" \
@@ -278,6 +299,7 @@ CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\src\main.cpp.obj
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\src\asset_catalog.cpp.obj
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\src\mesh_cache.cpp.obj
+CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\external\imgui\imgui.cpp.obj
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\external\imgui\imgui_draw.cpp.obj
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\external\imgui\imgui_tables.cpp.obj
@@ -289,7 +311,7 @@ CityPainterProto.exe: vcpkg_installed\x64-windows\lib\SDL2.lib
 CityPainterProto.exe: vcpkg_installed\x64-windows\lib\glad.lib
 CityPainterProto.exe: vcpkg_installed\x64-windows\lib\glm.lib
 CityPainterProto.exe: CMakeFiles\CityPainterProto.dir\objects1.rsp
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable CityPainterProto.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=C:\CityG\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable CityPainterProto.exe"
 	"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\CityPainterProto.dir --rc=D:\bin\10.0.26100.0\x64\rc.exe --mt=D:\bin\10.0.26100.0\x64\mt.exe --manifests -- C:\PROGRA~1\MICROS~4\2022\COMMUN~1\VC\Tools\MSVC\1442~1.344\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\CityPainterProto.dir\objects1.rsp @<<
  /out:CityPainterProto.exe /implib:CityPainterProto.lib /pdb:C:\CityG\build\CityPainterProto.pdb /version:0.0 /machine:x64 /INCREMENTAL:NO /subsystem:console  vcpkg_installed\x64-windows\lib\SDL2.lib vcpkg_installed\x64-windows\lib\glad.lib vcpkg_installed\x64-windows\lib\glm.lib opengl32.lib windowscodecs.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib 
 <<

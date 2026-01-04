@@ -1,16 +1,12 @@
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
 #include "renderer.h"
 
+#include "config.h"
+#include "image_loader.h"
 #include "mesh_cache.h"
 
 #include <SDL.h>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <windows.h>
-#include <wincodec.h>
 
 #include <array>
 #include <string>
@@ -25,8 +21,6 @@ bool GLCheckProgram(GLuint prog);
 void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo);
 void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts);
 void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::mat4>& mats);
-std::wstring Utf8ToWide(const char* str);
-bool LoadImageWIC(const char* path, std::vector<uint8_t>& outPixels, int& outW, int& outH);
 GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h);
 GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool* outOk);
@@ -146,116 +140,6 @@ void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-std::wstring Utf8ToWide(const char* str) {
-    if (!str || !str[0]) return {};
-    int len = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
-    if (len <= 1) return {};
-    std::wstring out(len, L'\0');
-    MultiByteToWideChar(CP_UTF8, 0, str, -1, out.data(), len);
-    out.pop_back(); // remove null terminator
-    return out;
-}
-
-bool LoadImageWIC(const char* path, std::vector<uint8_t>& outPixels, int& outW, int& outH) {
-    outPixels.clear();
-    outW = 0;
-    outH = 0;
-    if (!path || !path[0]) return false;
-
-    HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    bool coInit = (hr == S_OK || hr == S_FALSE);
-    if (hr == RPC_E_CHANGED_MODE) {
-        coInit = false;
-    } else if (FAILED(hr)) {
-        return false;
-    }
-
-    IWICImagingFactory* factory = nullptr;
-    hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
-                          IID_IWICImagingFactory, (void**)&factory);
-    if (FAILED(hr)) {
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    std::wstring wpath = Utf8ToWide(path);
-    if (wpath.empty()) {
-        factory->Release();
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    IWICBitmapDecoder* decoder = nullptr;
-    hr = factory->CreateDecoderFromFilename(wpath.c_str(), nullptr, GENERIC_READ,
-                                            WICDecodeMetadataCacheOnLoad, &decoder);
-    if (FAILED(hr)) {
-        factory->Release();
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    IWICBitmapFrameDecode* frame = nullptr;
-    hr = decoder->GetFrame(0, &frame);
-    if (FAILED(hr)) {
-        decoder->Release();
-        factory->Release();
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    IWICFormatConverter* converter = nullptr;
-    hr = factory->CreateFormatConverter(&converter);
-    if (FAILED(hr)) {
-        frame->Release();
-        decoder->Release();
-        factory->Release();
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    hr = converter->Initialize(frame, GUID_WICPixelFormat32bppRGBA,
-                               WICBitmapDitherTypeNone, nullptr, 0.0,
-                               WICBitmapPaletteTypeCustom);
-    if (FAILED(hr)) {
-        converter->Release();
-        frame->Release();
-        decoder->Release();
-        factory->Release();
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    UINT w = 0;
-    UINT h = 0;
-    converter->GetSize(&w, &h);
-    if (w == 0 || h == 0) {
-        converter->Release();
-        frame->Release();
-        decoder->Release();
-        factory->Release();
-        if (coInit) CoUninitialize();
-        return false;
-    }
-
-    outPixels.resize((size_t)w * (size_t)h * 4);
-    hr = converter->CopyPixels(nullptr, w * 4, (UINT)outPixels.size(), outPixels.data());
-
-    converter->Release();
-    frame->Release();
-    decoder->Release();
-    factory->Release();
-    if (coInit) CoUninitialize();
-
-    if (FAILED(hr)) {
-        outPixels.clear();
-        return false;
-    }
-
-    outW = (int)w;
-    outH = (int)h;
-    return true;
-}
-
 GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
@@ -287,7 +171,7 @@ GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t 
     std::vector<uint8_t> pixels;
     int w = 0;
     int h = 0;
-    if (LoadImageWIC(path, pixels, w, h)) {
+    if (LoadImageRGBA(path, pixels, w, h)) {
         if (outOk) *outOk = true;
         return CreateTextureFromRGBA(pixels.data(), w, h);
     }
@@ -325,7 +209,7 @@ GLuint LoadCubemap(const char* faces[6], bool* outOk) {
     for (int i = 0; i < 6; ++i) {
         int wi = 0;
         int hi = 0;
-        if (!LoadImageWIC(faces[i], pixels, wi, hi)) {
+        if (!LoadImageRGBA(faces[i], pixels, wi, hi)) {
             ok = false;
             break;
         }
@@ -496,6 +380,11 @@ bool Renderer::init() {
     if (!grassOk || !noiseOk) {
         SDL_Log("Renderer: using fallback ground texture(s).");
     }
+    bool waterOk = false;
+    texWater = LoadTexture2D("assets/textures/water.png", 40, 80, 120, 255, &waterOk);
+    if (!waterOk) {
+        SDL_Log("Renderer: using fallback water texture.");
+    }
 
     const char* skyFaces[6] = {
         "assets/textures/Daylight Box_Right.png",
@@ -512,8 +401,7 @@ bool Renderer::init() {
     }
 
     // Ground quad
-    const float MAP_SIDE_M = 105500.0f;
-    const float HALF = MAP_SIDE_M * 0.5f;
+    const float HALF = MAP_HALF_M;
     glm::vec3 groundVerts[6] = {
         {-HALF, 0.0f, -HALF},
         { HALF, 0.0f, -HALF},
@@ -546,6 +434,15 @@ bool Renderer::init() {
     glGenBuffers(1, &vboPreview);
     glBindVertexArray(vaoPreview);
     glBindBuffer(GL_ARRAY_BUFFER, vboPreview);
+    glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glBindVertexArray(0);
+
+    glGenVertexArrays(1, &vaoWater);
+    glGenBuffers(1, &vboWater);
+    glBindVertexArray(vaoWater);
+    glBindBuffer(GL_ARRAY_BUFFER, vboWater);
     glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
@@ -606,6 +503,10 @@ void Renderer::resize(int w, int h) {
 
 void Renderer::updateRoadMesh(const std::vector<glm::vec3>& verts) {
     UploadDynamicVerts(vboRoad, capRoad, verts);
+}
+
+void Renderer::updateWaterMesh(const std::vector<glm::vec3>& verts) {
+    UploadDynamicVerts(vboWater, capWater, verts);
 }
 
 void Renderer::updatePreviewMesh(const std::vector<glm::vec3>& verts) {
@@ -714,6 +615,19 @@ void Renderer::render(const RenderFrame& frame) {
     glUniform1i(locNoiseTex_G, 1);
     glBindVertexArray(vaoGround);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    if (frame.waterVertexCount > 0) {
+        glUniform1f(locGrassTile_G, 8.0f);
+        glUniform1f(locNoiseTile_G, 64.0f);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texWater);
+        glUniform1i(locGrassTex_G, 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texNoise);
+        glUniform1i(locNoiseTex_G, 1);
+        glBindVertexArray(vaoWater);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.waterVertexCount);
+    }
 
     glUseProgram(progBasic);
     glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &frame.viewProj[0][0]);
@@ -846,10 +760,11 @@ void Renderer::destroyGL() {
     if (progSky) { glDeleteProgram(progSky); progSky = 0; }
     if (texGrass) { glDeleteTextures(1, &texGrass); texGrass = 0; }
     if (texNoise) { glDeleteTextures(1, &texNoise); texNoise = 0; }
+    if (texWater) { glDeleteTextures(1, &texWater); texWater = 0; }
     if (texSkybox) { glDeleteTextures(1, &texSkybox); texSkybox = 0; }
 
-    GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoSkybox, vaoCubeSingle, vaoCubeInstAnim };
-    GLuint vbos[] = { vboGround, vboRoad, vboPreview, vboCube, vboInstAnim };
+    GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoSkybox, vaoWater, vaoCubeSingle, vaoCubeInstAnim };
+    GLuint vbos[] = { vboGround, vboRoad, vboPreview, vboWater, vboCube, vboInstAnim };
 
     glDeleteVertexArrays((GLsizei)std::size(vaos), vaos);
     glDeleteBuffers((GLsizei)std::size(vbos), vbos);
@@ -862,8 +777,8 @@ void Renderer::destroyGL() {
     }
     houseChunks.clear();
 
-    vaoGround = vaoRoad = vaoPreview = vaoSkybox = vaoCubeSingle = vaoCubeInstAnim = 0;
-    vboGround = vboRoad = vboPreview = vboCube = vboInstAnim = 0;
+    vaoGround = vaoRoad = vaoPreview = vaoSkybox = vaoWater = vaoCubeSingle = vaoCubeInstAnim = 0;
+    vboGround = vboRoad = vboPreview = vboWater = vboCube = vboInstAnim = 0;
 }
 
 void Renderer::shutdown() {
