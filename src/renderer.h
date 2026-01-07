@@ -19,6 +19,11 @@ struct RenderHouseBatch {
     AssetId asset = 0;
 };
 
+struct RoadVertex {
+    glm::vec3 pos{};
+    glm::vec2 uv{};
+};
+
 struct RenderFrame {
     glm::mat4 viewProj{1.0f};
     glm::mat4 viewProjSky{1.0f};
@@ -53,7 +58,7 @@ class Renderer {
 public:
     bool init();
     void resize(int w, int h);
-    void updateRoadMesh(const std::vector<glm::vec3>& verts);
+    void updateRoadMesh(const std::vector<RoadVertex>& verts);
     void updateWaterMesh(const std::vector<glm::vec3>& verts);
     void updatePreviewMesh(const std::vector<glm::vec3>& verts);
     void updateHouseChunk(uint64_t key, AssetId assetId, const MeshGpu& mesh, const std::vector<HouseInstanceGPU>& instances);
@@ -68,6 +73,7 @@ private:
     unsigned int progBasic = 0;
     unsigned int progInst = 0;
     unsigned int progGround = 0;
+    unsigned int progRoad = 0;
     unsigned int progSky = 0;
     unsigned int progDepth = 0;
     unsigned int progDepthInst = 0;
@@ -107,6 +113,18 @@ private:
     int locShadowMap_G = -1;
     int locShadowTexel_G = -1;
     int locShadowStrength_G = -1;
+    int locVP_R = -1;
+    int locLightVP_R = -1;
+    int locRoadTex_R = -1;
+    int locSunDir_R = -1;
+    int locSunColor_R = -1;
+    int locSunInt_R = -1;
+    int locAmbColor_R = -1;
+    int locAmbInt_R = -1;
+    int locExposure_R = -1;
+    int locShadowMap_R = -1;
+    int locShadowTexel_R = -1;
+    int locShadowStrength_R = -1;
     int locVP_S = -1;
     int locSkyTex_S = -1;
     int locSkyBright_S = -1;
@@ -121,6 +139,7 @@ private:
     unsigned int texGrass = 0;
     unsigned int texNoise = 0;
     unsigned int texWater = 0;
+    unsigned int texRoad = 0;
     unsigned int vaoSkybox = 0;
     unsigned int texSkybox = 0;
     unsigned int vaoWater = 0;

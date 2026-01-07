@@ -323,6 +323,7 @@ constexpr int   ZONE_DEPTH_CELLS = 6;
 constexpr float ZONE_DEPTH_M = ZONE_DEPTH_CELLS * ZONE_CELL_M; // 48m with 8m cells
 constexpr float ROAD_WIDTH_M = 16.0f;
 constexpr float ROAD_HALF_M = ROAD_WIDTH_M * 0.5f;
+constexpr float ROAD_TEX_TILE_M = ROAD_WIDTH_M;
 constexpr float WATER_SURFACE_Y = 0.02f;
 constexpr uint8_t ZONE_TYPE_SHIFT = 3;
 constexpr uint8_t ZONE_TYPE_MASK = 0x18; // 2 bits for 4 zone types
@@ -420,7 +421,7 @@ struct AppState {
     bool zonesDirty = true;
     bool housesDirty = true;
 
-    std::vector<glm::vec3> roadMeshVerts;
+    std::vector<RoadVertex> roadMeshVerts;
     std::vector<glm::vec3> zonePreviewVerts;
 
     std::vector<glm::mat4> houseStatic;
@@ -1148,6 +1149,7 @@ static void RebuildAllRoadMesh(AppState& s) {
 
     for (const auto& r : s.roads) {
         if (r.pts.size() < 2) continue;
+        float vAccum = 0.0f;
         for (size_t i = 0; i + 1 < r.pts.size(); i++) {
             glm::vec3 a = r.pts[i];
             glm::vec3 b = r.pts[i+1];
@@ -1166,13 +1168,17 @@ static void RebuildAllRoadMesh(AppState& s) {
             glm::vec3 bL = b - off; bL.y = y;
             glm::vec3 bR = b + off; bR.y = y;
 
-            s.roadMeshVerts.push_back(aL);
-            s.roadMeshVerts.push_back(aR);
-            s.roadMeshVerts.push_back(bR);
+            float v0 = vAccum / ROAD_TEX_TILE_M;
+            float v1 = (vAccum + l) / ROAD_TEX_TILE_M;
+            vAccum += l;
 
-            s.roadMeshVerts.push_back(aL);
-            s.roadMeshVerts.push_back(bR);
-            s.roadMeshVerts.push_back(bL);
+            s.roadMeshVerts.push_back({aL, glm::vec2(0.0f, v0)});
+            s.roadMeshVerts.push_back({aR, glm::vec2(1.0f, v0)});
+            s.roadMeshVerts.push_back({bR, glm::vec2(1.0f, v1)});
+
+            s.roadMeshVerts.push_back({aL, glm::vec2(0.0f, v0)});
+            s.roadMeshVerts.push_back({bR, glm::vec2(1.0f, v1)});
+            s.roadMeshVerts.push_back({bL, glm::vec2(0.0f, v1)});
         }
     }
 }
@@ -2764,9 +2770,13 @@ int main(int, char**) {
         }
 
         // Shifted road mesh for rendering
-        std::vector<glm::vec3> roadRenderVerts;
+        std::vector<RoadVertex> roadRenderVerts;
         roadRenderVerts.reserve(state.roadMeshVerts.size());
-        for (const auto& v : state.roadMeshVerts) roadRenderVerts.push_back(v - renderOrigin);
+        for (const auto& v : state.roadMeshVerts) {
+            RoadVertex rv = v;
+            rv.pos -= renderOrigin;
+            roadRenderVerts.push_back(rv);
+        }
         renderer.updateRoadMesh(roadRenderVerts);
 
         RenderFrame frame;

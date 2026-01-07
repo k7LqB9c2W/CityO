@@ -25,6 +25,7 @@ bool GLCheckShader(GLuint shader, const char* label);
 bool GLCheckProgram(GLuint prog);
 void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo);
 void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts);
+void UploadDynamicRoadVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<RoadVertex>& verts);
 void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::mat4>& mats);
 GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h);
 GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
@@ -113,6 +114,24 @@ void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo) {
 void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts) {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     std::size_t bytes = verts.size() * sizeof(glm::vec3);
+    if (bytes == 0) {
+        glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
+        capacityBytes = 0;
+    } else {
+        if (bytes > capacityBytes) {
+            capacityBytes = (std::size_t)(bytes * 1.5f) + 256;
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capacityBytes, nullptr, GL_DYNAMIC_DRAW);
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)capacityBytes, nullptr, GL_DYNAMIC_DRAW); // orphan
+        }
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (GLsizeiptr)bytes, verts.data());
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void UploadDynamicRoadVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<RoadVertex>& verts) {
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    std::size_t bytes = verts.size() * sizeof(RoadVertex);
     if (bytes == 0) {
         glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
         capacityBytes = 0;
@@ -343,6 +362,24 @@ bool Renderer::init() {
         }
     )";
 
+    const char* vsRoad = R"(
+        #version 330 core
+        layout(location=0) in vec3 aPos;
+        layout(location=1) in vec2 aUV;
+        uniform mat4 uViewProj;
+        uniform mat4 uLightViewProj;
+        out vec2 vUV;
+        out vec3 vNormal;
+        out vec4 vLightPos;
+        void main() {
+            vec4 world = vec4(aPos, 1.0);
+            vUV = aUV;
+            vNormal = vec3(0.0, 1.0, 0.0);
+            vLightPos = uLightViewProj * world;
+            gl_Position = uViewProj * world;
+        }
+    )";
+
     const char* vsSky = R"(
         #version 330 core
         layout(location=0) in vec3 aPos;
@@ -449,6 +486,59 @@ bool Renderer::init() {
         }
     )";
 
+    const char* fsRoad = R"(
+        #version 330 core
+        in vec2 vUV;
+        in vec3 vNormal;
+        in vec4 vLightPos;
+        out vec4 FragColor;
+        uniform sampler2D uRoadTex;
+        uniform vec3 uSunDir;
+        uniform vec3 uSunColor;
+        uniform float uSunIntensity;
+        uniform vec3 uAmbientColor;
+        uniform float uAmbientIntensity;
+        uniform float uExposure;
+        uniform sampler2DShadow uShadowMap;
+        uniform vec2 uShadowTexel;
+        uniform float uShadowStrength;
+        vec3 ToneMap(vec3 color) {
+            color *= uExposure;
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0 / 2.2));
+            return color;
+        }
+        float ShadowVisibility(vec4 lightPos, vec3 normal) {
+            if (uShadowStrength <= 0.0) return 1.0;
+            vec3 proj = lightPos.xyz / lightPos.w;
+            proj = proj * 0.5 + 0.5;
+            if (proj.z > 1.0 || proj.x < 0.0 || proj.x > 1.0 || proj.y < 0.0 || proj.y > 1.0) {
+                return 1.0;
+            }
+            float ndotl = max(dot(normal, uSunDir), 0.0);
+            float bias = max(0.0015 * (1.0 - ndotl), 0.0005);
+            float shadow = 0.0;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    vec2 offset = vec2(x, y) * uShadowTexel;
+                    shadow += texture(uShadowMap, vec3(proj.xy + offset, proj.z - bias));
+                }
+            }
+            shadow /= 9.0;
+            return mix(1.0, shadow, uShadowStrength);
+        }
+        void main() {
+            vec3 base = texture(uRoadTex, vUV).rgb;
+            vec3 normal = normalize(vNormal);
+            float ndotl = max(dot(normal, uSunDir), 0.0);
+            float shadow = ShadowVisibility(vLightPos, normal);
+            vec3 ambient = uAmbientColor * uAmbientIntensity;
+            vec3 direct = uSunColor * uSunIntensity * ndotl * shadow;
+            vec3 color = base * (ambient + direct);
+            FragColor = vec4(ToneMap(color), 1.0);
+        }
+    )";
+
     const char* fsInst = R"(
         #version 330 core
         in vec3 vNormal;
@@ -541,10 +631,11 @@ bool Renderer::init() {
     progBasic = MakeProgram(vsBasic, fsColor);
     progInst = MakeProgram(vsInstanced, fsInst);
     progGround = MakeProgram(vsGround, fsGround);
+    progRoad = MakeProgram(vsRoad, fsRoad);
     progSky = MakeProgram(vsSky, fsSky);
     progDepth = MakeProgram(vsDepth, fsDepth);
     progDepthInst = MakeProgram(vsDepthInst, fsDepth);
-    if (!progBasic || !progInst || !progGround || !progSky || !progDepth || !progDepthInst) return false;
+    if (!progBasic || !progInst || !progGround || !progRoad || !progSky || !progDepth || !progDepthInst) return false;
 
     locVP_B = glGetUniformLocation(progBasic, "uViewProj");
     locM_B = glGetUniformLocation(progBasic, "uModel");
@@ -581,6 +672,18 @@ bool Renderer::init() {
     locShadowMap_G = glGetUniformLocation(progGround, "uShadowMap");
     locShadowTexel_G = glGetUniformLocation(progGround, "uShadowTexel");
     locShadowStrength_G = glGetUniformLocation(progGround, "uShadowStrength");
+    locVP_R = glGetUniformLocation(progRoad, "uViewProj");
+    locLightVP_R = glGetUniformLocation(progRoad, "uLightViewProj");
+    locRoadTex_R = glGetUniformLocation(progRoad, "uRoadTex");
+    locSunDir_R = glGetUniformLocation(progRoad, "uSunDir");
+    locSunColor_R = glGetUniformLocation(progRoad, "uSunColor");
+    locSunInt_R = glGetUniformLocation(progRoad, "uSunIntensity");
+    locAmbColor_R = glGetUniformLocation(progRoad, "uAmbientColor");
+    locAmbInt_R = glGetUniformLocation(progRoad, "uAmbientIntensity");
+    locExposure_R = glGetUniformLocation(progRoad, "uExposure");
+    locShadowMap_R = glGetUniformLocation(progRoad, "uShadowMap");
+    locShadowTexel_R = glGetUniformLocation(progRoad, "uShadowTexel");
+    locShadowStrength_R = glGetUniformLocation(progRoad, "uShadowStrength");
     locVP_S = glGetUniformLocation(progSky, "uViewProj");
     locSkyTex_S = glGetUniformLocation(progSky, "uSkybox");
     locSkyBright_S = glGetUniformLocation(progSky, "uSkyBrightness");
@@ -596,6 +699,9 @@ bool Renderer::init() {
         locGrassTex_G < 0 || locNoiseTex_G < 0 || locSunDir_G < 0 || locSunColor_G < 0 ||
         locSunInt_G < 0 || locAmbColor_G < 0 || locAmbInt_G < 0 || locExposure_G < 0 ||
         locLightVP_G < 0 || locShadowMap_G < 0 || locShadowTexel_G < 0 || locShadowStrength_G < 0 ||
+        locVP_R < 0 || locLightVP_R < 0 || locRoadTex_R < 0 || locSunDir_R < 0 ||
+        locSunColor_R < 0 || locSunInt_R < 0 || locAmbColor_R < 0 || locAmbInt_R < 0 ||
+        locExposure_R < 0 || locShadowMap_R < 0 || locShadowTexel_R < 0 || locShadowStrength_R < 0 ||
         locVP_S < 0 || locSkyTex_S < 0 || locSkyBright_S < 0 || locExposure_S < 0 ||
         locLightVP_D < 0 || locM_D < 0 || locLightVP_DI < 0) {
         SDL_Log("Renderer init failed: missing uniforms.");
@@ -617,6 +723,11 @@ bool Renderer::init() {
     texWater = LoadTexture2D("assets/textures/water.png", 40, 80, 120, 255, &waterOk);
     if (!waterOk) {
         SDL_Log("Renderer: using fallback water texture.");
+    }
+    bool roadOk = false;
+    texRoad = LoadTexture2D("assets/textures/residentialroad.png", 70, 70, 70, 255, &roadOk);
+    if (!roadOk) {
+        SDL_Log("Renderer: using fallback road texture.");
     }
 
     const char* skyFaces[6] = {
@@ -660,7 +771,9 @@ bool Renderer::init() {
     glBindBuffer(GL_ARRAY_BUFFER, vboRoad);
     glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(RoadVertex), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(RoadVertex), (void*)(sizeof(glm::vec3)));
     glBindVertexArray(0);
 
     glGenVertexArrays(1, &vaoPreview);
@@ -740,8 +853,8 @@ void Renderer::resize(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
-void Renderer::updateRoadMesh(const std::vector<glm::vec3>& verts) {
-    UploadDynamicVerts(vboRoad, capRoad, verts);
+void Renderer::updateRoadMesh(const std::vector<RoadVertex>& verts) {
+    UploadDynamicRoadVerts(vboRoad, capRoad, verts);
 }
 
 void Renderer::updateWaterMesh(const std::vector<glm::vec3>& verts) {
@@ -930,14 +1043,32 @@ void Renderer::render(const RenderFrame& frame) {
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.waterVertexCount);
     }
 
+    if (frame.roadVertexCount > 0) {
+        glUseProgram(progRoad);
+        glUniformMatrix4fv(locVP_R, 1, GL_FALSE, &frame.viewProj[0][0]);
+        glUniformMatrix4fv(locLightVP_R, 1, GL_FALSE, &frame.lightViewProj[0][0]);
+        glUniform3f(locSunDir_R, frame.lighting.sunDir.x, frame.lighting.sunDir.y, frame.lighting.sunDir.z);
+        glUniform3f(locSunColor_R, frame.lighting.sunColor.x, frame.lighting.sunColor.y, frame.lighting.sunColor.z);
+        glUniform1f(locSunInt_R, frame.lighting.sunIntensity);
+        glUniform3f(locAmbColor_R, frame.lighting.ambientColor.x, frame.lighting.ambientColor.y, frame.lighting.ambientColor.z);
+        glUniform1f(locAmbInt_R, frame.lighting.ambientIntensity);
+        glUniform1f(locExposure_R, frame.lighting.exposure);
+        glUniform1f(locShadowStrength_R, shadowStrength);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texRoad);
+        glUniform1i(locRoadTex_R, 0);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, shadowTex);
+        glUniform1i(locShadowMap_R, 2);
+        glUniform2f(locShadowTexel_R, 1.0f / (float)shadowMapSize, 1.0f / (float)shadowMapSize);
+        glBindVertexArray(vaoRoad);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.roadVertexCount);
+    }
+
     glUseProgram(progBasic);
     glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &frame.viewProj[0][0]);
     glUniformMatrix4fv(locM_B, 1, GL_FALSE, &I[0][0]);
     glUniform1f(locExposure_B, frame.lighting.exposure);
-    glUniform3f(locC_B, 0.18f, 0.18f, 0.18f);
-    glUniform1f(locA_B, 1.0f);
-    glBindVertexArray(vaoRoad);
-    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)frame.roadVertexCount);
 
     // Preview overlay
     std::size_t overlayTotal = frame.zoneResidentialVertexCount
@@ -1071,12 +1202,14 @@ void Renderer::destroyGL() {
     if (progBasic) { glDeleteProgram(progBasic); progBasic = 0; }
     if (progInst) { glDeleteProgram(progInst); progInst = 0; }
     if (progGround) { glDeleteProgram(progGround); progGround = 0; }
+    if (progRoad) { glDeleteProgram(progRoad); progRoad = 0; }
     if (progSky) { glDeleteProgram(progSky); progSky = 0; }
     if (progDepth) { glDeleteProgram(progDepth); progDepth = 0; }
     if (progDepthInst) { glDeleteProgram(progDepthInst); progDepthInst = 0; }
     if (texGrass) { glDeleteTextures(1, &texGrass); texGrass = 0; }
     if (texNoise) { glDeleteTextures(1, &texNoise); texNoise = 0; }
     if (texWater) { glDeleteTextures(1, &texWater); texWater = 0; }
+    if (texRoad) { glDeleteTextures(1, &texRoad); texRoad = 0; }
     if (texSkybox) { glDeleteTextures(1, &texSkybox); texSkybox = 0; }
     if (shadowTex) { glDeleteTextures(1, &shadowTex); shadowTex = 0; }
     if (shadowFbo) { glDeleteFramebuffers(1, &shadowFbo); shadowFbo = 0; }

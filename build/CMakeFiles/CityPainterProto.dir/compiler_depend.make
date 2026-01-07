@@ -1557,6 +1557,268 @@ CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj: "C:\Program Files\Micr
 CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cctype"
 
 
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: C:\CityG\src\lighting.cpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: C:\CityG\src\lighting.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\glm.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cmath"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\yvals.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\yvals_core.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\sal.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\concurrencysal.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vadefs.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xkeycheck.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\crtdbg.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new_debug.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_new.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\crtdefs.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\use_ansi.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdlib"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\math.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_math.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\stdlib.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_malloc.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_search.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\stddef.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wstdlib.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xtr1common"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin0.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin0.inl.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\assert.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstddef"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\simd\platform.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdint"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\stdint.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\type_traits"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\climits"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cfloat"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\float.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\limits"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cwchar"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstdio"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\stdio.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wstdio.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_stdio_config.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\wchar.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_memcpy_s.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\errno.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_string.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wconio.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wctype.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wdirect.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wio.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_share.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wprocess.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wstring.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_wtime.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\sys\stat.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\sys\types.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\intrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\setjmp.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\immintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\wmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\nmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\smmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\tmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\pmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\emmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\mmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\malloc.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\zmmintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\ammintrin.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\assert.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\fwd.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\qualifier.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\vec2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec2.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\.\compute_vector_relational.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int2_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_int_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint2_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\ext\scalar_uint_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\vec3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec3.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\compute_vector_decl.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\functional"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\exception"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_exception.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\eh.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_terminate.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\tuple"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_iter_core.hpp"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\utility"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\initializer_list"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\typeinfo"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vcruntime_typeinfo.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xmemory"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\new"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xatomic.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xutility"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cstring"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\string.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\corecrt_memory.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\unordered_map"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xhash"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\list"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xpolymorphic_allocator.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\vector"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_bit_utils.hpp"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\__msvc_sanitizer_annotate_container.hpp"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xbit_ops.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\xnode_handle.h"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\_vectorize.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int3_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint3_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\vec4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_vec4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec4.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_bool4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_float4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_double4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_int4_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\vector_uint4_sized.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat2x2.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\matrix.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat2x3.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat2x4.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat3x2.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat3x3.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\common.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\_fixes.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_common.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\vector_relational.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_vector_relational.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\compute_common.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec1.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_vec1.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat3x4.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double3x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float3x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat4x2.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat4x3.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x3_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\mat4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\type_mat4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_mat4x4.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\geometric.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_geometric.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\..\exponential.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_exponential.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cassert"
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: D:\include\10.0.26100.0\ucrt\assert.h
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double4x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float4x4_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_matrix.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_double2x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x2.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\.\ext\matrix_float2x2_precision.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\trigonometric.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_trigonometric.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\packing.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_packing.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_half.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\type_half.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\integer.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\detail\func_integer.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\constants.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\scalar_constants.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\..\detail\setup.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\scalar_constants.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\constants.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_projection.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_projection.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_clip_space.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_clip_space.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_transform.hpp
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\ext\matrix_transform.inl
+CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj: vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.inl
+
+
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: C:\CityG\src\main.cpp
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL.h
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: vcpkg_installed\x64-windows\include\SDL2\SDL_main.h
@@ -2076,6 +2338,7 @@ CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: vcpkg_installed\x64-windows\in
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: vcpkg_installed\x64-windows\include\nlohmann\thirdparty\hedley\hedley_undef.hpp
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: C:\CityG\src\renderer.h
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: C:\CityG\src\asset_catalog.h
+CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: C:\CityG\src\lighting.h
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: C:\CityG\src\mesh_cache.h
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\unordered_set"
 CMakeFiles\CityPainterProto.dir\src\main.cpp.obj: C:\CityG\src\config.h
@@ -2785,6 +3048,7 @@ CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsof
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\iosfwd"
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\cctype"
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: D:\include\10.0.26100.0\ucrt\ctype.h
+CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: C:\CityG\src\lighting.h
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: C:\CityG\src\config.h
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: C:\CityG\src\image_loader.h
 CMakeFiles\CityPainterProto.dir\src\renderer.cpp.obj: C:\CityG\src\mesh_cache.h
@@ -3114,6 +3378,8 @@ C:\CityG\external\imgui\imstb_textedit.h:
 vcpkg_installed\x64-windows\include\glm\detail\..\geometric.hpp:
 
 D:\\include\10.0.26100.0\\shared\specstrings_undef.h:
+
+vcpkg_installed\x64-windows\include\glm\gtc\constants.hpp:
 
 D:\include\10.0.26100.0\shared\sdv_driverspecs.h:
 
@@ -4101,17 +4367,17 @@ D:\include\10.0.26100.0\shared\dxgicommon.h:
 
 D:\\include\10.0.26100.0\\shared\intsafe.h:
 
-vcpkg_installed\x64-windows\include\glad\glad.h:
+C:\CityG\src\lighting.cpp:
 
-vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.hpp:
-
-vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_projection.hpp:
-
-vcpkg_installed\x64-windows\include\glm\ext\..\gtc\constants.hpp:
+C:\CityG\src\lighting.h:
 
 vcpkg_installed\x64-windows\include\glm\gtc\..\ext\scalar_constants.hpp:
 
 vcpkg_installed\x64-windows\include\glm\ext\scalar_constants.inl:
+
+vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.hpp:
+
+vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_projection.hpp:
 
 vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_clip_space.hpp:
 
@@ -4122,6 +4388,10 @@ vcpkg_installed\x64-windows\include\glm\gtc\..\ext\matrix_transform.hpp:
 vcpkg_installed\x64-windows\include\glm\ext\matrix_transform.inl:
 
 vcpkg_installed\x64-windows\include\glm\gtc\matrix_transform.inl:
+
+vcpkg_installed\x64-windows\include\glad\glad.h:
+
+vcpkg_installed\x64-windows\include\glm\ext\..\gtc\constants.hpp:
 
 C:\CityG\src\renderer.h:
 
