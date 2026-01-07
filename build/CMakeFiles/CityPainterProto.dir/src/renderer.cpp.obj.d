@@ -251,6 +251,7 @@ C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.3443
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/iosfwd
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/cctype
 D:/include/10.0.26100.0/ucrt/ctype.h
+C:/CityG/src/lighting.h
 C:/CityG/src/config.h
 C:/CityG/src/image_loader.h
 C:/CityG/src/mesh_cache.h

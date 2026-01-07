@@ -310,6 +310,30 @@ src\image_loader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\image_loader.cpp.s
 .PHONY : src\image_loader.cpp.s
 
+src\lighting.obj: src\lighting.cpp.obj
+.PHONY : src\lighting.obj
+
+# target to build an object file
+src\lighting.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\lighting.cpp.obj
+.PHONY : src\lighting.cpp.obj
+
+src\lighting.i: src\lighting.cpp.i
+.PHONY : src\lighting.i
+
+# target to preprocess a source file
+src\lighting.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\lighting.cpp.i
+.PHONY : src\lighting.cpp.i
+
+src\lighting.s: src\lighting.cpp.s
+.PHONY : src\lighting.s
+
+# target to generate assembly for a file
+src\lighting.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\src\lighting.cpp.s
+.PHONY : src\lighting.cpp.s
+
 src\main.obj: src\main.cpp.obj
 .PHONY : src\main.obj
 
@@ -415,6 +439,9 @@ help:
 	@echo ... src/image_loader.obj
 	@echo ... src/image_loader.i
 	@echo ... src/image_loader.s
+	@echo ... src/lighting.obj
+	@echo ... src/lighting.i
+	@echo ... src/lighting.s
 	@echo ... src/main.obj
 	@echo ... src/main.i
 	@echo ... src/main.s

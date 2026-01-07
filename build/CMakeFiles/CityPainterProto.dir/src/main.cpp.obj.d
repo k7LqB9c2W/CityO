@@ -516,6 +516,7 @@ C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/detail/macro_unscope
 C:/CityG/build/vcpkg_installed/x64-windows/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
 C:/CityG/src/renderer.h
 C:/CityG/src/asset_catalog.h
+C:/CityG/src/lighting.h
 C:/CityG/src/mesh_cache.h
 C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/include/unordered_set
 C:/CityG/src/config.h

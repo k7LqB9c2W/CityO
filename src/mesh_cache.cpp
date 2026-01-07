@@ -15,6 +15,11 @@ std::string JoinPath(const std::string& root, const std::string& rel) {
     return full.string();
 }
 
+struct VertexPN {
+    glm::vec3 pos;
+    glm::vec3 normal;
+};
+
 } // namespace
 
 bool MeshCache::init() {
@@ -94,24 +99,28 @@ bool MeshCache::loadGltfMesh(const std::string& path, MeshGpu& out) {
 
     const cgltf_primitive* prim = &mesh->primitives[0];
     const cgltf_accessor* posAcc = nullptr;
+    const cgltf_accessor* normAcc = nullptr;
     for (size_t i = 0; i < prim->attributes_count; i++) {
         const cgltf_attribute& attr = prim->attributes[i];
         if (attr.type == cgltf_attribute_type_position) {
             posAcc = attr.data;
-            break;
+        } else if (attr.type == cgltf_attribute_type_normal) {
+            normAcc = attr.data;
         }
     }
 
-    if (!posAcc || posAcc->component_type != cgltf_component_type_r_32f || posAcc->type != cgltf_type_vec3) {
+    if (!posAcc || posAcc->type != cgltf_type_vec3) {
         SDL_Log("MeshCache: missing POSITION attribute in %s", path.c_str());
         cgltf_free(data);
         return false;
     }
 
     const size_t vertCount = posAcc->count;
-    std::vector<float> positions(vertCount * 3);
+    std::vector<glm::vec3> positions(vertCount);
     for (size_t i = 0; i < vertCount; i++) {
-        cgltf_accessor_read_float(posAcc, i, &positions[i * 3], 3);
+        float v[3] = {0.0f, 0.0f, 0.0f};
+        cgltf_accessor_read_float(posAcc, i, v, 3);
+        positions[i] = glm::vec3(v[0], v[1], v[2]);
     }
 
     std::vector<uint32_t> indices;
@@ -124,12 +133,63 @@ bool MeshCache::loadGltfMesh(const std::string& path, MeshGpu& out) {
         }
     }
 
+    std::vector<glm::vec3> normals(vertCount, glm::vec3(0.0f));
+    bool hasNormals = (normAcc && normAcc->type == cgltf_type_vec3 && normAcc->count == vertCount);
+    if (hasNormals) {
+        for (size_t i = 0; i < vertCount; i++) {
+            float v[3] = {0.0f, 1.0f, 0.0f};
+            cgltf_accessor_read_float(normAcc, i, v, 3);
+            normals[i] = glm::vec3(v[0], v[1], v[2]);
+        }
+    } else {
+        if (indexed && indices.size() >= 3) {
+            size_t triCount = indices.size() / 3;
+            for (size_t t = 0; t < triCount; t++) {
+                uint32_t i0 = indices[t * 3 + 0];
+                uint32_t i1 = indices[t * 3 + 1];
+                uint32_t i2 = indices[t * 3 + 2];
+                if (i0 >= vertCount || i1 >= vertCount || i2 >= vertCount) continue;
+                glm::vec3 e0 = positions[i1] - positions[i0];
+                glm::vec3 e1 = positions[i2] - positions[i0];
+                glm::vec3 n = glm::cross(e0, e1);
+                float len = glm::length(n);
+                if (len > 1e-6f) {
+                    n /= len;
+                    normals[i0] += n;
+                    normals[i1] += n;
+                    normals[i2] += n;
+                }
+            }
+            for (size_t i = 0; i < vertCount; i++) {
+                float len = glm::length(normals[i]);
+                normals[i] = (len > 1e-6f) ? normals[i] / len : glm::vec3(0.0f, 1.0f, 0.0f);
+            }
+        } else {
+            for (size_t i = 0; i + 2 < vertCount; i += 3) {
+                glm::vec3 e0 = positions[i + 1] - positions[i];
+                glm::vec3 e1 = positions[i + 2] - positions[i];
+                glm::vec3 n = glm::cross(e0, e1);
+                float len = glm::length(n);
+                n = (len > 1e-6f) ? (n / len) : glm::vec3(0.0f, 1.0f, 0.0f);
+                normals[i] = n;
+                normals[i + 1] = n;
+                normals[i + 2] = n;
+            }
+        }
+    }
+
     cgltf_free(data);
+
+    std::vector<VertexPN> vertices(vertCount);
+    for (size_t i = 0; i < vertCount; i++) {
+        vertices[i].pos = positions[i];
+        vertices[i].normal = normals[i];
+    }
 
     MeshGpu meshOut;
     glGenBuffers(1, &meshOut.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, meshOut.vbo);
-    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(positions.size() * sizeof(float)), positions.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(vertices.size() * sizeof(VertexPN)), vertices.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     if (indexed && !indices.empty()) {
@@ -144,26 +204,26 @@ bool MeshCache::loadGltfMesh(const std::string& path, MeshGpu& out) {
         meshOut.vertexCount = (GLsizei)vertCount;
     }
 
-    meshOut.vertexStride = (GLsizei)sizeof(glm::vec3);
+    meshOut.vertexStride = (GLsizei)sizeof(VertexPN);
     meshOut.vertexCount = (GLsizei)vertCount;
     out = meshOut;
     return true;
 }
 
 void MeshCache::buildFallbackCube() {
-    static const float cubeVerts[] = {
-        -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,  0.5f, 0.5f, 0.5f,
-        -0.5f,-0.5f, 0.5f,  0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
-         0.5f,-0.5f,-0.5f, -0.5f,-0.5f,-0.5f, -0.5f, 0.5f,-0.5f,
-         0.5f,-0.5f,-0.5f, -0.5f, 0.5f,-0.5f,  0.5f, 0.5f,-0.5f,
-         0.5f,-0.5f, 0.5f,  0.5f,-0.5f,-0.5f,  0.5f, 0.5f,-0.5f,
-         0.5f,-0.5f, 0.5f,  0.5f, 0.5f,-0.5f,  0.5f, 0.5f, 0.5f,
-        -0.5f,-0.5f,-0.5f, -0.5f,-0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
-        -0.5f,-0.5f,-0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f,-0.5f,
-        -0.5f, 0.5f, 0.5f,  0.5f, 0.5f, 0.5f,  0.5f, 0.5f,-0.5f,
-        -0.5f, 0.5f, 0.5f,  0.5f, 0.5f,-0.5f, -0.5f, 0.5f,-0.5f,
-        -0.5f,-0.5f,-0.5f,  0.5f,-0.5f,-0.5f,  0.5f,-0.5f, 0.5f,
-        -0.5f,-0.5f,-0.5f,  0.5f,-0.5f, 0.5f, -0.5f,-0.5f, 0.5f,
+    static const VertexPN cubeVerts[] = {
+        {{-0.5f,-0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{ 0.5f,-0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}},
+        {{-0.5f,-0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{-0.5f, 0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}},
+        {{ 0.5f,-0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{-0.5f,-0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{-0.5f, 0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}},
+        {{ 0.5f,-0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{-0.5f, 0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}},
+        {{ 0.5f,-0.5f, 0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f,-0.5f,-0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 1.0f, 0.0f, 0.0f}},
+        {{ 0.5f,-0.5f, 0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 1.0f, 0.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f,-0.5f, 0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f, 0.5f, 0.5f},{-1.0f, 0.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f, 0.5f, 0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f, 0.5f,-0.5f},{-1.0f, 0.0f, 0.0f}},
+        {{-0.5f, 0.5f, 0.5f},{ 0.0f, 1.0f, 0.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 0.0f, 1.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f, 0.5f},{ 0.0f, 1.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f,-0.5f},{ 0.0f, 1.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{ 0.0f,-1.0f, 0.0f}}, {{ 0.5f,-0.5f,-0.5f},{ 0.0f,-1.0f, 0.0f}}, {{ 0.5f,-0.5f, 0.5f},{ 0.0f,-1.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{ 0.0f,-1.0f, 0.0f}}, {{ 0.5f,-0.5f, 0.5f},{ 0.0f,-1.0f, 0.0f}}, {{-0.5f,-0.5f, 0.5f},{ 0.0f,-1.0f, 0.0f}},
     };
 
     glGenBuffers(1, &fallback.vbo);
@@ -171,7 +231,7 @@ void MeshCache::buildFallbackCube() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVerts), cubeVerts, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    fallback.vertexStride = (GLsizei)sizeof(glm::vec3);
+    fallback.vertexStride = (GLsizei)sizeof(VertexPN);
     fallback.vertexCount = 36;
     fallback.indexCount = 0;
     fallback.indexed = false;

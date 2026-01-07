@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "asset_catalog.h"
+#include "lighting.h"
 
 struct RenderMarker {
     glm::vec3 pos{};
@@ -21,6 +22,10 @@ struct RenderHouseBatch {
 struct RenderFrame {
     glm::mat4 viewProj{1.0f};
     glm::mat4 viewProjSky{1.0f};
+    glm::mat4 lightViewProj{1.0f};
+    glm::vec3 cameraPos{0.0f};
+    glm::vec3 cameraTarget{0.0f};
+    LightingParams lighting;
     std::size_t roadVertexCount = 0;
     std::size_t waterVertexCount = 0;
     std::size_t gridVertexCount = 0;
@@ -64,23 +69,51 @@ private:
     unsigned int progInst = 0;
     unsigned int progGround = 0;
     unsigned int progSky = 0;
+    unsigned int progDepth = 0;
+    unsigned int progDepthInst = 0;
 
     // Uniform locations
     int locVP_B = -1;
     int locM_B = -1;
     int locC_B = -1;
     int locA_B = -1;
+    int locExposure_B = -1;
     int locVP_I = -1;
     int locC_I = -1;
     int locA_I = -1;
+    int locSunDir_I = -1;
+    int locSunColor_I = -1;
+    int locSunInt_I = -1;
+    int locAmbColor_I = -1;
+    int locAmbInt_I = -1;
+    int locExposure_I = -1;
+    int locLightVP_I = -1;
+    int locShadowMap_I = -1;
+    int locShadowTexel_I = -1;
+    int locShadowStrength_I = -1;
     int locVP_G = -1;
     int locM_G = -1;
     int locGrassTile_G = -1;
     int locNoiseTile_G = -1;
     int locGrassTex_G = -1;
     int locNoiseTex_G = -1;
+    int locSunDir_G = -1;
+    int locSunColor_G = -1;
+    int locSunInt_G = -1;
+    int locAmbColor_G = -1;
+    int locAmbInt_G = -1;
+    int locExposure_G = -1;
+    int locLightVP_G = -1;
+    int locShadowMap_G = -1;
+    int locShadowTexel_G = -1;
+    int locShadowStrength_G = -1;
     int locVP_S = -1;
     int locSkyTex_S = -1;
+    int locSkyBright_S = -1;
+    int locExposure_S = -1;
+    int locLightVP_D = -1;
+    int locM_D = -1;
+    int locLightVP_DI = -1;
 
     // Buffers / VAOs
     unsigned int vaoGround = 0;
@@ -104,6 +137,13 @@ private:
 
     unsigned int vaoCubeInstAnim = 0;
     unsigned int vboInstAnim = 0;
+
+    unsigned int shadowFbo = 0;
+    unsigned int shadowTex = 0;
+    int shadowMapSize = 2048;
+
+    int viewportW = 0;
+    int viewportH = 0;
 
     struct ChunkBuf {
         unsigned int vao = 0;

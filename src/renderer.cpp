@@ -15,6 +15,11 @@
 
 namespace {
 
+struct VertexPN {
+    glm::vec3 pos;
+    glm::vec3 normal;
+};
+
 GLuint MakeProgram(const char* vsSrc, const char* fsSrc);
 bool GLCheckShader(GLuint shader, const char* label);
 bool GLCheckProgram(GLuint prog);
@@ -26,6 +31,7 @@ GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool* outOk);
 GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 GLuint LoadCubemap(const char* faces[6], bool* outOk);
+bool CreateShadowMap(int size, GLuint& outFbo, GLuint& outTex);
 
 bool GLCheckShader(GLuint shader, const char* label) {
     GLint ok = 0;
@@ -240,6 +246,36 @@ GLuint LoadCubemap(const char* faces[6], bool* outOk) {
     return tex;
 }
 
+bool CreateShadowMap(int size, GLuint& outFbo, GLuint& outTex) {
+    glGenTextures(1, &outTex);
+    glBindTexture(GL_TEXTURE_2D, outTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, size, size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float border[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenFramebuffers(1, &outFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, outFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, outTex, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    bool ok = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (!ok) {
+        glDeleteTextures(1, &outTex);
+        glDeleteFramebuffers(1, &outFbo);
+        outTex = 0;
+        outFbo = 0;
+    }
+    return ok;
+}
+
 } // namespace
 
 bool Renderer::init() {
@@ -260,9 +296,13 @@ bool Renderer::init() {
     const char* vsInstanced = R"(
         #version 330 core
         layout(location=0) in vec3 aPos;
+        layout(location=1) in vec3 aNormal;
         layout(location=2) in vec4 iPosYaw;   // xyz, yaw
         layout(location=3) in vec4 iScaleVar; // xyz scale
         uniform mat4 uViewProj;
+        uniform mat4 uLightViewProj;
+        out vec3 vNormal;
+        out vec4 vLightPos;
         void main() {
             float yaw = iPosYaw.w;
             mat3 R = mat3(
@@ -270,10 +310,14 @@ bool Renderer::init() {
                 0.0,      1.0,  0.0,
                 sin(yaw), 0.0,  cos(yaw)
             );
-            vec3 scaled = R * (aPos * iScaleVar.xyz);
-            vec4 world = vec4(iPosYaw.xyz + scaled, 1.0);
-            world.y += 0.05; // lift houses off the ground to avoid z-fighting
-            gl_Position = uViewProj * world;
+            vec3 scale = max(iScaleVar.xyz, vec3(0.0001));
+            vec3 scaled = R * (aPos * scale);
+            vec3 worldPos = iPosYaw.xyz + scaled;
+            worldPos.y += 0.05; // lift houses off the ground to avoid z-fighting
+            gl_Position = uViewProj * vec4(worldPos, 1.0);
+            vec3 invScale = 1.0 / scale;
+            vNormal = normalize(R * (aNormal * invScale));
+            vLightPos = uLightViewProj * vec4(worldPos, 1.0);
         }
     )";
 
@@ -284,12 +328,17 @@ bool Renderer::init() {
         uniform mat4 uModel;
         uniform float uGrassTileM;
         uniform float uNoiseTileM;
+        uniform mat4 uLightViewProj;
         out vec2 vGrassUV;
         out vec2 vNoiseUV;
+        out vec3 vNormal;
+        out vec4 vLightPos;
         void main() {
             vec4 world = uModel * vec4(aPos, 1.0);
             vGrassUV = world.xz / uGrassTileM;
             vNoiseUV = world.xz / uNoiseTileM;
+            vNormal = vec3(0.0, 1.0, 0.0);
+            vLightPos = uLightViewProj * world;
             gl_Position = uViewProj * world;
         }
     )";
@@ -311,8 +360,15 @@ bool Renderer::init() {
         out vec4 FragColor;
         uniform vec3 uColor;
         uniform float uAlpha;
+        uniform float uExposure;
+        vec3 ToneMap(vec3 color) {
+            color *= uExposure;
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0 / 2.2));
+            return color;
+        }
         void main() {
-            FragColor = vec4(uColor, uAlpha);
+            FragColor = vec4(ToneMap(uColor), uAlpha);
         }
     )";
 
@@ -321,8 +377,17 @@ bool Renderer::init() {
         in vec3 vDir;
         out vec4 FragColor;
         uniform samplerCube uSkybox;
+        uniform float uSkyBrightness;
+        uniform float uExposure;
+        vec3 ToneMap(vec3 color) {
+            color *= uExposure;
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0 / 2.2));
+            return color;
+        }
         void main() {
-            FragColor = texture(uSkybox, normalize(vDir));
+            vec3 color = texture(uSkybox, normalize(vDir)).rgb * uSkyBrightness;
+            FragColor = vec4(ToneMap(color), 1.0);
         }
     )";
 
@@ -330,47 +395,215 @@ bool Renderer::init() {
         #version 330 core
         in vec2 vGrassUV;
         in vec2 vNoiseUV;
+        in vec3 vNormal;
+        in vec4 vLightPos;
         out vec4 FragColor;
         uniform sampler2D uGrassTex;
         uniform sampler2D uNoiseTex;
+        uniform vec3 uSunDir;
+        uniform vec3 uSunColor;
+        uniform float uSunIntensity;
+        uniform vec3 uAmbientColor;
+        uniform float uAmbientIntensity;
+        uniform float uExposure;
+        uniform sampler2DShadow uShadowMap;
+        uniform vec2 uShadowTexel;
+        uniform float uShadowStrength;
+        vec3 ToneMap(vec3 color) {
+            color *= uExposure;
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0 / 2.2));
+            return color;
+        }
+        float ShadowVisibility(vec4 lightPos, vec3 normal) {
+            if (uShadowStrength <= 0.0) return 1.0;
+            vec3 proj = lightPos.xyz / lightPos.w;
+            proj = proj * 0.5 + 0.5;
+            if (proj.z > 1.0 || proj.x < 0.0 || proj.x > 1.0 || proj.y < 0.0 || proj.y > 1.0) {
+                return 1.0;
+            }
+            float ndotl = max(dot(normal, uSunDir), 0.0);
+            float bias = max(0.0015 * (1.0 - ndotl), 0.0005);
+            float shadow = 0.0;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    vec2 offset = vec2(x, y) * uShadowTexel;
+                    shadow += texture(uShadowMap, vec3(proj.xy + offset, proj.z - bias));
+                }
+            }
+            shadow /= 9.0;
+            return mix(1.0, shadow, uShadowStrength);
+        }
         void main() {
             vec3 grass = texture(uGrassTex, vGrassUV).rgb;
             float n = texture(uNoiseTex, vNoiseUV).r;
             float shade = mix(0.85, 1.15, n);
-            vec3 color = grass * shade;
-            FragColor = vec4(color, 1.0);
+            vec3 base = grass * shade;
+            vec3 normal = normalize(vNormal);
+            float ndotl = max(dot(normal, uSunDir), 0.0);
+            float shadow = ShadowVisibility(vLightPos, normal);
+            vec3 ambient = uAmbientColor * uAmbientIntensity;
+            vec3 direct = uSunColor * uSunIntensity * ndotl * shadow;
+            vec3 color = base * (ambient + direct);
+            FragColor = vec4(ToneMap(color), 1.0);
+        }
+    )";
+
+    const char* fsInst = R"(
+        #version 330 core
+        in vec3 vNormal;
+        in vec4 vLightPos;
+        out vec4 FragColor;
+        uniform vec3 uColor;
+        uniform float uAlpha;
+        uniform vec3 uSunDir;
+        uniform vec3 uSunColor;
+        uniform float uSunIntensity;
+        uniform vec3 uAmbientColor;
+        uniform float uAmbientIntensity;
+        uniform float uExposure;
+        uniform sampler2DShadow uShadowMap;
+        uniform vec2 uShadowTexel;
+        uniform float uShadowStrength;
+        vec3 ToneMap(vec3 color) {
+            color *= uExposure;
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0 / 2.2));
+            return color;
+        }
+        float ShadowVisibility(vec4 lightPos, vec3 normal) {
+            if (uShadowStrength <= 0.0) return 1.0;
+            vec3 proj = lightPos.xyz / lightPos.w;
+            proj = proj * 0.5 + 0.5;
+            if (proj.z > 1.0 || proj.x < 0.0 || proj.x > 1.0 || proj.y < 0.0 || proj.y > 1.0) {
+                return 1.0;
+            }
+            float ndotl = max(dot(normal, uSunDir), 0.0);
+            float bias = max(0.0015 * (1.0 - ndotl), 0.0005);
+            float shadow = 0.0;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    vec2 offset = vec2(x, y) * uShadowTexel;
+                    shadow += texture(uShadowMap, vec3(proj.xy + offset, proj.z - bias));
+                }
+            }
+            shadow /= 9.0;
+            return mix(1.0, shadow, uShadowStrength);
+        }
+        void main() {
+            vec3 normal = normalize(vNormal);
+            float ndotl = max(dot(normal, uSunDir), 0.0);
+            float shadow = ShadowVisibility(vLightPos, normal);
+            vec3 ambient = uAmbientColor * uAmbientIntensity;
+            vec3 direct = uSunColor * uSunIntensity * ndotl * shadow;
+            vec3 color = uColor * (ambient + direct);
+            FragColor = vec4(ToneMap(color), uAlpha);
+        }
+    )";
+
+    const char* vsDepth = R"(
+        #version 330 core
+        layout(location=0) in vec3 aPos;
+        uniform mat4 uLightViewProj;
+        uniform mat4 uModel;
+        void main() {
+            gl_Position = uLightViewProj * uModel * vec4(aPos, 1.0);
+        }
+    )";
+
+    const char* vsDepthInst = R"(
+        #version 330 core
+        layout(location=0) in vec3 aPos;
+        layout(location=2) in vec4 iPosYaw;
+        layout(location=3) in vec4 iScaleVar;
+        uniform mat4 uLightViewProj;
+        void main() {
+            float yaw = iPosYaw.w;
+            mat3 R = mat3(
+                cos(yaw), 0.0, -sin(yaw),
+                0.0,      1.0,  0.0,
+                sin(yaw), 0.0,  cos(yaw)
+            );
+            vec3 scale = max(iScaleVar.xyz, vec3(0.0001));
+            vec3 scaled = R * (aPos * scale);
+            vec3 worldPos = iPosYaw.xyz + scaled;
+            worldPos.y += 0.05;
+            gl_Position = uLightViewProj * vec4(worldPos, 1.0);
+        }
+    )";
+
+    const char* fsDepth = R"(
+        #version 330 core
+        void main() {
         }
     )";
 
     progBasic = MakeProgram(vsBasic, fsColor);
-    progInst = MakeProgram(vsInstanced, fsColor);
+    progInst = MakeProgram(vsInstanced, fsInst);
     progGround = MakeProgram(vsGround, fsGround);
     progSky = MakeProgram(vsSky, fsSky);
-    if (!progBasic || !progInst || !progGround || !progSky) return false;
+    progDepth = MakeProgram(vsDepth, fsDepth);
+    progDepthInst = MakeProgram(vsDepthInst, fsDepth);
+    if (!progBasic || !progInst || !progGround || !progSky || !progDepth || !progDepthInst) return false;
 
     locVP_B = glGetUniformLocation(progBasic, "uViewProj");
     locM_B = glGetUniformLocation(progBasic, "uModel");
     locC_B = glGetUniformLocation(progBasic, "uColor");
     locA_B = glGetUniformLocation(progBasic, "uAlpha");
+    locExposure_B = glGetUniformLocation(progBasic, "uExposure");
 
     locVP_I = glGetUniformLocation(progInst, "uViewProj");
     locC_I = glGetUniformLocation(progInst, "uColor");
     locA_I = glGetUniformLocation(progInst, "uAlpha");
+    locSunDir_I = glGetUniformLocation(progInst, "uSunDir");
+    locSunColor_I = glGetUniformLocation(progInst, "uSunColor");
+    locSunInt_I = glGetUniformLocation(progInst, "uSunIntensity");
+    locAmbColor_I = glGetUniformLocation(progInst, "uAmbientColor");
+    locAmbInt_I = glGetUniformLocation(progInst, "uAmbientIntensity");
+    locExposure_I = glGetUniformLocation(progInst, "uExposure");
+    locLightVP_I = glGetUniformLocation(progInst, "uLightViewProj");
+    locShadowMap_I = glGetUniformLocation(progInst, "uShadowMap");
+    locShadowTexel_I = glGetUniformLocation(progInst, "uShadowTexel");
+    locShadowStrength_I = glGetUniformLocation(progInst, "uShadowStrength");
     locVP_G = glGetUniformLocation(progGround, "uViewProj");
     locM_G = glGetUniformLocation(progGround, "uModel");
     locGrassTile_G = glGetUniformLocation(progGround, "uGrassTileM");
     locNoiseTile_G = glGetUniformLocation(progGround, "uNoiseTileM");
     locGrassTex_G = glGetUniformLocation(progGround, "uGrassTex");
     locNoiseTex_G = glGetUniformLocation(progGround, "uNoiseTex");
+    locSunDir_G = glGetUniformLocation(progGround, "uSunDir");
+    locSunColor_G = glGetUniformLocation(progGround, "uSunColor");
+    locSunInt_G = glGetUniformLocation(progGround, "uSunIntensity");
+    locAmbColor_G = glGetUniformLocation(progGround, "uAmbientColor");
+    locAmbInt_G = glGetUniformLocation(progGround, "uAmbientIntensity");
+    locExposure_G = glGetUniformLocation(progGround, "uExposure");
+    locLightVP_G = glGetUniformLocation(progGround, "uLightViewProj");
+    locShadowMap_G = glGetUniformLocation(progGround, "uShadowMap");
+    locShadowTexel_G = glGetUniformLocation(progGround, "uShadowTexel");
+    locShadowStrength_G = glGetUniformLocation(progGround, "uShadowStrength");
     locVP_S = glGetUniformLocation(progSky, "uViewProj");
     locSkyTex_S = glGetUniformLocation(progSky, "uSkybox");
-    if (locVP_B < 0 || locM_B < 0 || locC_B < 0 || locA_B < 0 ||
-        locVP_I < 0 || locC_I < 0 || locA_I < 0 ||
+    locSkyBright_S = glGetUniformLocation(progSky, "uSkyBrightness");
+    locExposure_S = glGetUniformLocation(progSky, "uExposure");
+    locLightVP_D = glGetUniformLocation(progDepth, "uLightViewProj");
+    locM_D = glGetUniformLocation(progDepth, "uModel");
+    locLightVP_DI = glGetUniformLocation(progDepthInst, "uLightViewProj");
+    if (locVP_B < 0 || locM_B < 0 || locC_B < 0 || locA_B < 0 || locExposure_B < 0 ||
+        locVP_I < 0 || locC_I < 0 || locA_I < 0 || locSunDir_I < 0 || locSunColor_I < 0 ||
+        locSunInt_I < 0 || locAmbColor_I < 0 || locAmbInt_I < 0 || locExposure_I < 0 ||
+        locLightVP_I < 0 || locShadowMap_I < 0 || locShadowTexel_I < 0 || locShadowStrength_I < 0 ||
         locVP_G < 0 || locM_G < 0 || locGrassTile_G < 0 || locNoiseTile_G < 0 ||
-        locGrassTex_G < 0 || locNoiseTex_G < 0 ||
-        locVP_S < 0 || locSkyTex_S < 0) {
+        locGrassTex_G < 0 || locNoiseTex_G < 0 || locSunDir_G < 0 || locSunColor_G < 0 ||
+        locSunInt_G < 0 || locAmbColor_G < 0 || locAmbInt_G < 0 || locExposure_G < 0 ||
+        locLightVP_G < 0 || locShadowMap_G < 0 || locShadowTexel_G < 0 || locShadowStrength_G < 0 ||
+        locVP_S < 0 || locSkyTex_S < 0 || locSkyBright_S < 0 || locExposure_S < 0 ||
+        locLightVP_D < 0 || locM_D < 0 || locLightVP_DI < 0) {
         SDL_Log("Renderer init failed: missing uniforms.");
         return false;
+    }
+
+    if (!CreateShadowMap(shadowMapSize, shadowFbo, shadowTex)) {
+        SDL_Log("Renderer: shadow map init failed, shadows disabled.");
     }
 
     bool grassOk = false;
@@ -449,19 +682,19 @@ bool Renderer::init() {
     glBindVertexArray(0);
 
     // Cube mesh
-    const glm::vec3 cube[36] = {
-        {-0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},
-        {-0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},{-0.5f, 0.5f, 0.5f},
-        { 0.5f,-0.5f,-0.5f},{-0.5f,-0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},
-        { 0.5f,-0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f},
-        { 0.5f,-0.5f, 0.5f},{ 0.5f,-0.5f,-0.5f},{ 0.5f, 0.5f,-0.5f},
-        { 0.5f,-0.5f, 0.5f},{ 0.5f, 0.5f,-0.5f},{ 0.5f, 0.5f, 0.5f},
-        {-0.5f,-0.5f,-0.5f},{-0.5f,-0.5f, 0.5f},{-0.5f, 0.5f, 0.5f},
-        {-0.5f,-0.5f,-0.5f},{-0.5f, 0.5f, 0.5f},{-0.5f, 0.5f,-0.5f},
-        {-0.5f, 0.5f, 0.5f},{ 0.5f, 0.5f, 0.5f},{ 0.5f, 0.5f,-0.5f},
-        {-0.5f, 0.5f, 0.5f},{ 0.5f, 0.5f,-0.5f},{-0.5f, 0.5f,-0.5f},
-        {-0.5f,-0.5f,-0.5f},{ 0.5f,-0.5f,-0.5f},{ 0.5f,-0.5f, 0.5f},
-        {-0.5f,-0.5f,-0.5f},{ 0.5f,-0.5f, 0.5f},{-0.5f,-0.5f, 0.5f},
+    const VertexPN cube[36] = {
+        {{-0.5f,-0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{ 0.5f,-0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}},
+        {{-0.5f,-0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}}, {{-0.5f, 0.5f, 0.5f},{ 0.0f, 0.0f, 1.0f}},
+        {{ 0.5f,-0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{-0.5f,-0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{-0.5f, 0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}},
+        {{ 0.5f,-0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{-0.5f, 0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 0.0f, 0.0f,-1.0f}},
+        {{ 0.5f,-0.5f, 0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f,-0.5f,-0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 1.0f, 0.0f, 0.0f}},
+        {{ 0.5f,-0.5f, 0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 1.0f, 0.0f, 0.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 1.0f, 0.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f,-0.5f, 0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f, 0.5f, 0.5f},{-1.0f, 0.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f, 0.5f, 0.5f},{-1.0f, 0.0f, 0.0f}}, {{-0.5f, 0.5f,-0.5f},{-1.0f, 0.0f, 0.0f}},
+        {{-0.5f, 0.5f, 0.5f},{ 0.0f, 1.0f, 0.0f}}, {{ 0.5f, 0.5f, 0.5f},{ 0.0f, 1.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f, 0.5f},{ 0.0f, 1.0f, 0.0f}}, {{ 0.5f, 0.5f,-0.5f},{ 0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f,-0.5f},{ 0.0f, 1.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{ 0.0f,-1.0f, 0.0f}}, {{ 0.5f,-0.5f,-0.5f},{ 0.0f,-1.0f, 0.0f}}, {{ 0.5f,-0.5f, 0.5f},{ 0.0f,-1.0f, 0.0f}},
+        {{-0.5f,-0.5f,-0.5f},{ 0.0f,-1.0f, 0.0f}}, {{ 0.5f,-0.5f, 0.5f},{ 0.0f,-1.0f, 0.0f}}, {{-0.5f,-0.5f, 0.5f},{ 0.0f,-1.0f, 0.0f}},
     };
 
     glGenBuffers(1, &vboCube);
@@ -472,14 +705,16 @@ bool Renderer::init() {
     glBindVertexArray(vaoSkybox);
     glBindBuffer(GL_ARRAY_BUFFER, vboCube);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)0);
     glBindVertexArray(0);
 
     glGenVertexArrays(1, &vaoCubeSingle);
     glBindVertexArray(vaoCubeSingle);
     glBindBuffer(GL_ARRAY_BUFFER, vboCube);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)(sizeof(glm::vec3)));
     glBindVertexArray(0);
 
     glGenVertexArrays(1, &vaoCubeInstAnim);
@@ -488,7 +723,9 @@ bool Renderer::init() {
     glBindVertexArray(vaoCubeInstAnim);
     glBindBuffer(GL_ARRAY_BUFFER, vboCube);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexPN), (void*)(sizeof(glm::vec3)));
     glBindBuffer(GL_ARRAY_BUFFER, vboInstAnim);
     glBufferData(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
     SetupInstanceAttribs(vaoCubeInstAnim, vboInstAnim);
@@ -498,6 +735,8 @@ bool Renderer::init() {
 }
 
 void Renderer::resize(int w, int h) {
+    viewportW = w;
+    viewportH = h;
     glViewport(0, 0, w, h);
 }
 
@@ -524,6 +763,8 @@ void Renderer::updateHouseChunk(uint64_t key, AssetId assetId, const MeshGpu& me
         glEnableVertexAttribArray(0);
         GLsizei stride = mesh.vertexStride > 0 ? mesh.vertexStride : (GLsizei)sizeof(glm::vec3);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(glm::vec3)));
         if (mesh.indexed && mesh.ebo) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
         } else {
@@ -583,6 +824,52 @@ void Renderer::updateAnimHouses(const std::vector<HouseInstanceGPU>& animHouses)
 }
 
 void Renderer::render(const RenderFrame& frame) {
+    float shadowStrength = (shadowTex && shadowFbo && frame.lighting.sunIntensity > 0.001f)
+        ? frame.lighting.shadowStrength
+        : 0.0f;
+
+    if (shadowStrength > 0.0f) {
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
+        glViewport(0, 0, shadowMapSize, shadowMapSize);
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(2.0f, 4.0f);
+
+        glUseProgram(progDepthInst);
+        glUniformMatrix4fv(locLightVP_DI, 1, GL_FALSE, &frame.lightViewProj[0][0]);
+
+        for (const auto& batch : frame.visibleHouseBatches) {
+            auto chunkIt = houseChunks.find(batch.chunkKey);
+            if (chunkIt == houseChunks.end()) continue;
+            auto assetIt = chunkIt->second.find(batch.asset);
+            if (assetIt == chunkIt->second.end()) continue;
+            const ChunkBuf& buf = assetIt->second;
+            if (buf.count == 0) continue;
+            glBindVertexArray(buf.vao);
+            if (buf.indexed) {
+                glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)buf.indexCount, GL_UNSIGNED_INT, (void*)0, (GLsizei)buf.count);
+            } else {
+                glDrawArraysInstanced(GL_TRIANGLES, 0, (GLsizei)buf.vertexCount, (GLsizei)buf.count);
+            }
+        }
+
+        if (frame.houseAnimCount > 0) {
+            glBindVertexArray(vaoCubeInstAnim);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, (GLsizei)frame.houseAnimCount);
+        }
+
+        glBindVertexArray(0);
+        glDisable(GL_POLYGON_OFFSET_FILL);
+        glCullFace(GL_BACK);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, viewportW, viewportH);
+    }
+
     glClearColor(0.55f, 0.75f, 0.95f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -593,6 +880,8 @@ void Renderer::render(const RenderFrame& frame) {
     glDepthFunc(GL_LEQUAL);
     glUseProgram(progSky);
     glUniformMatrix4fv(locVP_S, 1, GL_FALSE, &frame.viewProjSky[0][0]);
+    glUniform1f(locSkyBright_S, frame.lighting.skyBrightness);
+    glUniform1f(locExposure_S, frame.lighting.exposure);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texSkybox);
     glUniform1i(locSkyTex_S, 0);
@@ -605,6 +894,18 @@ void Renderer::render(const RenderFrame& frame) {
     glUseProgram(progGround);
     glUniformMatrix4fv(locVP_G, 1, GL_FALSE, &frame.viewProj[0][0]);
     glUniformMatrix4fv(locM_G, 1, GL_FALSE, &I[0][0]);
+    glUniformMatrix4fv(locLightVP_G, 1, GL_FALSE, &frame.lightViewProj[0][0]);
+    glUniform3f(locSunDir_G, frame.lighting.sunDir.x, frame.lighting.sunDir.y, frame.lighting.sunDir.z);
+    glUniform3f(locSunColor_G, frame.lighting.sunColor.x, frame.lighting.sunColor.y, frame.lighting.sunColor.z);
+    glUniform1f(locSunInt_G, frame.lighting.sunIntensity);
+    glUniform3f(locAmbColor_G, frame.lighting.ambientColor.x, frame.lighting.ambientColor.y, frame.lighting.ambientColor.z);
+    glUniform1f(locAmbInt_G, frame.lighting.ambientIntensity);
+    glUniform1f(locExposure_G, frame.lighting.exposure);
+    glUniform1f(locShadowStrength_G, shadowStrength);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, shadowTex);
+    glUniform1i(locShadowMap_G, 2);
+    glUniform2f(locShadowTexel_G, 1.0f / (float)shadowMapSize, 1.0f / (float)shadowMapSize);
     glUniform1f(locGrassTile_G, 4.0f);
     glUniform1f(locNoiseTile_G, 96.0f);
     glActiveTexture(GL_TEXTURE0);
@@ -632,6 +933,7 @@ void Renderer::render(const RenderFrame& frame) {
     glUseProgram(progBasic);
     glUniformMatrix4fv(locVP_B, 1, GL_FALSE, &frame.viewProj[0][0]);
     glUniformMatrix4fv(locM_B, 1, GL_FALSE, &I[0][0]);
+    glUniform1f(locExposure_B, frame.lighting.exposure);
     glUniform3f(locC_B, 0.18f, 0.18f, 0.18f);
     glUniform1f(locA_B, 1.0f);
     glBindVertexArray(vaoRoad);
@@ -724,6 +1026,18 @@ void Renderer::render(const RenderFrame& frame) {
     // Houses
     glUseProgram(progInst);
     glUniformMatrix4fv(locVP_I, 1, GL_FALSE, &frame.viewProj[0][0]);
+    glUniformMatrix4fv(locLightVP_I, 1, GL_FALSE, &frame.lightViewProj[0][0]);
+    glUniform3f(locSunDir_I, frame.lighting.sunDir.x, frame.lighting.sunDir.y, frame.lighting.sunDir.z);
+    glUniform3f(locSunColor_I, frame.lighting.sunColor.x, frame.lighting.sunColor.y, frame.lighting.sunColor.z);
+    glUniform1f(locSunInt_I, frame.lighting.sunIntensity);
+    glUniform3f(locAmbColor_I, frame.lighting.ambientColor.x, frame.lighting.ambientColor.y, frame.lighting.ambientColor.z);
+    glUniform1f(locAmbInt_I, frame.lighting.ambientIntensity);
+    glUniform1f(locExposure_I, frame.lighting.exposure);
+    glUniform1f(locShadowStrength_I, shadowStrength);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, shadowTex);
+    glUniform1i(locShadowMap_I, 2);
+    glUniform2f(locShadowTexel_I, 1.0f / (float)shadowMapSize, 1.0f / (float)shadowMapSize);
     glUniform3f(locC_I, 0.75f, 0.72f, 0.62f);
     glUniform1f(locA_I, 1.0f);
 
@@ -758,10 +1072,14 @@ void Renderer::destroyGL() {
     if (progInst) { glDeleteProgram(progInst); progInst = 0; }
     if (progGround) { glDeleteProgram(progGround); progGround = 0; }
     if (progSky) { glDeleteProgram(progSky); progSky = 0; }
+    if (progDepth) { glDeleteProgram(progDepth); progDepth = 0; }
+    if (progDepthInst) { glDeleteProgram(progDepthInst); progDepthInst = 0; }
     if (texGrass) { glDeleteTextures(1, &texGrass); texGrass = 0; }
     if (texNoise) { glDeleteTextures(1, &texNoise); texNoise = 0; }
     if (texWater) { glDeleteTextures(1, &texWater); texWater = 0; }
     if (texSkybox) { glDeleteTextures(1, &texSkybox); texSkybox = 0; }
+    if (shadowTex) { glDeleteTextures(1, &shadowTex); shadowTex = 0; }
+    if (shadowFbo) { glDeleteFramebuffers(1, &shadowFbo); shadowFbo = 0; }
 
     GLuint vaos[] = { vaoGround, vaoRoad, vaoPreview, vaoSkybox, vaoWater, vaoCubeSingle, vaoCubeInstAnim };
     GLuint vbos[] = { vboGround, vboRoad, vboPreview, vboWater, vboCube, vboInstAnim };

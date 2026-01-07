@@ -70,12 +70,12 @@ clean: CMakeFiles\CityPainterProto.dir\clean
 CMakeFiles\CityPainterProto.dir\all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CityPainterProto.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\CityG\build\CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12 "Built target CityPainterProto"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\CityG\build\CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13 "Built target CityPainterProto"
 .PHONY : CMakeFiles\CityPainterProto.dir\all
 
 # Build rule for subdir invocation for target.
 CMakeFiles\CityPainterProto.dir\rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\CityG\build\CMakeFiles 12
+	$(CMAKE_COMMAND) -E cmake_progress_start C:\CityG\build\CMakeFiles 13
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 /nologo -$(MAKEFLAGS) CMakeFiles\CityPainterProto.dir\all
 	$(CMAKE_COMMAND) -E cmake_progress_start C:\CityG\build\CMakeFiles 0
 .PHONY : CMakeFiles\CityPainterProto.dir\rule

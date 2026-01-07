@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/CityPainterProto.dir/src/asset_catalog.cpp.obj.d"
   "CMakeFiles/CityPainterProto.dir/src/image_loader.cpp.obj"
   "CMakeFiles/CityPainterProto.dir/src/image_loader.cpp.obj.d"
+  "CMakeFiles/CityPainterProto.dir/src/lighting.cpp.obj"
+  "CMakeFiles/CityPainterProto.dir/src/lighting.cpp.obj.d"
   "CMakeFiles/CityPainterProto.dir/src/main.cpp.obj"
   "CMakeFiles/CityPainterProto.dir/src/main.cpp.obj.d"
   "CMakeFiles/CityPainterProto.dir/src/mesh_cache.cpp.obj"

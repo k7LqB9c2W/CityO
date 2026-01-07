@@ -15,6 +15,7 @@
 #include "mesh_cache.h"
 #include "config.h"
 #include "image_loader.h"
+#include "lighting.h"
 
 #include <vector>
 #include <string>
@@ -1969,6 +1970,7 @@ int main(int, char**) {
     char savePath[260] = "save.json";
     char waterMapPath[260] = "assets/maps/water_8192.png";
     float waterThreshold = 0.5f;
+    float timeOfDayHours = 12.0f;
     std::string statusText;
     MinimapState minimap;
 
@@ -2127,6 +2129,10 @@ int main(int, char**) {
         glm::mat4 viewProj = proj * view;
         glm::mat4 viewSky = glm::mat4(glm::mat3(view));
         glm::mat4 viewProjSky = proj * viewSky;
+
+        LightingParams lighting = EvaluateTimeOfDay(timeOfDayHours);
+        float shadowRadius = Clamp(cam.distance * 2.4f, 400.0f, 9000.0f);
+        glm::mat4 lightViewProj = BuildDirectionalLightMatrix(tgt, shadowRadius, lighting.sunDir);
 
         glm::vec3 mouseHitRel;
         bool hasHit = ScreenToGroundHit(mx, my, winW, winH, view, proj, mouseHitRel);
@@ -2675,6 +2681,10 @@ int main(int, char**) {
         }
         ImGui::Separator();
 
+        ImGui::Text("Lighting");
+        ImGui::SliderFloat("Time of day (hours)", &timeOfDayHours, 0.0f, 24.0f, "%.1f");
+        ImGui::Separator();
+
         ImGui::Text("Minimap");
         UpdateMinimapTexture(minimap, state);
         ImVec2 mapSize(240.0f, 240.0f);
@@ -2762,6 +2772,10 @@ int main(int, char**) {
         RenderFrame frame;
         frame.viewProj = viewProj;
         frame.viewProjSky = viewProjSky;
+        frame.lightViewProj = lightViewProj;
+        frame.cameraPos = eye;
+        frame.cameraTarget = tgt;
+        frame.lighting = lighting;
         frame.roadVertexCount = roadRenderVerts.size();
         frame.waterVertexCount = waterVerts.size();
         frame.gridVertexCount = gridCount;
