@@ -1367,10 +1367,6 @@ static void RebuildRoadAlignedOverlay(AppState& s) {
                     glm::vec3 center = pos + away * off;
                     if (GetWaterAt(s, center) != 0) continue;
 
-                    uint8_t flags = GetZoneFlagsAt(s, center);
-                    if (flags & ZONE_FLAG_BLOCKED) continue;
-                    if (!(flags & ZONE_FLAG_BUILDABLE)) continue;
-
                     ChunkCoord cc = ChunkFromPosXZ(center);
                     uint64_t key = PackChunk(cc.cx, cc.cz);
                     AppendOrientedZoneCellQuad(s.overlayBuildableByChunk[key], center, tan, away);
@@ -1455,9 +1451,6 @@ static void BuildZonePreviewMesh(
                 float offset = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
                 glm::vec3 center = p + away * offset;
                 if (GetWaterAt(s, center) != 0) continue;
-                uint8_t flags = GetZoneFlagsAt(s, center);
-                if (flags & ZONE_FLAG_BLOCKED) continue;
-                if (!(flags & ZONE_FLAG_BUILDABLE)) continue;
                 AppendOrientedZoneCellQuad(s.zonePreviewVerts, center, tan, away);
             }
         };
