@@ -1783,6 +1783,9 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         if (GetZoneFlagsAt(s, c.center) & ZONE_FLAG_BLOCKED) continue;
 
         ZoneType lotType = c.zoneType;
+        uint32_t hx = (uint32_t)std::llround(c.center.x * 10.0);
+        uint32_t hz = (uint32_t)std::llround(c.center.z * 10.0);
+        uint32_t lotSeed = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)(c.roadId * 131071U) ^ (c.side < 0 ? 0x9e3779b9U : 0U));
         AssetId assetId = residentialAsset;
         switch (lotType) {
             case ZoneType::Commercial: assetId = commercialAsset; break;
@@ -1792,6 +1795,16 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         }
 
         glm::vec3 baseSize = BaseSizeForZone(lotType);
+        if (lotType == ZoneType::Industrial) {
+            bool useAlt = (lotSeed & 1u) != 0u;
+            if (useAlt) {
+                baseSize = glm::vec3(55.0f, 6.0f, 30.0f);
+                AssetId altId = assets.findIdByString("buildings.industrial_02");
+                if (altId != 0 && assets.find(altId) != nullptr) {
+                    assetId = altId;
+                }
+            }
+        }
         glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseSize);
         glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseSize.x, baseSize.z));
         float alignedAlong = std::ceil(footprint.x / ZONE_CELL_M) * ZONE_CELL_M;
@@ -1819,9 +1832,7 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         R[1] = glm::vec4(up, 0.0f);
         R[2] = glm::vec4(facing, 0.0f);
 
-        uint32_t hx = (uint32_t)std::llround(pos.x * 10.0);
-        uint32_t hz = (uint32_t)std::llround(pos.z * 10.0);
-        uint32_t seed = Hash32(hx ^ (hz * 1664525U) ^ (uint32_t)(c.roadId * 131071U) ^ (c.side < 0 ? 0x9e3779b9U : 0U));
+        uint32_t seed = lotSeed;
         float yaw = std::atan2(facing.x, facing.z);
         if (animate) {
             float jitter = (seed % 120) / 1000.0f; // 0..0.119 sec
