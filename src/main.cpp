@@ -323,6 +323,7 @@ constexpr int   ZONE_DEPTH_CELLS = 6;
 constexpr float ZONE_DEPTH_M = ZONE_DEPTH_CELLS * ZONE_CELL_M; // 48m with 8m cells
 constexpr float ROAD_WIDTH_M = 16.0f;
 constexpr float ROAD_HALF_M = ROAD_WIDTH_M * 0.5f;
+constexpr float INTERSECTION_CLEAR_M = ROAD_HALF_M + ZONE_CELL_M * 0.5f;
 constexpr float ROAD_TEX_TILE_M = ROAD_WIDTH_M;
 constexpr float WATER_SURFACE_Y = 0.02f;
 constexpr uint8_t ZONE_TYPE_SHIFT = 3;
@@ -1325,6 +1326,34 @@ static const ZoneStrip* FindZoneForRoadAt(const std::vector<const ZoneStrip*>& z
     return nullptr;
 }
 
+static bool ShouldCullForIntersection(
+    const AppState& s,
+    int roadId,
+    const glm::vec3& pos,
+    const glm::vec3& forward,
+    float clearDist)
+{
+    float fLenSq = glm::dot(forward, forward);
+    if (fLenSq < 1e-6f) return false;
+    glm::vec3 f = forward / std::sqrt(fLenSq);
+    float clearSq = clearDist * clearDist;
+    for (const auto& other : s.roads) {
+        if (other.id == roadId) continue;
+        if (other.pts.size() < 2) continue;
+        float dAlong;
+        glm::vec3 tan;
+        float distSq = ClosestDistanceAlongRoadSq(other, pos, dAlong, tan);
+        if (distSq >= clearSq) continue;
+        float tLenSq = glm::dot(tan, tan);
+        if (tLenSq < 1e-6f) return true;
+        glm::vec3 t = tan / std::sqrt(tLenSq);
+        float align = std::fabs(glm::dot(f, t));
+        if (align > 0.85f) continue;
+        return true;
+    }
+    return false;
+}
+
 static void RebuildRoadAlignedOverlay(AppState& s) {
     s.overlayBuildableByChunk.clear();
     s.overlayZonedResByChunk.clear();
@@ -1366,6 +1395,7 @@ static void RebuildRoadAlignedOverlay(AppState& s) {
                     float off = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
                     glm::vec3 center = pos + away * off;
                     if (GetWaterAt(s, center) != 0) continue;
+                    if (ShouldCullForIntersection(s, r.id, center, tan, INTERSECTION_CLEAR_M)) continue;
 
                     ChunkCoord cc = ChunkFromPosXZ(center);
                     uint64_t key = PackChunk(cc.cx, cc.cz);
@@ -1451,6 +1481,7 @@ static void BuildZonePreviewMesh(
                 float offset = ROAD_HALF_M + (row + 0.5f) * ZONE_CELL_M;
                 glm::vec3 center = p + away * offset;
                 if (GetWaterAt(s, center) != 0) continue;
+                if (ShouldCullForIntersection(s, r.id, center, tan, INTERSECTION_CLEAR_M)) continue;
                 AppendOrientedZoneCellQuad(s.zonePreviewVerts, center, tan, away);
             }
         };
@@ -2372,7 +2403,7 @@ int main(int, char**) {
                 if (!hasHit) break;
 
                 if (mode == Mode::Road) {
-                    // If clicking near a road point: start moving interior points, but endpoints start a new road.
+                    // If clicking near a road point: start moving interior points, but endpoints extend the road.
                     int rid, pi;
                     if (PickRoadPoint(state.roads, mouseHit, roadPointPickRadius, rid, pi)) {
                         int idx = FindRoadIndexById(state.roads, rid);
@@ -2386,11 +2417,14 @@ int main(int, char**) {
 
                             statusText = "Moving point (drag).";
                         } else {
-                            // Start a new road anchored to this endpoint; do not move existing geometry.
+                            // Extend the existing road from this endpoint.
                             roadTool.selectedRoadId = -1;
                             roadTool.selectedPointIndex = -1;
                             startRoadDraw(state.roads[idx].pts[pi]);
-                            statusText = "Extending from endpoint (new road).";
+                            roadTool.extending = true;
+                            roadTool.extendRoadId = rid;
+                            roadTool.extendAtStart = (pi == 0);
+                            statusText = "Extending road.";
                         }
                     } else {
                         roadTool.selectedRoadId = -1;
