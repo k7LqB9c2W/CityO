@@ -21,6 +21,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <cstdint>
 #include <array>
 #include <fstream>
@@ -45,6 +46,35 @@ static uint32_t Hash32(uint32_t x) {
 static float LenXZ(const glm::vec3& a, const glm::vec3& b) {
     glm::vec2 d(b.x - a.x, b.z - a.z);
     return std::sqrt(d.x*d.x + d.y*d.y);
+}
+
+static bool WorldToScreen(
+    const glm::vec3& p,
+    const glm::mat4& view,
+    const glm::mat4& proj,
+    int w,
+    int h,
+    ImVec2& out)
+{
+    glm::vec4 clip = proj * view * glm::vec4(p, 1.0f);
+    if (clip.w <= 1e-6f) return false;
+    glm::vec3 ndc = glm::vec3(clip) / clip.w;
+    out.x = (ndc.x * 0.5f + 0.5f) * (float)w;
+    out.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * (float)h;
+    return true;
+}
+
+static float NiceLength(float raw) {
+    if (raw <= 0.0f) return 0.0f;
+    float exp = std::floor(std::log10(raw));
+    float base = std::pow(10.0f, exp);
+    float norm = raw / base;
+    float nice = 1.0f;
+    if (norm < 1.5f) nice = 1.0f;
+    else if (norm < 3.0f) nice = 2.0f;
+    else if (norm < 7.0f) nice = 5.0f;
+    else nice = 10.0f;
+    return nice * base;
 }
 
 constexpr float ORIGIN_STEP_M = 1024.0f;
@@ -2130,6 +2160,7 @@ int main(int, char**) {
     float timeOfDayHours = 12.0f;
     std::string statusText;
     MinimapState minimap;
+    bool useImperialUnits = false;
 
     bool running = true;
     bool rmbDown = false;
@@ -2871,6 +2902,10 @@ int main(int, char**) {
         ImGui::SliderFloat("Time of day (hours)", &timeOfDayHours, 0.0f, 24.0f, "%.1f");
         ImGui::Separator();
 
+        ImGui::Text("Scale Bar");
+        ImGui::Checkbox("Imperial units (ft/mi)", &useImperialUnits);
+        ImGui::Separator();
+
         ImGui::Text("Minimap");
         UpdateMinimapTexture(minimap, state);
         ImVec2 mapSize(240.0f, 240.0f);
@@ -2925,6 +2960,91 @@ int main(int, char**) {
 
         ImGui::Text("Status: %s", statusText.c_str());
         ImGui::End();
+
+        {
+            const float targetPx = 120.0f;
+            const float feetPerMeter = 3.28084f;
+            glm::vec3 camPos = cam.position();
+            glm::vec3 forward(cam.target.x - camPos.x, 0.0f, cam.target.z - camPos.z);
+            float fLen = std::sqrt(forward.x * forward.x + forward.z * forward.z);
+            if (fLen > 1e-6f) forward /= fLen;
+            else forward = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 right = glm::cross(forward, glm::vec3(0, 1, 0));
+            float rLen = std::sqrt(right.x * right.x + right.z * right.z);
+            if (rLen > 1e-6f) right /= rLen;
+            else right = glm::vec3(1.0f, 0.0f, 0.0f);
+
+            glm::vec3 base = cam.target;
+            base.y = 0.0f;
+            glm::vec3 baseRel = base - renderOrigin;
+
+            ImVec2 s0, s1;
+            const float testLen = 10.0f;
+            if (WorldToScreen(baseRel, view, proj, winW, winH, s0)
+                && WorldToScreen(baseRel + right * testLen, view, proj, winW, winH, s1)) {
+                float dx = s1.x - s0.x;
+                float dy = s1.y - s0.y;
+                float pixelLen = std::sqrt(dx * dx + dy * dy);
+                if (pixelLen > 1e-3f) {
+                    float pxPerMeter = pixelLen / testLen;
+                    float targetMeters = targetPx / pxPerMeter;
+                    float barMeters = targetMeters;
+                    if (useImperialUnits) {
+                        float targetFeet = targetMeters * feetPerMeter;
+                        float niceFeet = NiceLength(targetFeet);
+                        barMeters = niceFeet / feetPerMeter;
+                    } else {
+                        barMeters = NiceLength(targetMeters);
+                    }
+
+                    float barPx = barMeters * pxPerMeter;
+                    if (barPx > 30.0f) {
+                        char label[64];
+                        if (useImperialUnits) {
+                            float feet = barMeters * feetPerMeter;
+                            if (feet >= 5280.0f) {
+                                float miles = feet / 5280.0f;
+                                std::snprintf(label, sizeof(label), "%.2g mi", miles);
+                            } else if (feet < 10.0f) {
+                                std::snprintf(label, sizeof(label), "%.1f ft", feet);
+                            } else {
+                                std::snprintf(label, sizeof(label), "%.0f ft", feet);
+                            }
+                        } else {
+                            if (barMeters >= 1000.0f) {
+                                float km = barMeters / 1000.0f;
+                                std::snprintf(label, sizeof(label), "%.2g km", km);
+                            } else if (barMeters < 10.0f) {
+                                std::snprintf(label, sizeof(label), "%.1f m", barMeters);
+                            } else {
+                                std::snprintf(label, sizeof(label), "%.0f m", barMeters);
+                            }
+                        }
+
+                        ImDrawList* fg = ImGui::GetForegroundDrawList();
+                        float margin = 18.0f;
+                        float y = (float)winH - margin;
+                        float x2 = (float)winW - margin;
+                        float x1 = x2 - barPx;
+                        float tick = 6.0f;
+                        ImU32 lineCol = IM_COL32(240, 240, 240, 220);
+                        ImU32 textCol = IM_COL32(240, 240, 240, 230);
+                        ImU32 bgCol = IM_COL32(0, 0, 0, 140);
+
+                        fg->AddLine(ImVec2(x1, y), ImVec2(x2, y), lineCol, 2.0f);
+                        fg->AddLine(ImVec2(x1, y - tick), ImVec2(x1, y + tick), lineCol, 2.0f);
+                        fg->AddLine(ImVec2(x2, y - tick), ImVec2(x2, y + tick), lineCol, 2.0f);
+
+                        ImVec2 textSize = ImGui::CalcTextSize(label);
+                        ImVec2 textPos(x1 + (barPx - textSize.x) * 0.5f, y - tick - 4.0f - textSize.y);
+                        ImVec2 bgMin(textPos.x - 4.0f, textPos.y - 2.0f);
+                        ImVec2 bgMax(textPos.x + textSize.x + 4.0f, textPos.y + textSize.y + 2.0f);
+                        fg->AddRectFilled(bgMin, bgMax, bgCol, 3.0f);
+                        fg->AddText(textPos, textCol, label);
+                    }
+                }
+            }
+        }
 
         ImGui::Render();
 
