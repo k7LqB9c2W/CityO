@@ -1826,14 +1826,26 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
 
         glm::vec3 baseSize = BaseSizeForZone(lotType);
         if (lotType == ZoneType::Industrial) {
-            bool useAlt = (lotSeed & 1u) != 0u;
-            if (useAlt) {
-                baseSize = glm::vec3(55.0f, 6.0f, 30.0f);
-                AssetId altId = assets.findIdByString("buildings.industrial_02");
-                if (altId != 0 && assets.find(altId) != nullptr) {
-                    assetId = altId;
-                }
-            }
+            const glm::vec3 defaultBase = baseSize;
+            struct Variant {
+                AssetId id;
+                glm::vec3 baseSize;
+            };
+            Variant variants[3];
+
+            variants[0] = {industrialAsset, defaultBase};
+
+            AssetId altId = assets.findIdByString("buildings.industrial_02");
+            AssetId altOrDefault = (altId != 0 && assets.find(altId) != nullptr) ? altId : industrialAsset;
+            variants[1] = {altOrDefault, glm::vec3(55.0f, 6.0f, 30.0f)};
+
+            AssetId customId = assets.findIdByString("buildings.industrial_03");
+            AssetId customOrDefault = (customId != 0 && assets.find(customId) != nullptr) ? customId : industrialAsset;
+            variants[2] = {customOrDefault, defaultBase};
+
+            const Variant& picked = variants[lotSeed % 3];
+            assetId = picked.id;
+            baseSize = picked.baseSize;
         }
         glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseSize);
         glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseSize.x, baseSize.z));

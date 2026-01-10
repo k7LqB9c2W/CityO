@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "id": "buildings.industrial_03",
+  "type": "building",
+  "category": "industrial",
+  "mesh": "buildings/industrial_03/industrial_03.glb",
+  "defaultScale": [1.0, 1.0, 1.0],
+  "footprintM": [47.0, 47.0],
+  "pivotM": [0.0, 0.0, 0.0],
+  "tags": ["industrial"]
+}
