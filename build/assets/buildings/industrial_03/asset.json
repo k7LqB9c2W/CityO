@@ -5,7 +5,8 @@
   "category": "industrial",
   "mesh": "buildings/industrial_03/industrial_03.glb",
   "defaultScale": [1.0, 1.0, 1.0],
-  "footprintM": [47.0, 47.0],
+  "footprintM": [75.0, 75.0],
+  "zonedFootprintM": [75.0, 48.0],
   "pivotM": [0.0, 0.0, 0.0],
-  "tags": ["industrial"]
+  "tags": ["industrial", "large_lot"]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "buildings.office_01",
+  "type": "building",
+  "category": "office",
+  "mesh": "",
+  "defaultScale": [1.0, 1.0, 1.0],
+  "footprintM": [25.0, 25.0],
+  "zonedFootprintM": [25.0, 25.0],
+  "pivotM": [0.0, 0.0, 0.0],
+  "tags": ["office"]
+}

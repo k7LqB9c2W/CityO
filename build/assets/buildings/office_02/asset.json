@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "buildings.office_02",
+  "type": "building",
+  "category": "office",
+  "mesh": "",
+  "defaultScale": [1.0, 1.0, 1.0],
+  "footprintM": [92.0, 47.0],
+  "zonedFootprintM": [92.0, 47.0],
+  "pivotM": [0.0, 0.0, 0.0],
+  "tags": ["office", "large_lot"]
+}
