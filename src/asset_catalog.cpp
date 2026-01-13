@@ -123,6 +123,7 @@ bool AssetCatalog::loadAll(const std::string& assetsRoot) {
         def.meshRelPath = j.value("mesh", "");
         def.defaultScale = ParseVec3(j, "defaultScale", def.defaultScale);
         def.footprintM = ParseVec2(j, "footprintM", def.footprintM);
+        def.zonedFootprintM = ParseVec2(j, "zonedFootprintM", def.zonedFootprintM);
         def.pivotM = ParseVec3(j, "pivotM", def.pivotM);
 
         auto tagsIt = j.find("tags");

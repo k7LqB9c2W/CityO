@@ -48,11 +48,12 @@ LightingParams EvaluateTimeOfDay(float timeHours) {
     LightingParams out;
     out.sunDir = sunDir;
     out.sunColor = sunColor;
-    out.sunIntensity = 2.2f * sunPower;
+    out.sunIntensity = 1.8f * sunPower;
     out.ambientColor = ambientColor;
-    out.ambientIntensity = glm::mix(0.08f, 0.65f, sunUp);
-    out.exposure = glm::mix(0.60f, 1.05f, sunUp);
-    out.skyBrightness = glm::mix(0.0f, 1.0f, sunUp);
+    out.ambientIntensity = glm::mix(0.06f, 0.40f, sunUp);
+    out.exposure = glm::mix(0.50f, 0.90f, sunUp);
+    out.skyExposure = glm::mix(0.60f, 1.15f, sunUp);
+    out.skyBrightness = glm::mix(0.0f, 0.85f, sunUp);
     out.shadowStrength = glm::mix(0.65f, 0.90f, sunUp);
     return out;
 }

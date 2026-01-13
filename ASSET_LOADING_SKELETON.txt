@@ -3,7 +3,7 @@ CityG Asset Loading Skeleton (Step 5)
 Asset catalog
 - Asset manifests live in files named asset.json under the assets root.
 - Required JSON fields: version, id, type, mesh.
-- Optional fields: category, defaultScale, footprintM, pivotM, tags.
+- Optional fields: category, defaultScale, footprintM, zonedFootprintM, pivotM, tags.
 - AssetId is a stable FNV-1a 32-bit hash of id.
 - Default mapping: category low_density -> buildings.house_low_01.
 - Fallback asset: builtin.cube_house (used when missing).

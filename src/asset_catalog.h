@@ -17,6 +17,7 @@ struct AssetDef {
     std::string meshRelPath;
     glm::vec3 defaultScale{1.0f, 1.0f, 1.0f};
     glm::vec2 footprintM{0.0f, 0.0f};
+    glm::vec2 zonedFootprintM{0.0f, 0.0f};
     glm::vec3 pivotM{0.0f, 0.0f, 0.0f};
     std::vector<std::string> tags;
 };

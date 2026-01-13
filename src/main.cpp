@@ -427,6 +427,16 @@ struct BuildingChunk {
     std::unordered_map<AssetId, std::vector<BuildingInstance>> instancesByAsset;
 };
 
+struct LargeLotDebug {
+    int attempts = 0;
+    int placed = 0;
+    int failZoneCoverage = 0;
+    int failBlocked = 0;
+    int failReserved = 0;
+    int sampleBuildablePct = -1;
+    int sampleZonedPct = -1;
+};
+
 struct MinimapState {
     GLuint texture = 0;
     int size = 512;
@@ -452,6 +462,8 @@ struct AppState {
     std::unordered_map<uint64_t, std::vector<glm::vec3>> overlayZonedComByChunk;
     std::unordered_map<uint64_t, std::vector<glm::vec3>> overlayZonedIndByChunk;
     std::unordered_map<uint64_t, std::vector<glm::vec3>> overlayZonedOfficeByChunk;
+    LargeLotDebug largeLotDebug;
+    std::string largeLotLastFail;
 
     bool roadsDirty = true;
     bool zonesDirty = true;
@@ -586,6 +598,69 @@ static float ZoneRectCoverage(
     return total > 0 ? (float)hit / (float)total : 0.0f;
 }
 
+static float ZoneRectBlockedFraction(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t blockedMask)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+    int total = nx * nz;
+    int blocked = 0;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            uint8_t flags = GetZoneFlagsAt(s, p);
+            if (flags & blockedMask) blocked++;
+        }
+    }
+    return total > 0 ? (float)blocked / (float)total : 1.0f;
+}
+
+static float ZoneRectCoverageSkippingForbidden(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+    int total = 0;
+    int hit = 0;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            uint8_t flags = GetZoneFlagsAt(s, p);
+            if (flags & forbiddenMask) continue;
+            total++;
+            if ((flags & requiredMask) == requiredMask) hit++;
+        }
+    }
+    return total > 0 ? (float)hit / (float)total : 0.0f;
+}
+
 [[maybe_unused]] static float ZoneRectTypeCoverage(
     const AppState& s,
     const glm::vec3& center,
@@ -613,6 +688,41 @@ static float ZoneRectCoverage(
             glm::vec3 p = center + right * u + forward * v;
             uint8_t flags = GetZoneFlagsAt(s, p);
             if (flags & forbiddenMask) return 0.0f;
+            if ((flags & requiredMask) != requiredMask) continue;
+            if (ZoneTypeFromFlags(flags) == type) hit++;
+        }
+    }
+    return total > 0 ? (float)hit / (float)total : 0.0f;
+}
+
+static float ZoneRectTypeCoverageSkippingForbidden(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    ZoneType type,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+    int total = 0;
+    int hit = 0;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + right * u + forward * v;
+            uint8_t flags = GetZoneFlagsAt(s, p);
+            if (flags & forbiddenMask) continue;
+            total++;
             if ((flags & requiredMask) != requiredMask) continue;
             if (ZoneTypeFromFlags(flags) == type) hit++;
         }
@@ -957,6 +1067,9 @@ static void RebuildZoneGrid(AppState& s) {
         StampRoadSurfaceBlocked(s, r);
     }
     StampWaterMask(s);
+    for (const auto& z : s.zones) {
+        StampZoneStrip(s, z, true);
+    }
 }
 
 // --- Undo/Redo command system ---
@@ -1652,6 +1765,171 @@ static glm::vec2 GetAssetFootprint(const AssetCatalog& assets, AssetId assetId, 
     return fallback;
 }
 
+static glm::vec2 GetAssetZonedFootprint(
+    const AssetCatalog& assets,
+    AssetId assetId,
+    const glm::vec2& fallback,
+    const glm::vec2& maxFootprint)
+{
+    const AssetDef* def = assets.find(assetId);
+    if (!def) return fallback;
+    if (def->meshRelPath.empty()) return fallback;
+    if (def->zonedFootprintM.x <= 0.0f || def->zonedFootprintM.y <= 0.0f) return fallback;
+    glm::vec2 zoned = def->zonedFootprintM;
+    zoned.x = std::min(zoned.x, maxFootprint.x);
+    zoned.y = std::min(zoned.y, maxFootprint.y);
+    if (zoned.x <= 0.0f || zoned.y <= 0.0f) return fallback;
+    return zoned;
+}
+
+static bool AssetHasTag(const AssetCatalog& assets, AssetId assetId, const char* tag) {
+    if (!tag || tag[0] == '\0') return false;
+    const AssetDef* def = assets.find(assetId);
+    if (!def) return false;
+    for (const auto& t : def->tags) {
+        if (t == tag) return true;
+    }
+    return false;
+}
+
+static float FootprintCoverage(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    return ZoneRectCoverage(s, center, forward, right, depth, width, requiredMask, forbiddenMask);
+}
+
+static float FootprintCoverageSkippingForbidden(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    return ZoneRectCoverageSkippingForbidden(
+        s, center, forward, right, depth, width, requiredMask, forbiddenMask);
+}
+
+static float FootprintBlockedFraction(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    uint8_t blockedMask)
+{
+    return ZoneRectBlockedFraction(s, center, forward, right, depth, width, blockedMask);
+}
+
+static float FootprintTypeCoverage(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    ZoneType type,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    return ZoneRectTypeCoverage(s, center, forward, right, depth, width, type, requiredMask, forbiddenMask);
+}
+
+static float FootprintTypeCoverageSkippingForbidden(
+    const AppState& s,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth,
+    ZoneType type,
+    uint8_t requiredMask,
+    uint8_t forbiddenMask)
+{
+    return ZoneRectTypeCoverageSkippingForbidden(
+        s, center, forward, right, depth, width, type, requiredMask, forbiddenMask);
+}
+
+static ZoneChunk& EnsureReserveChunk(std::unordered_map<uint64_t, ZoneChunk>& chunks, uint64_t key) {
+    auto it = chunks.find(key);
+    if (it == chunks.end()) {
+        ZoneChunk z;
+        z.clear();
+        it = chunks.emplace(key, std::move(z)).first;
+    }
+    return it->second;
+}
+
+static bool FootprintIntersectsReserved(
+    const std::unordered_map<uint64_t, ZoneChunk>& reserved,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + forward * u + right * v;
+            int cx, cz, xi, zi;
+            if (!WorldToZoneCell(p, cx, cz, xi, zi)) continue;
+            uint64_t key = PackChunk(cx, cz);
+            auto it = reserved.find(key);
+            if (it == reserved.end()) continue;
+            if (it->second.get(xi, zi) != 0) return true;
+        }
+    }
+    return false;
+}
+
+static void ReserveFootprint(
+    std::unordered_map<uint64_t, ZoneChunk>& reserved,
+    const glm::vec3& center,
+    const glm::vec3& forward,
+    const glm::vec3& right,
+    float width,
+    float depth)
+{
+    int nx = std::max(1, (int)std::ceil(width / ZONE_CELL_M));
+    int nz = std::max(1, (int)std::ceil(depth / ZONE_CELL_M));
+    float stepX = width / (float)nx;
+    float stepZ = depth / (float)nz;
+    float halfW = width * 0.5f;
+    float halfD = depth * 0.5f;
+
+    for (int iz = 0; iz < nz; iz++) {
+        float v = -halfD + (iz + 0.5f) * stepZ;
+        for (int ix = 0; ix < nx; ix++) {
+            float u = -halfW + (ix + 0.5f) * stepX;
+            glm::vec3 p = center + forward * u + right * v;
+            int cx, cz, xi, zi;
+            if (!WorldToZoneCell(p, cx, cz, xi, zi)) continue;
+            uint64_t key = PackChunk(cx, cz);
+            ZoneChunk& chunk = EnsureReserveChunk(reserved, key);
+            chunk.set(xi, zi, 1);
+        }
+    }
+}
+
 [[maybe_unused]] static bool LotRectMeetsRoadBand(
     const glm::vec3& center,
     const glm::vec3& forward,
@@ -1734,6 +2012,8 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
     s.houseStaticByChunk.clear();
     s.buildingChunks.clear();
     s.dirtyBuildingChunks.clear();
+    s.largeLotDebug = {};
+    s.largeLotLastFail.clear();
 
     const float roadHalf = ROAD_HALF_M;
     const float desiredClear = 0.0f; // matches buildable band start
@@ -1797,6 +2077,8 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         return true;
     };
 
+    std::unordered_map<uint64_t, ZoneChunk> reserved;
+
     auto minCenterlineClearSq = [&](const glm::vec3& pos) -> float {
         float best = std::numeric_limits<float>::max();
         for (const auto& other : s.roads) {
@@ -1847,17 +2129,142 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
             assetId = picked.id;
             baseSize = picked.baseSize;
         }
+        if (lotType == ZoneType::Office) {
+            const glm::vec3 defaultBase = baseSize;
+            struct Variant {
+                AssetId id;
+                glm::vec3 baseSize;
+            };
+            Variant variants[2];
+
+            variants[0] = {officeAsset, defaultBase};
+
+            AssetId altId = assets.findIdByString("buildings.office_02");
+            AssetId altOrDefault = (altId != 0 && assets.find(altId) != nullptr) ? altId : officeAsset;
+            variants[1] = {altOrDefault, glm::vec3(92.0f, 130.0f, 47.0f)};
+
+            const Variant& picked = variants[lotSeed % 2];
+            assetId = picked.id;
+            baseSize = picked.baseSize;
+        }
         glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseSize);
         glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseSize.x, baseSize.z));
+        glm::vec2 zonedFootprint = GetAssetZonedFootprint(assets, assetId, footprint, footprint);
         float alignedAlong = std::ceil(footprint.x / ZONE_CELL_M) * ZONE_CELL_M;
         float alignedDepth = std::ceil(footprint.y / ZONE_CELL_M) * ZONE_CELL_M;
+        float alignedZonedAlong = std::ceil(zonedFootprint.x / ZONE_CELL_M) * ZONE_CELL_M;
+        float alignedZonedDepth = std::ceil(zonedFootprint.y / ZONE_CELL_M) * ZONE_CELL_M;
         alignedAlong = std::max(alignedAlong, ZONE_CELL_M);
         alignedDepth = std::max(alignedDepth, ZONE_CELL_M);
-        if (alignedDepth > lotDepth) continue;
-
-        float radius = 0.5f * std::sqrt(alignedAlong * alignedAlong + alignedDepth * alignedDepth);
-
+        alignedZonedAlong = std::max(alignedZonedAlong, ZONE_CELL_M);
+        alignedZonedDepth = std::max(alignedZonedDepth, ZONE_CELL_M);
+        bool wantsLargeLot = (alignedDepth > lotDepth) || AssetHasTag(assets, assetId, "large_lot");
+        bool usedLargeLot = false;
+        float placeAlong = alignedAlong;
+        float placeDepth = alignedDepth;
         glm::vec3 pos = c.center;
+        glm::vec3 away = c.right * (float)c.side;
+
+        if (wantsLargeLot) {
+            s.largeLotDebug.attempts++;
+            float lotLen = c.d1 - c.d0;
+            if (lotLen <= 0.0f) lotLen = ZONE_CELL_M * 2.0f;
+            int mergeCount = std::max(1, (int)std::ceil(alignedAlong / lotLen));
+            float mergedAlong = mergeCount * lotLen;
+            float zonedAlong = std::min(alignedAlong, alignedZonedAlong);
+            float zonedDepth = std::min(alignedDepth, alignedZonedDepth);
+            float extraDepth = std::max(0.0f, alignedDepth - lotDepth);
+            glm::vec3 mergedCenter = c.center + c.forward * ((mergedAlong - lotLen) * 0.5f);
+            glm::vec3 largePos = mergedCenter + away * (extraDepth * 0.5f);
+            int depthCells = std::max(1, (int)std::ceil(alignedDepth / ZONE_CELL_M));
+            const float maxBlockedFraction = 1.0f / (float)depthCells;
+            if (zonedAlong > mergedAlong) zonedAlong = mergedAlong;
+            float frontDepth = std::min(zonedDepth, lotDepth);
+            if (s.largeLotDebug.sampleBuildablePct < 0) {
+                float buildableCoverage = FootprintCoverageSkippingForbidden(
+                    s,
+                    mergedCenter,
+                    c.forward,
+                    away,
+                    zonedAlong,
+                    frontDepth,
+                    ZONE_FLAG_BUILDABLE,
+                    ZONE_FLAG_BLOCKED);
+                float zonedCoverage = FootprintTypeCoverageSkippingForbidden(
+                    s,
+                    mergedCenter,
+                    c.forward,
+                    away,
+                    zonedAlong,
+                    frontDepth,
+                    lotType,
+                    (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED),
+                    ZONE_FLAG_BLOCKED);
+                s.largeLotDebug.sampleBuildablePct = (int)std::lround(buildableCoverage * 100.0f);
+                s.largeLotDebug.sampleZonedPct = (int)std::lround(zonedCoverage * 100.0f);
+            }
+            float zoneCoverage = FootprintTypeCoverageSkippingForbidden(
+                s,
+                mergedCenter,
+                c.forward,
+                away,
+                zonedAlong,
+                frontDepth,
+                lotType,
+                (uint8_t)(ZONE_FLAG_BUILDABLE | ZONE_FLAG_ZONED),
+                ZONE_FLAG_BLOCKED);
+            if (zoneCoverage < 0.85f) {
+                s.largeLotDebug.failZoneCoverage++;
+                if (s.largeLotLastFail.empty()) {
+                    char buf[256];
+                    std::snprintf(
+                        buf,
+                        sizeof(buf),
+                        "zoneCoverage=%.2f along=%.1f depth=%.1f zonedAlong=%.1f front=%.1f",
+                        zoneCoverage,
+                        mergedAlong,
+                        alignedDepth,
+                        zonedAlong,
+                        frontDepth);
+                    s.largeLotLastFail = buf;
+                }
+                continue;
+            }
+            float blockedFraction = FootprintBlockedFraction(
+                s,
+                largePos,
+                c.forward,
+                away,
+                mergedAlong,
+                alignedDepth,
+                ZONE_FLAG_BLOCKED);
+            if (blockedFraction > maxBlockedFraction) {
+                s.largeLotDebug.failBlocked++;
+                if (s.largeLotLastFail.empty()) {
+                    char buf[256];
+                    std::snprintf(buf, sizeof(buf), "blocked footprint (%.1f%%)", blockedFraction * 100.0f);
+                    s.largeLotLastFail = buf;
+                }
+                continue;
+            }
+            if (FootprintIntersectsReserved(reserved, largePos, c.forward, away, mergedAlong, alignedDepth)) {
+                s.largeLotDebug.failReserved++;
+                if (s.largeLotLastFail.empty()) {
+                    s.largeLotLastFail = "reserved footprint";
+                }
+                continue;
+            }
+            pos = largePos;
+            placeAlong = mergedAlong;
+            placeDepth = alignedDepth;
+            usedLargeLot = true;
+        } else {
+            if (alignedDepth > lotDepth) continue;
+            if (FootprintIntersectsReserved(reserved, pos, c.forward, away, alignedAlong, alignedDepth)) continue;
+        }
+
+        float radius = 0.5f * std::sqrt(placeAlong * placeAlong + placeDepth * placeDepth);
+
         pos.y = houseSize.y * 0.5f;
 
         float distSq = minCenterlineClearSq(pos);
@@ -1902,6 +2309,10 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
         inst.seed = seed;
         s.buildingChunks[ckey].instancesByAsset[assetId].push_back(inst);
         s.dirtyBuildingChunks.insert(ckey);
+        if (usedLargeLot) {
+            ReserveFootprint(reserved, pos, c.forward, away, placeAlong, placeDepth);
+            s.largeLotDebug.placed++;
+        }
         markOccupied(pos);
         addPlaced(pos, radius);
     }
@@ -2261,6 +2672,23 @@ int main(int, char**) {
         roadTool.tempPts.clear();
     };
 
+    auto cancelRoadDraw = [&]() {
+        if (!roadTool.drawing) return;
+        roadTool.drawing = false;
+        roadTool.extending = false;
+        roadTool.extendAtStart = false;
+        roadTool.extendRoadId = -1;
+        roadTool.tempPts.clear();
+    };
+
+    auto updateRoadPreviewEnd = [&](const glm::vec3& hit) {
+        if (roadTool.tempPts.empty()) return;
+        glm::vec3 anchor = roadTool.tempPts.front();
+        glm::vec3 p = applySnaps(hit, &anchor);
+        if (roadTool.tempPts.size() == 1) roadTool.tempPts.push_back(p);
+        else roadTool.tempPts[1] = p;
+    };
+
     auto updateZoneHover = [&](const glm::vec3& hit) {
         zoneTool.hoverValid = false;
         zoneTool.hoverRoadId = -1;
@@ -2375,8 +2803,13 @@ int main(int, char**) {
             }
 
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT && !io.WantCaptureMouse) {
-                rmbDown = true;
-                SDL_SetRelativeMouseMode(SDL_TRUE);
+                if (mode == Mode::Road && roadTool.drawing) {
+                    cancelRoadDraw();
+                    statusText = "Road canceled.";
+                } else {
+                    rmbDown = true;
+                    SDL_SetRelativeMouseMode(SDL_TRUE);
+                }
             }
             if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_RIGHT) {
                 rmbDown = false;
@@ -2457,6 +2890,11 @@ int main(int, char**) {
                 if (!hasHit) break;
 
                 if (mode == Mode::Road) {
+                    if (roadTool.drawing) {
+                        updateRoadPreviewEnd(mouseHit);
+                        finishRoadDraw();
+                    }
+
                     // If clicking near a road point: start moving interior points, but endpoints extend the road.
                     int rid, pi;
                     if (PickRoadPoint(state.roads, mouseHit, roadPointPickRadius, rid, pi)) {
@@ -2478,12 +2916,13 @@ int main(int, char**) {
                             roadTool.extending = true;
                             roadTool.extendRoadId = rid;
                             roadTool.extendAtStart = (pi == 0);
-                            statusText = "Extending road.";
+                            statusText = "Extending road (LMB place, RMB cancel).";
                         }
                     } else {
                         roadTool.selectedRoadId = -1;
                         roadTool.selectedPointIndex = -1;
                         startRoadDraw(mouseHit);
+                        statusText = "Road preview (LMB place, RMB cancel).";
                     }
                 } else if (mode == Mode::Zone) {
                     // Zone mode: must start near a road
@@ -2524,7 +2963,6 @@ int main(int, char**) {
                         }
                         roadTool.movingPoint = false;
                     }
-                    finishRoadDraw();
                 } else {
                     if (zoneTool.dragging) {
         // Commit zone strip
@@ -2573,14 +3011,9 @@ int main(int, char**) {
 
         // Continuous actions
         if (!io.WantCaptureMouse) {
-            // Road drawing: update preview end while holding LMB
+            // Road drawing: update preview end while moving the mouse
             if (mode == Mode::Road && roadTool.drawing && hasHit) {
-                if (!roadTool.tempPts.empty()) {
-                    glm::vec3 anchor = roadTool.tempPts.front();
-                    glm::vec3 p = applySnaps(mouseHit, &anchor);
-                    if (roadTool.tempPts.size() == 1) roadTool.tempPts.push_back(p);
-                    else roadTool.tempPts[1] = p;
-                }
+                updateRoadPreviewEnd(mouseHit);
             }
 
             // Road point moving: drag selected point
@@ -2647,6 +3080,11 @@ int main(int, char**) {
             float t = (nowSec - h.spawnTime) / 0.35f;
             float s = Clamp(t, 0.0f, 1.0f);
             s = 1.0f - (1.0f - s) * (1.0f - s);
+            float facadeIndex = -1.0f;
+            const AssetDef* animDef = assets.find(h.asset);
+            if (animDef && animDef->category == "office") {
+                facadeIndex = (float)(h.seed % 4);
+            }
 
             glm::mat4 M(1.0f);
             M = glm::translate(M, h.pos);
@@ -2665,7 +3103,7 @@ int main(int, char**) {
             bool visible = (visibleChunkSet.find(PackChunk(cc.cx, cc.cz)) != visibleChunkSet.end());
             if (visible) {
                 float yaw = std::atan2(h.forward.x, h.forward.z);
-                animInstances.push_back({glm::vec4(h.pos - renderOrigin, yaw), glm::vec4(houseSizeAnim * s, 0.0f)});
+                animInstances.push_back({glm::vec4(h.pos - renderOrigin, yaw), glm::vec4(houseSizeAnim * s, facadeIndex)});
             }
 
             if (t >= 1.0f) {
@@ -2700,6 +3138,9 @@ int main(int, char**) {
             for (const auto& assetPair : chunk.instancesByAsset) {
                 AssetId assetId = assetPair.first;
                 const auto& src = assetPair.second;
+                const AssetDef* def = assets.find(assetId);
+                const bool isOffice = (def && def->category == "office");
+                const uint32_t facadeCount = 4;
                 std::vector<HouseInstanceGPU> shifted;
                 shifted.reserve(src.size());
                 for (const auto& inst : src) {
@@ -2707,7 +3148,9 @@ int main(int, char**) {
                     sInst.posYaw = glm::vec4(inst.localPos, inst.yaw);
                     sInst.posYaw.x -= origin.x;
                     sInst.posYaw.z -= origin.z;
-                    sInst.scaleVar = glm::vec4(inst.scale, 0.0f);
+                    float facadeIndex = -1.0f;
+                    if (isOffice) facadeIndex = (float)(inst.seed % facadeCount);
+                    sInst.scaleVar = glm::vec4(inst.scale, facadeIndex);
                     shifted.push_back(sInst);
                 }
                 const MeshGpu& mesh = meshCache.getOrLoad(assetId, assets);
@@ -2868,6 +3311,17 @@ int main(int, char**) {
         ImGui::Text("Sides (V cycles): %s", (zoneTool.sideMask == 3) ? "Both" : (zoneTool.sideMask == 1) ? "Left" : "Right");
         ImGui::Separator();
 
+        ImGui::Text("Large-lot debug");
+        ImGui::Text("Attempts: %d", state.largeLotDebug.attempts);
+        ImGui::Text("Placed: %d", state.largeLotDebug.placed);
+        ImGui::Text("Fail zone coverage: %d", state.largeLotDebug.failZoneCoverage);
+        ImGui::Text("Fail blocked: %d", state.largeLotDebug.failBlocked);
+        ImGui::Text("Fail reserved: %d", state.largeLotDebug.failReserved);
+        ImGui::Text("Sample buildable: %s", (state.largeLotDebug.sampleBuildablePct < 0) ? "-" : (std::to_string(state.largeLotDebug.sampleBuildablePct) + "%").c_str());
+        ImGui::Text("Sample zoned: %s", (state.largeLotDebug.sampleZonedPct < 0) ? "-" : (std::to_string(state.largeLotDebug.sampleZonedPct) + "%").c_str());
+        ImGui::Text("Last fail: %s", state.largeLotLastFail.empty() ? "-" : state.largeLotLastFail.c_str());
+        ImGui::Separator();
+
         ImGui::Text("Undo/Redo");
         ImGui::Text("Ctrl+Z undo | Ctrl+Y redo | Ctrl+Shift+Z redo");
         ImGui::Separator();
@@ -2963,8 +3417,8 @@ int main(int, char**) {
         ImGui::Text("Road editing");
         ImGui::BulletText("Click a road point to select and drag to move");
         ImGui::BulletText("Delete/Backspace deletes selected point (roads keep >= 2 points)");
-        ImGui::BulletText("Road drawing: click empty space and hold LMB");
-        ImGui::BulletText("To extend: start near an existing road end and draw outward");
+        ImGui::BulletText("Road drawing: click to start, move mouse to preview, click again to place (RMB cancels)");
+        ImGui::BulletText("To extend: click an existing road end, move mouse, click again to place");
         ImGui::BulletText("Zone types: 2 residential, 3 commercial, 4 industrial, 5 office");
         ImGui::BulletText("Unzone (6): click near a road to remove its zones");
         ImGui::BulletText("Zoning won't stack on already-zoned road spans");

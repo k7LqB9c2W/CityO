@@ -49,7 +49,7 @@ struct RenderFrame {
 
 struct HouseInstanceGPU {
     glm::vec4 posYaw;    // xyz position, w = yaw (radians)
-    glm::vec4 scaleVar;  // xyz scale, w = variant/unused
+    glm::vec4 scaleVar;  // xyz scale, w = office facade index (negative = none)
 };
 
 struct MeshGpu;
@@ -97,6 +97,12 @@ private:
     int locShadowMap_I = -1;
     int locShadowTexel_I = -1;
     int locShadowStrength_I = -1;
+    int locFacadeTex0_I = -1;
+    int locFacadeTex1_I = -1;
+    int locFacadeTex2_I = -1;
+    int locFacadeTex3_I = -1;
+    int locFacadeTile_I = -1;
+    int locFacadeTint_I = -1;
     int locVP_G = -1;
     int locM_G = -1;
     int locGrassTile_G = -1;
@@ -129,6 +135,7 @@ private:
     int locSkyTex_S = -1;
     int locSkyBright_S = -1;
     int locExposure_S = -1;
+    int locSkyExposure_S = -1;
     int locLightVP_D = -1;
     int locM_D = -1;
     int locLightVP_DI = -1;
@@ -140,6 +147,10 @@ private:
     unsigned int texNoise = 0;
     unsigned int texWater = 0;
     unsigned int texRoad = 0;
+    unsigned int texOfficeFacade0 = 0;
+    unsigned int texOfficeFacade1 = 0;
+    unsigned int texOfficeFacade2 = 0;
+    unsigned int texOfficeFacade3 = 0;
     unsigned int vaoSkybox = 0;
     unsigned int texSkybox = 0;
     unsigned int vaoWater = 0;

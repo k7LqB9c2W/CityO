@@ -27,11 +27,11 @@ void SetupInstanceAttribs(GLuint vao, GLuint instanceVbo);
 void UploadDynamicVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::vec3>& verts);
 void UploadDynamicRoadVerts(GLuint vbo, std::size_t& capacityBytes, const std::vector<RoadVertex>& verts);
 void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector<glm::mat4>& mats);
-GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h);
-GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool* outOk);
-GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-GLuint LoadCubemap(const char* faces[6], bool* outOk);
+GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h, bool srgb);
+GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool srgb);
+GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool srgb, bool* outOk);
+GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool srgb);
+GLuint LoadCubemap(const char* faces[6], bool srgb, bool* outOk);
 bool CreateShadowMap(int size, GLuint& outFbo, GLuint& outTex);
 
 bool GLCheckShader(GLuint shader, const char* label) {
@@ -165,7 +165,7 @@ void UploadDynamicMats(GLuint vbo, std::size_t& capacityBytes, const std::vector
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h) {
+GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h, bool srgb) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -173,7 +173,8 @@ GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    GLenum internalFormat = srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     glGenerateMipmap(GL_TEXTURE_2D);
 #ifdef GL_TEXTURE_MAX_ANISOTROPY_EXT
     float maxAniso = 0.0f;
@@ -187,31 +188,32 @@ GLuint CreateTextureFromRGBA(const uint8_t* pixels, int w, int h) {
     return tex;
 }
 
-GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+GLuint CreateSolidTexture(uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool srgb) {
     uint8_t pixel[4] = { r, g, b, a };
-    return CreateTextureFromRGBA(pixel, 1, 1);
+    return CreateTextureFromRGBA(pixel, 1, 1, srgb);
 }
 
-GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool* outOk) {
+GLuint LoadTexture2D(const char* path, uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool srgb, bool* outOk) {
     std::vector<uint8_t> pixels;
     int w = 0;
     int h = 0;
     if (LoadImageRGBA(path, pixels, w, h)) {
         if (outOk) *outOk = true;
-        return CreateTextureFromRGBA(pixels.data(), w, h);
+        return CreateTextureFromRGBA(pixels.data(), w, h, srgb);
     }
     if (outOk) *outOk = false;
     SDL_Log("Texture load failed: %s", path);
-    return CreateSolidTexture(r, g, b, a);
+    return CreateSolidTexture(r, g, b, a, srgb);
 }
 
-GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a, bool srgb) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
     uint8_t pixel[4] = { r, g, b, a };
+    GLenum internalFormat = srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
     for (int i = 0; i < 6; ++i) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -222,7 +224,7 @@ GLuint CreateSolidCubemap(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     return tex;
 }
 
-GLuint LoadCubemap(const char* faces[6], bool* outOk) {
+GLuint LoadCubemap(const char* faces[6], bool srgb, bool* outOk) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_CUBE_MAP, tex);
@@ -231,6 +233,7 @@ GLuint LoadCubemap(const char* faces[6], bool* outOk) {
     int w = 0;
     int h = 0;
     std::vector<uint8_t> pixels;
+    GLenum internalFormat = srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8;
     for (int i = 0; i < 6; ++i) {
         int wi = 0;
         int hi = 0;
@@ -245,14 +248,14 @@ GLuint LoadCubemap(const char* faces[6], bool* outOk) {
             ok = false;
             break;
         }
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     }
 
     if (!ok) {
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
         glDeleteTextures(1, &tex);
         if (outOk) *outOk = false;
-        return CreateSolidCubemap(120, 160, 210, 255);
+        return CreateSolidCubemap(120, 160, 210, 255, srgb);
     }
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -322,6 +325,10 @@ bool Renderer::init() {
         uniform mat4 uLightViewProj;
         out vec3 vNormal;
         out vec4 vLightPos;
+        out vec3 vLocalPos;
+        out vec3 vLocalNormal;
+        flat out float vFacadeIndex;
+        flat out vec3 vScale;
         void main() {
             float yaw = iPosYaw.w;
             mat3 R = mat3(
@@ -330,13 +337,18 @@ bool Renderer::init() {
                 sin(yaw), 0.0,  cos(yaw)
             );
             vec3 scale = max(iScaleVar.xyz, vec3(0.0001));
-            vec3 scaled = R * (aPos * scale);
+            vec3 localPos = aPos * scale;
+            vec3 scaled = R * localPos;
             vec3 worldPos = iPosYaw.xyz + scaled;
             worldPos.y += 0.05; // lift houses off the ground to avoid z-fighting
             gl_Position = uViewProj * vec4(worldPos, 1.0);
             vec3 invScale = 1.0 / scale;
             vNormal = normalize(R * (aNormal * invScale));
             vLightPos = uLightViewProj * vec4(worldPos, 1.0);
+            vLocalPos = localPos;
+            vLocalNormal = aNormal;
+            vFacadeIndex = iScaleVar.w;
+            vScale = scale;
         }
     )";
 
@@ -416,9 +428,9 @@ bool Renderer::init() {
         uniform samplerCube uSkybox;
         uniform float uSkyBrightness;
         uniform float uExposure;
+        uniform float uSkyExposure;
         vec3 ToneMap(vec3 color) {
-            color *= uExposure;
-            color = color / (color + vec3(1.0));
+            color *= (uExposure * uSkyExposure);
             color = pow(color, vec3(1.0 / 2.2));
             return color;
         }
@@ -543,6 +555,10 @@ bool Renderer::init() {
         #version 330 core
         in vec3 vNormal;
         in vec4 vLightPos;
+        in vec3 vLocalPos;
+        in vec3 vLocalNormal;
+        flat in float vFacadeIndex;
+        flat in vec3 vScale;
         out vec4 FragColor;
         uniform vec3 uColor;
         uniform float uAlpha;
@@ -555,6 +571,12 @@ bool Renderer::init() {
         uniform sampler2DShadow uShadowMap;
         uniform vec2 uShadowTexel;
         uniform float uShadowStrength;
+        uniform sampler2D uFacadeTex0;
+        uniform sampler2D uFacadeTex1;
+        uniform sampler2D uFacadeTex2;
+        uniform sampler2D uFacadeTex3;
+        uniform vec2 uFacadeTileM;
+        uniform vec3 uFacadeTint;
         vec3 ToneMap(vec3 color) {
             color *= uExposure;
             color = color / (color + vec3(1.0));
@@ -586,7 +608,31 @@ bool Renderer::init() {
             float shadow = ShadowVisibility(vLightPos, normal);
             vec3 ambient = uAmbientColor * uAmbientIntensity;
             vec3 direct = uSunColor * uSunIntensity * ndotl * shadow;
-            vec3 color = uColor * (ambient + direct);
+            vec3 baseColor = uColor;
+            if (vFacadeIndex >= 0.0) {
+                vec3 ln = normalize(vLocalNormal);
+                if (abs(ln.y) < 0.9) {
+                    float v = (vLocalPos.y + vScale.y * 0.5) / uFacadeTileM.y;
+                    float u = 0.0;
+                    if (abs(ln.x) > abs(ln.z)) {
+                        float halfWidth = vScale.z * 0.5;
+                        float horiz = vLocalPos.z;
+                        u = (ln.x > 0.0) ? (horiz + halfWidth) : (halfWidth - horiz);
+                    } else {
+                        float halfWidth = vScale.x * 0.5;
+                        float horiz = vLocalPos.x;
+                        u = (ln.z > 0.0) ? (horiz + halfWidth) : (halfWidth - horiz);
+                    }
+                    vec2 uv = vec2(u / uFacadeTileM.x, v);
+                    int idx = int(clamp(vFacadeIndex, 0.0, 3.0) + 0.5);
+                    vec3 facade = texture(uFacadeTex0, uv).rgb;
+                    if (idx == 1) facade = texture(uFacadeTex1, uv).rgb;
+                    else if (idx == 2) facade = texture(uFacadeTex2, uv).rgb;
+                    else if (idx == 3) facade = texture(uFacadeTex3, uv).rgb;
+                    baseColor = facade * uFacadeTint;
+                }
+            }
+            vec3 color = baseColor * (ambient + direct);
             FragColor = vec4(ToneMap(color), uAlpha);
         }
     )";
@@ -656,6 +702,12 @@ bool Renderer::init() {
     locShadowMap_I = glGetUniformLocation(progInst, "uShadowMap");
     locShadowTexel_I = glGetUniformLocation(progInst, "uShadowTexel");
     locShadowStrength_I = glGetUniformLocation(progInst, "uShadowStrength");
+    locFacadeTex0_I = glGetUniformLocation(progInst, "uFacadeTex0");
+    locFacadeTex1_I = glGetUniformLocation(progInst, "uFacadeTex1");
+    locFacadeTex2_I = glGetUniformLocation(progInst, "uFacadeTex2");
+    locFacadeTex3_I = glGetUniformLocation(progInst, "uFacadeTex3");
+    locFacadeTile_I = glGetUniformLocation(progInst, "uFacadeTileM");
+    locFacadeTint_I = glGetUniformLocation(progInst, "uFacadeTint");
     locVP_G = glGetUniformLocation(progGround, "uViewProj");
     locM_G = glGetUniformLocation(progGround, "uModel");
     locGrassTile_G = glGetUniformLocation(progGround, "uGrassTileM");
@@ -688,6 +740,7 @@ bool Renderer::init() {
     locSkyTex_S = glGetUniformLocation(progSky, "uSkybox");
     locSkyBright_S = glGetUniformLocation(progSky, "uSkyBrightness");
     locExposure_S = glGetUniformLocation(progSky, "uExposure");
+    locSkyExposure_S = glGetUniformLocation(progSky, "uSkyExposure");
     locLightVP_D = glGetUniformLocation(progDepth, "uLightViewProj");
     locM_D = glGetUniformLocation(progDepth, "uModel");
     locLightVP_DI = glGetUniformLocation(progDepthInst, "uLightViewProj");
@@ -695,6 +748,8 @@ bool Renderer::init() {
         locVP_I < 0 || locC_I < 0 || locA_I < 0 || locSunDir_I < 0 || locSunColor_I < 0 ||
         locSunInt_I < 0 || locAmbColor_I < 0 || locAmbInt_I < 0 || locExposure_I < 0 ||
         locLightVP_I < 0 || locShadowMap_I < 0 || locShadowTexel_I < 0 || locShadowStrength_I < 0 ||
+        locFacadeTex0_I < 0 || locFacadeTex1_I < 0 || locFacadeTex2_I < 0 || locFacadeTex3_I < 0 ||
+        locFacadeTile_I < 0 || locFacadeTint_I < 0 ||
         locVP_G < 0 || locM_G < 0 || locGrassTile_G < 0 || locNoiseTile_G < 0 ||
         locGrassTex_G < 0 || locNoiseTex_G < 0 || locSunDir_G < 0 || locSunColor_G < 0 ||
         locSunInt_G < 0 || locAmbColor_G < 0 || locAmbInt_G < 0 || locExposure_G < 0 ||
@@ -703,6 +758,7 @@ bool Renderer::init() {
         locSunColor_R < 0 || locSunInt_R < 0 || locAmbColor_R < 0 || locAmbInt_R < 0 ||
         locExposure_R < 0 || locShadowMap_R < 0 || locShadowTexel_R < 0 || locShadowStrength_R < 0 ||
         locVP_S < 0 || locSkyTex_S < 0 || locSkyBright_S < 0 || locExposure_S < 0 ||
+        locSkyExposure_S < 0 ||
         locLightVP_D < 0 || locM_D < 0 || locLightVP_DI < 0) {
         SDL_Log("Renderer init failed: missing uniforms.");
         return false;
@@ -714,20 +770,40 @@ bool Renderer::init() {
 
     bool grassOk = false;
     bool noiseOk = false;
-    texGrass = LoadTexture2D("assets/textures/grass.png", 80, 110, 70, 255, &grassOk);
-    texNoise = LoadTexture2D("assets/textures/grayscale.png", 128, 128, 128, 255, &noiseOk);
+    texGrass = LoadTexture2D("assets/textures/grass.png", 80, 110, 70, 255, true, &grassOk);
+    texNoise = LoadTexture2D("assets/textures/grayscale.png", 128, 128, 128, 255, false, &noiseOk);
     if (!grassOk || !noiseOk) {
         SDL_Log("Renderer: using fallback ground texture(s).");
     }
     bool waterOk = false;
-    texWater = LoadTexture2D("assets/textures/water.png", 40, 80, 120, 255, &waterOk);
+    texWater = LoadTexture2D("assets/textures/water.png", 40, 80, 120, 255, true, &waterOk);
     if (!waterOk) {
         SDL_Log("Renderer: using fallback water texture.");
     }
     bool roadOk = false;
-    texRoad = LoadTexture2D("assets/textures/residentialroad.png", 70, 70, 70, 255, &roadOk);
+    texRoad = LoadTexture2D("assets/textures/residentialroad.png", 70, 70, 70, 255, true, &roadOk);
     if (!roadOk) {
         SDL_Log("Renderer: using fallback road texture.");
+    }
+    bool office0Ok = false;
+    texOfficeFacade0 = LoadTexture2D("assets/textures/office_facade_artdeco.png", 180, 180, 180, 255, true, &office0Ok);
+    if (!office0Ok) {
+        SDL_Log("Renderer: using fallback office facade texture 0.");
+    }
+    bool office1Ok = false;
+    texOfficeFacade1 = LoadTexture2D("assets/textures/office_facade_modern1.png", 180, 180, 180, 255, true, &office1Ok);
+    if (!office1Ok) {
+        SDL_Log("Renderer: using fallback office facade texture 1.");
+    }
+    bool office2Ok = false;
+    texOfficeFacade2 = LoadTexture2D("assets/textures/office_facade_modern2.png", 180, 180, 180, 255, true, &office2Ok);
+    if (!office2Ok) {
+        SDL_Log("Renderer: using fallback office facade texture 2.");
+    }
+    bool office3Ok = false;
+    texOfficeFacade3 = LoadTexture2D("assets/textures/office_facade_modern3.png", 180, 180, 180, 255, true, &office3Ok);
+    if (!office3Ok) {
+        SDL_Log("Renderer: using fallback office facade texture 3.");
     }
 
     const char* skyFaces[6] = {
@@ -739,7 +815,7 @@ bool Renderer::init() {
         "assets/textures/Daylight Box_Back.png"
     };
     bool skyOk = false;
-    texSkybox = LoadCubemap(skyFaces, &skyOk);
+    texSkybox = LoadCubemap(skyFaces, true, &skyOk);
     if (!skyOk) {
         SDL_Log("Renderer: using fallback skybox texture.");
     }
@@ -995,6 +1071,7 @@ void Renderer::render(const RenderFrame& frame) {
     glUniformMatrix4fv(locVP_S, 1, GL_FALSE, &frame.viewProjSky[0][0]);
     glUniform1f(locSkyBright_S, frame.lighting.skyBrightness);
     glUniform1f(locExposure_S, frame.lighting.exposure);
+    glUniform1f(locSkyExposure_S, frame.lighting.skyExposure);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texSkybox);
     glUniform1i(locSkyTex_S, 0);
@@ -1169,6 +1246,20 @@ void Renderer::render(const RenderFrame& frame) {
     glBindTexture(GL_TEXTURE_2D, shadowTex);
     glUniform1i(locShadowMap_I, 2);
     glUniform2f(locShadowTexel_I, 1.0f / (float)shadowMapSize, 1.0f / (float)shadowMapSize);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, texOfficeFacade0);
+    glUniform1i(locFacadeTex0_I, 3);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, texOfficeFacade1);
+    glUniform1i(locFacadeTex1_I, 4);
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, texOfficeFacade2);
+    glUniform1i(locFacadeTex2_I, 5);
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, texOfficeFacade3);
+    glUniform1i(locFacadeTex3_I, 6);
+    glUniform2f(locFacadeTile_I, 8.0f, 4.0f);
+    glUniform3f(locFacadeTint_I, 1.0f, 1.0f, 1.0f);
     glUniform3f(locC_I, 0.75f, 0.72f, 0.62f);
     glUniform1f(locA_I, 1.0f);
 
@@ -1210,6 +1301,10 @@ void Renderer::destroyGL() {
     if (texNoise) { glDeleteTextures(1, &texNoise); texNoise = 0; }
     if (texWater) { glDeleteTextures(1, &texWater); texWater = 0; }
     if (texRoad) { glDeleteTextures(1, &texRoad); texRoad = 0; }
+    if (texOfficeFacade0) { glDeleteTextures(1, &texOfficeFacade0); texOfficeFacade0 = 0; }
+    if (texOfficeFacade1) { glDeleteTextures(1, &texOfficeFacade1); texOfficeFacade1 = 0; }
+    if (texOfficeFacade2) { glDeleteTextures(1, &texOfficeFacade2); texOfficeFacade2 = 0; }
+    if (texOfficeFacade3) { glDeleteTextures(1, &texOfficeFacade3); texOfficeFacade3 = 0; }
     if (texSkybox) { glDeleteTextures(1, &texSkybox); texSkybox = 0; }
     if (shadowTex) { glDeleteTextures(1, &shadowTex); shadowTex = 0; }
     if (shadowFbo) { glDeleteFramebuffers(1, &shadowFbo); shadowFbo = 0; }
