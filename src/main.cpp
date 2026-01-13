@@ -43,6 +43,11 @@ static uint32_t Hash32(uint32_t x) {
     return x;
 }
 
+static uint32_t FacadeIndexFromSeed(uint32_t seed, uint32_t count) {
+    if (count == 0) return 0;
+    return Hash32(seed ^ 0x9e3779b9U) % count;
+}
+
 static float LenXZ(const glm::vec3& a, const glm::vec3& b) {
     glm::vec2 d(b.x - a.x, b.z - a.z);
     return std::sqrt(d.x*d.x + d.y*d.y);
@@ -3090,7 +3095,7 @@ int main(int, char**) {
             float facadeIndex = -1.0f;
             const AssetDef* animDef = assets.find(h.asset);
             if (animDef && animDef->category == "office") {
-                facadeIndex = (float)(h.seed % 4);
+                facadeIndex = (float)FacadeIndexFromSeed(h.seed, 4);
             }
 
             glm::mat4 M(1.0f);
@@ -3156,7 +3161,7 @@ int main(int, char**) {
                     sInst.posYaw.x -= origin.x;
                     sInst.posYaw.z -= origin.z;
                     float facadeIndex = -1.0f;
-                    if (isOffice) facadeIndex = (float)(inst.seed % facadeCount);
+                    if (isOffice) facadeIndex = (float)FacadeIndexFromSeed(inst.seed, facadeCount);
                     sInst.scaleVar = glm::vec4(inst.scale, facadeIndex);
                     shifted.push_back(sInst);
                 }
