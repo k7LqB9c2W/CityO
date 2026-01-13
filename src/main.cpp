@@ -2143,9 +2143,16 @@ static void RebuildHousesFromLots(AppState& s, const AssetCatalog& assets, bool 
             AssetId altOrDefault = (altId != 0 && assets.find(altId) != nullptr) ? altId : officeAsset;
             variants[1] = {altOrDefault, glm::vec3(92.0f, 130.0f, 47.0f)};
 
-            const Variant& picked = variants[lotSeed % 2];
+            const uint32_t pickIndex = lotSeed % 2;
+            const Variant& picked = variants[pickIndex];
             assetId = picked.id;
             baseSize = picked.baseSize;
+            if (pickIndex == 1) {
+                const uint32_t heightSeed = Hash32(lotSeed ^ 0x4f4b1235U);
+                const int steps = 26; // 100..150 inclusive in 2m steps
+                const int step = (int)(heightSeed % steps);
+                baseSize.y = 100.0f + 2.0f * (float)step;
+            }
         }
         glm::vec3 houseSize = ApplyAssetScale(assets, assetId, baseSize);
         glm::vec2 footprint = GetAssetFootprint(assets, assetId, glm::vec2(baseSize.x, baseSize.z));
